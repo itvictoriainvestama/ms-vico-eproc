@@ -1,0 +1,15 @@
+# Binaries
+bin/
+*.exe
+
+# Environment
+.env
+
+# Go build cache
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
