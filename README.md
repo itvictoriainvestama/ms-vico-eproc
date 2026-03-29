@@ -1,65 +1,139 @@
 # E-Procurement API
 
-Backend API for the E-Procurement system used to manage procurement workflows such as Purchase Request (PR), Request for Quotation (RFQ), Purchase Order (PO), vendor management, approval tasks, and authentication.
-
-This project is written in Go, uses Gin as the HTTP framework, GORM as the ORM, and MySQL as the database.
+Backend API untuk sistem E-Procurement. Repository ini saat ini merepresentasikan Phase 1 foundation: authentication, internal procurement workflow dasar, vendor master data, approval task dasar, admin bootstrap management, dan pondasi schema yang lebih luas untuk fase berikutnya.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Current Status](#current-status)
 - [Tech Stack](#tech-stack)
-- [Current Modules](#current-modules)
+- [Architecture Summary](#architecture-summary)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
-- [Local Environment Variables](#local-environment-variables)
-- [Setup Guide](#setup-guide)
-- [Run the Project](#run-the-project)
-- [Database Migration](#database-migration)
-- [Build and Test](#build-and-test)
-- [API Base URL](#api-base-url)
-- [Available Routes](#available-routes)
-- [Authentication](#authentication)
-- [Database Notes](#database-notes)
+- [Environment Variables](#environment-variables)
+- [Local Setup](#local-setup)
+- [Run Commands](#run-commands)
+- [Bootstrap and Seed Defaults](#bootstrap-and-seed-defaults)
+- [API Conventions](#api-conventions)
+- [Authentication and Authorization](#authentication-and-authorization)
+- [API Routes](#api-routes)
+- [Example Payloads](#example-payloads)
+- [Database and Migration Notes](#database-and-migration-notes)
 - [Troubleshooting](#troubleshooting)
 - [Development Notes](#development-notes)
+- [References](#references)
 
 ## Overview
 
-The API currently provides foundational procurement endpoints for:
+Repository ini adalah Go monolith dengan pola `cmd/` dan `internal/`.
 
-- authentication
-- purchase requisitions
-- RFQ
-- purchase orders
-- vendor management
-- approval tasks
+Secara implementasi, service ini sudah menyediakan:
 
-The business reference for this project is documented in [docs/FSD_E-Procurement_Complete_2.docx.md](/Users/itvico/Dev/e-proc-api/docs/FSD_E-Procurement_Complete_2.docx.md).
+- login dan JWT-based authentication
+- endpoint profil user saat ini
+- internal purchase request flow dasar
+- internal RFQ flow dasar
+- internal purchase order flow dasar
+- internal vendor master data
+- internal approval task list dan approve/reject action
+- admin baseline untuk entity dan user management
+- standardized API response dengan `trace_id`
+- bootstrap migration dan seed data untuk local development
+
+Repository ini juga sudah punya pondasi model untuk area yang lebih luas seperti:
+
+- budgets
+- procurement policy rules
+- approval models dan approval matrices
+- vendor evaluations dan BAFO
+- notifications
+- audit logs
+
+Namun, sebagian area tersebut masih berupa schema foundation dan belum seluruhnya punya API atau workflow lengkap.
+
+## Current Status
+
+Status implementasi saat ini mengikuti Phase 1 foundation.
+
+Area yang sudah usable:
+
+- auth login
+- auth me
+- PR create, list, detail, submit
+- RFQ create, list, detail, update status
+- PO create, list, detail, update status
+- vendor create, list, detail, update
+- approval task list, approve, reject
+- admin entity list, detail, create
+- admin user list, detail, create
+
+Area yang belum lengkap:
+
+- change password
+- reset password
+- full role assignment management
+- department management APIs
+- policy and approval master-data APIs
+- vendor portal transactional features
+- file handling flow
+- report/export flow
+- queue/worker integration
+- complete procurement lifecycle depth
+
+Referensi status detail ada di [IMPLEMENTATION_STATUS.md](/Users/itvico/Dev/e-proc-api/docs/IMPLEMENTATION_STATUS.md).
 
 ## Tech Stack
 
-- Go `1.22+` from [go.mod](/Users/itvico/Dev/e-proc-api/go.mod)
-- Gin `github.com/gin-gonic/gin`
-- GORM `gorm.io/gorm`
-- MySQL `gorm.io/driver/mysql`
-- JWT `github.com/golang-jwt/jwt/v5`
-- `.env` loading with `github.com/joho/godotenv`
+- Go `1.22+`
+- Gin untuk HTTP router dan middleware
+- GORM untuk ORM
+- MySQL sebagai database utama
+- JWT via `github.com/golang-jwt/jwt/v5`
+- environment loader via `github.com/joho/godotenv`
+- bcrypt via `golang.org/x/crypto/bcrypt`
 
-## Current Modules
+## Architecture Summary
 
-Current implemented backend areas in this repository:
+Struktur implementasi mengikuti layering sederhana yang konsisten dengan codebase:
 
-- `Auth`
-- `PR`
-- `RFQ`
-- `PO`
-- `Vendor`
-- `Approval`
+- `cmd/api`
+  - application entrypoint
+  - load config
+  - connect database
+  - run migration and seed when requested
+  - wire services and handlers
+- `internal/config`
+  - pembacaan environment variables
+  - application config
+- `internal/database`
+  - database connection
+  - database reset/bootstrap
+  - auto migration
+  - seed baseline master data
+- `internal/models`
+  - GORM models
+  - table mapping
+  - domain constants
+- `internal/services`
+  - business logic dan orchestration
+  - data access via GORM
+  - entity-scope enforcement untuk beberapa flow
+- `internal/handlers`
+  - HTTP binding
+  - validation handling
+  - response mapping
+- `internal/middleware`
+  - JWT auth
+  - request context
+  - role guard
+  - CORS
+- `internal/httpapi`
+  - standard success dan error response
+- `internal/router`
+  - route registration
+  - namespace grouping
 
-Important note:
-
-- The FSD describes a broader target scope than what is currently implemented in code.
-- Some advanced modules from the FSD, such as dynamic procurement policy, budget management, entity management, delegate approver, reference price, and vendor blacklist, are not fully implemented yet in this codebase.
+Desain saat ini belum memisahkan repository layer secara terpisah; service langsung menggunakan `*gorm.DB`. Untuk skala Phase 1 foundation, pendekatan ini masih konsisten dan menjaga diff tetap kecil.
 
 ## Project Structure
 
@@ -70,54 +144,74 @@ e-proc-api/
 │       └── main.go
 ├── docs/
 │   ├── BRD_E-Procurement.md
-│   ├── FSD_E-Procurement_Complete_2.docx.md
-│   └── SETUP_LOCAL.md
+│   ├── FSD_E-Procurement.md
+│   ├── IMPLEMENTATION_STATUS.md
+│   └── TSD_E-Procurement.md
 ├── internal/
 │   ├── config/
 │   ├── database/
 │   ├── handlers/
+│   ├── httpapi/
 │   ├── middleware/
 │   ├── models/
 │   ├── router/
 │   └── services/
 ├── .env.example
 ├── Makefile
-└── go.mod
+├── go.mod
+├── go.sum
+└── README.md
 ```
 
 ## Prerequisites
 
-Before running the project, make sure the following are installed on your machine:
+Sebelum menjalankan project ini, pastikan tersedia:
 
-- Go `1.22` or newer
-- MySQL `8.x` or newer
+- Go `1.22` atau lebih baru
+- MySQL `8.x` atau versi kompatibel
 
-Recommended local versions already verified for this project:
-
-- Go `1.26.1`
-- MySQL `9.6.0`
-
-### Verify Installation
+Perintah verifikasi:
 
 ```bash
 go version
 mysql --version
 ```
 
-If you use Homebrew on macOS:
+Jika menggunakan Homebrew di macOS:
 
 ```bash
 brew install go mysql
 brew services start mysql
 ```
 
-## Local Environment Variables
+## Environment Variables
 
-The application loads configuration automatically from a `.env` file in the project root.
+Mulai dari [.env.example](/Users/itvico/Dev/e-proc-api/.env.example).
 
-Start from [.env.example](/Users/itvico/Dev/e-proc-api/.env.example).
+### Supported Variables
 
-Example local `.env`:
+| Variable | Description | Default |
+| --- | --- | --- |
+| `APP_PORT` | Port HTTP server | `8080` |
+| `APP_ENV` | Environment aplikasi | `development` |
+| `DB_HOST` | Host MySQL | `localhost` |
+| `DB_PORT` | Port MySQL | `3306` |
+| `DB_USER` | User MySQL | `root` |
+| `DB_PASSWORD` | Password MySQL | empty |
+| `DB_NAME` | Nama database | `e_procurement` |
+| `DB_MIGRATE` | Jalankan auto migration saat startup | `false` |
+| `DB_RESET` | Drop dan recreate database saat startup | `false` |
+| `DB_SEED` | Seed baseline data saat startup | `false` |
+| `SEED_ADMIN_PASSWORD` | Password admin hasil seed | `Admin123!` |
+| `SEED_ENTITY_CODE` | Entity code seed default | `HO` |
+| `SEED_ENTITY_NAME` | Entity name seed default | `Head Office` |
+| `SEED_DEPARTMENT_CODE` | Department code seed default | `PROC` |
+| `SEED_DEPARTMENT_NAME` | Department name seed default | `Procurement` |
+| `JWT_SECRET` | Secret signing JWT | lihat `.env.example` |
+| `JWT_EXPIRY_HOURS` | Expiry access token | `24` |
+| `JWT_REFRESH_EXPIRY_HOURS` | Expiry refresh token | `168` |
+
+### Example `.env`
 
 ```env
 # Application
@@ -133,153 +227,92 @@ DB_NAME=e_procurement
 
 # Run auto migration on startup (set to true only in dev/first run)
 DB_MIGRATE=false
+DB_RESET=false
+DB_SEED=false
+
+# Local baseline seed defaults
+SEED_ADMIN_PASSWORD=Admin123!
+SEED_ENTITY_CODE=HO
+SEED_ENTITY_NAME=Head Office
+SEED_DEPARTMENT_CODE=PROC
+SEED_DEPARTMENT_NAME=Procurement
 
 # JWT
-JWT_SECRET=local-dev-secret-change-me
+JWT_SECRET=change-this-to-a-long-random-secret
 JWT_EXPIRY_HOURS=24
 JWT_REFRESH_EXPIRY_HOURS=168
 ```
 
-### Environment Variable Reference
+## Local Setup
 
-| Variable | Description | Default |
-| --- | --- | --- |
-| `APP_PORT` | HTTP server port | `8080` |
-| `APP_ENV` | Application environment | `development` |
-| `DB_HOST` | MySQL host | `localhost` |
-| `DB_PORT` | MySQL port | `3306` |
-| `DB_USER` | MySQL username | `root` |
-| `DB_PASSWORD` | MySQL password | empty |
-| `DB_NAME` | MySQL database name | `e_procurement` |
-| `DB_MIGRATE` | Run auto migration at startup | `false` |
-| `DB_RESET` | Drop and recreate the configured database on startup | `false` |
-| `DB_SEED` | Seed baseline entities, roles, departments, admin user, and user roles | `false` |
-| `SEED_ADMIN_PASSWORD` | Password for the seeded admin user | `Admin123!` |
-| `SEED_ENTITY_CODE` | Default seeded entity code | `HO` |
-| `SEED_ENTITY_NAME` | Default seeded entity name | `Head Office` |
-| `SEED_DEPARTMENT_CODE` | Default seeded department code | `PROC` |
-| `SEED_DEPARTMENT_NAME` | Default seeded department name | `Procurement` |
-| `JWT_SECRET` | JWT signing secret | `change-me-in-production` |
-| `JWT_EXPIRY_HOURS` | Access token expiry in hours | `24` |
-| `JWT_REFRESH_EXPIRY_HOURS` | Refresh token expiry in hours | `168` |
-
-## Setup Guide
-
-Follow these steps when setting up the project for the first time.
-
-### 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd e-proc-api
-```
-
-If you already have the source folder, just change into the project directory.
-
-### 2. Create your environment file
-
-Copy the example file:
+### 1. Prepare environment file
 
 ```bash
 cp .env.example .env
 ```
 
-Then update `.env` to match your MySQL credentials.
+Sesuaikan credential MySQL bila perlu.
 
-### 3. Start MySQL
-
-If you use Homebrew:
+### 2. Ensure MySQL is running
 
 ```bash
-brew services start mysql
-```
-
-To confirm MySQL is running:
-
-```bash
-brew services list
+mysql --version
 mysql -u root -e "SELECT VERSION();"
 ```
 
-### 4. Create the database
-
-Create the database used by the application:
+Jika database belum ada:
 
 ```bash
 mysql -u root -e "CREATE DATABASE IF NOT EXISTS e_procurement;"
 ```
 
-If your MySQL user has a password:
+Jika memakai password:
 
 ```bash
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS e_procurement;"
 ```
 
-### 5. Download Go dependencies
+### 3. Download dependencies
 
 ```bash
 go mod tidy
 ```
 
-This will:
+### 4. Bootstrap fresh local database
 
-- download project dependencies
-- generate/update `go.sum`
-- prepare the module for build and run
-
-### 6. Create a fresh baseline and seed master data
-
-For the refactored Phase 1 foundation, the safest local setup is a fresh database baseline:
+Opsi paling aman untuk local pertama kali:
 
 ```bash
 DB_RESET=true DB_MIGRATE=true DB_SEED=true go run ./cmd/api/main.go
 ```
 
-Or:
+Atau:
 
 ```bash
 make reset-db
 ```
 
-What this does:
+Flow ini akan:
 
-- loads `.env`
-- drops the configured database if it already exists
-- recreates the database with `utf8mb4`
-- creates tables using GORM auto migration
-- seeds baseline master data for entity, department, roles, admin user, and `user_roles`
-- starts the HTTP server
+- memastikan database tersedia
+- drop database bila `DB_RESET=true`
+- membuat ulang database dengan charset `utf8mb4`
+- menjalankan GORM auto migration
+- seed baseline entity, department, roles, admin user, dan user-role mapping
 
-Seeded defaults:
-
-- entity code: `HO`
-- department code: `PROC`
-- username: `admin`
-- email: `admin@eproc.local`
-- password: `Admin123!` unless overridden by `SEED_ADMIN_PASSWORD`
-- primary role: `SUPER_ADMIN`
-
-If you only want schema migration without resetting the database, use:
-
-```bash
-DB_MIGRATE=true go run ./cmd/api/main.go
-```
-
-### 7. Start the API normally
+### 5. Run the API normally
 
 ```bash
 go run ./cmd/api/main.go
 ```
 
-If everything is correct, you should see logs similar to:
+Atau:
 
-```text
-Database connected successfully
-Server starting on :8080 (env: development)
-Listening and serving HTTP on :8080
+```bash
+make run
 ```
 
-### 8. Verify the server health
+### 6. Verify health endpoint
 
 ```bash
 curl http://127.0.0.1:8080/health
@@ -302,244 +335,157 @@ Expected response:
 }
 ```
 
-## Run the Project
+## Run Commands
 
-You can run the project in two ways.
-
-### Option 1: Run directly with Go
-
-```bash
-go run ./cmd/api/main.go
-```
-
-### Option 2: Run using Makefile shortcuts
+Available targets dari [Makefile](/Users/itvico/Dev/e-proc-api/Makefile):
 
 ```bash
 make run
-```
-
-`make` is optional. It only provides shorter aliases for common commands.
-
-## Database Migration
-
-### Run migration manually
-
-```bash
-DB_MIGRATE=true go run ./cmd/api/main.go
-```
-
-Or:
-
-```bash
+make build
 make migrate
-```
-
-### Seed baseline master data manually
-
-```bash
-DB_SEED=true go run ./cmd/api/main.go
-```
-
-Or:
-
-```bash
 make seed
-```
-
-### Bootstrap schema and master data
-
-```bash
-DB_MIGRATE=true DB_SEED=true go run ./cmd/api/main.go
-```
-
-Or:
-
-```bash
 make bootstrap
-```
-
-### Reset database, migrate, and seed in one command
-
-```bash
-DB_RESET=true DB_MIGRATE=true DB_SEED=true go run ./cmd/api/main.go
-```
-
-Or:
-
-```bash
 make reset-db
-```
-
-### Tables currently created by migration
-
-The current auto migration creates these tables:
-
-- `approval_steps`
-- `approval_tasks`
-- `audit_logs`
-- `bid_items`
-- `departments`
-- `po_items`
-- `pr_items`
-- `purchase_orders`
-- `purchase_requisitions`
-- `rfq_vendors`
-- `rfqs`
-- `roles`
-- `users`
-- `vendor_bids`
-- `vendors`
-
-Important:
-
-- `DB_MIGRATE=true` creates the schema only.
-- `DB_SEED=true` inserts idempotent baseline master data for local development.
-- the seeded login uses `admin` with the password from `SEED_ADMIN_PASSWORD`.
-
-## Build and Test
-
-### Run tests
-
-```bash
-go test ./...
-```
-
-Or:
-
-```bash
+make tidy
 make test
 ```
 
-### Build binary
+Equivalent commands:
 
 ```bash
+go run ./cmd/api/main.go
 go build -o bin/e-proc-api ./cmd/api/main.go
-```
-
-Or:
-
-```bash
-make build
-```
-
-### Tidy dependencies
-
-```bash
+go test ./...
 go mod tidy
 ```
 
-Or:
+## Bootstrap and Seed Defaults
 
-```bash
-make tidy
-```
+Saat `DB_SEED=true`, aplikasi melakukan seed baseline berikut:
 
-## API Base URL
+- 1 entity internal
+- 1 department pada entity tersebut
+- baseline role internal dan vendor
+- 1 admin user internal
+- 1 primary `user_roles` assignment untuk admin user
 
-Default local base URL:
+Default seeded values:
+
+- entity code: `HO`
+- entity name: `Head Office`
+- department code: `PROC`
+- department name: `Procurement`
+- username: `admin`
+- email: `admin@eproc.local`
+- password: `Admin123!` atau nilai `SEED_ADMIN_PASSWORD`
+- primary role: `SUPER_ADMIN`
+- scope type: `cross_entity`
+- `force_change_password`: `true`
+
+Baseline roles yang di-seed:
+
+- `SUPER_ADMIN`
+- `ENTITY_ADMIN`
+- `PROCUREMENT_ADMIN`
+- `REQUESTER`
+- `APPROVER`
+- `VENDOR_ADMIN`
+
+Semua seed diupayakan idempotent pada level data master utama melalui pola upsert sederhana.
+
+## API Conventions
+
+### Base URL
 
 ```text
 http://localhost:8080
 ```
 
-Primary internal API prefix:
+### Namespace Summary
 
-```text
-/api/v1/internal
+- `/health`
+- `/api/v1/auth/*`
+- `/api/v1/internal/*`
+- `/api/v1/vendor/*`
+- `/api/v1/files/*`
+- `/api/v1/reports/*`
+- `/api/v1/admin/*`
+
+### Standard Success Response
+
+Semua response sukses mengikuti envelope ini:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {},
+  "meta": {
+    "trace_id": "..."
+  }
+}
 ```
 
-## Available Routes
+Untuk create operation, message menjadi `"Created"`.
 
-The router currently exposes these routes.
+### Standard Error Response
 
-### Public
+Response error mengikuti bentuk ini:
 
-| Method | Route | Description |
-| --- | --- | --- |
-| `GET` | `/health` | Health check |
-| `POST` | `/api/v1/auth/login` | Login |
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "error_code": "VALIDATION_ERROR",
+  "errors": [
+    {
+      "field": "body",
+      "message": "..."
+    }
+  ],
+  "meta": {
+    "trace_id": "..."
+  }
+}
+```
 
-### Internal protected
+### Trace ID
 
-These routes require a valid JWT bearer token.
+Setiap request mendapat `trace_id` melalui middleware request context. Nilai ini muncul pada response sukses maupun error dan berguna untuk tracing log/debugging.
 
-| Method | Route | Description |
-| --- | --- | --- |
-| `GET` | `/api/v1/internal/auth/me` | Get current user info |
-| `GET` | `/api/v1/internal/purchase-requests` | List purchase requests |
-| `POST` | `/api/v1/internal/purchase-requests` | Create purchase request |
-| `GET` | `/api/v1/internal/purchase-requests/:id` | Get purchase request detail |
-| `POST` | `/api/v1/internal/purchase-requests/:id/submit` | Submit purchase request |
-| `GET` | `/api/v1/internal/rfqs` | List RFQ |
-| `POST` | `/api/v1/internal/rfqs` | Create RFQ |
-| `GET` | `/api/v1/internal/rfqs/:id` | Get RFQ detail |
-| `PATCH` | `/api/v1/internal/rfqs/:id/status` | Update RFQ status |
-| `GET` | `/api/v1/internal/purchase-orders` | List purchase orders |
-| `POST` | `/api/v1/internal/purchase-orders` | Create purchase order |
-| `GET` | `/api/v1/internal/purchase-orders/:id` | Get purchase order detail |
-| `PATCH` | `/api/v1/internal/purchase-orders/:id/status` | Update purchase order status |
-| `GET` | `/api/v1/internal/vendors` | List vendors |
-| `POST` | `/api/v1/internal/vendors` | Create vendor |
-| `GET` | `/api/v1/internal/vendors/:id` | Get vendor detail |
-| `PUT` | `/api/v1/internal/vendors/:id` | Update vendor |
-| `GET` | `/api/v1/internal/approvals/tasks` | Get approval tasks |
-| `POST` | `/api/v1/internal/approvals/tasks/:id/approve` | Approve a task |
-| `POST` | `/api/v1/internal/approvals/tasks/:id/reject` | Reject a task |
+### Pagination
 
-### Additional namespaces scaffolded
+Beberapa endpoint list menggunakan query parameter:
 
-| Method | Route | Description |
-| --- | --- | --- |
-| `GET` | `/api/v1/vendor/health` | Vendor namespace health |
-| `GET` | `/api/v1/files/health` | Files namespace health |
-| `GET` | `/api/v1/reports/health` | Reports namespace health |
-| `GET` | `/api/v1/admin/health` | Admin namespace health |
-| `GET` | `/api/v1/admin/entities` | List entities |
-| `GET` | `/api/v1/admin/entities/:id` | Get entity detail |
-| `POST` | `/api/v1/admin/entities` | Create entity (`SUPER_ADMIN`) |
-| `GET` | `/api/v1/admin/users` | List users |
-| `GET` | `/api/v1/admin/users/:id` | Get user detail |
-| `POST` | `/api/v1/admin/users` | Create user |
+- `page`
+- `page_size`
 
-## Authentication
+Default:
 
-Authentication uses JWT bearer tokens.
+- `page=1`
+- `page_size=20`
 
-Current authorization baseline:
+Batas maksimum `page_size` saat ini adalah `100`.
 
-- `SUPER_ADMIN` has cross-entity access
-- `ENTITY_ADMIN` is limited to its own entity scope
-- internal procurement routes now enforce role checks
-- service-level reads and updates also enforce entity isolation for scoped users
+## Authentication and Authorization
 
-### Login request
+### Login Endpoint
 
 ```http
 POST /api/v1/auth/login
 Content-Type: application/json
 ```
 
-Example payload:
+Request body:
 
 ```json
 {
-  "username": "your-username",
-  "password": "your-password"
+  "username": "admin",
+  "password": "Admin123!"
 }
 ```
 
-Example using `curl`:
-
-```bash
-curl -X POST http://127.0.0.1:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "your-username",
-    "password": "your-password"
-  }'
-```
-
-Seeded local example:
+Example:
 
 ```bash
 curl -X POST http://127.0.0.1:8080/api/v1/auth/login \
@@ -550,84 +496,431 @@ curl -X POST http://127.0.0.1:8080/api/v1/auth/login \
   }'
 ```
 
-If login succeeds, the API returns:
+Successful login returns:
 
 - `token`
 - `expires_at`
 - `user`
 
-### Use token for protected routes
+`user` saat ini dapat memuat:
+
+- `id`
+- `entity_id`
+- `username`
+- `email`
+- `full_name`
+- `role_code`
+- `role_name`
+- `scope_type`
+- `department_name`
+
+### Authenticated User Endpoint
 
 ```bash
 curl http://127.0.0.1:8080/api/v1/internal/auth/me \
-  -H "Authorization: Bearer <your-jwt-token>"
+  -H "Authorization: Bearer <token>"
 ```
 
-### Seeded auth baseline
+Response `data` memuat:
 
-When `DB_SEED=true`, the application bootstraps:
+- `user_id`
+- `entity_id`
+- `username`
+- `role_code`
+- `role_name`
+- `scope_type`
+- `subject_type`
 
-- one internal entity
-- one department
-- internal and vendor baseline roles
-- one internal admin user
-- one primary `user_roles` assignment for the admin user
+### Authorization Baseline
 
-The seeded admin user is intended for local development bootstrap and should be customized with `SEED_ADMIN_PASSWORD`.
+Current authorization baseline di code:
 
-## Database Notes
+- `SUPER_ADMIN`
+  - akses lintas entity
+  - bisa create entity
+  - bisa manage admin namespace secara penuh dalam scope saat ini
+- `ENTITY_ADMIN`
+  - terbatas ke entity sendiri
+  - bisa akses admin namespace dalam entity scope
+- `PROCUREMENT_ADMIN`
+  - bisa mengakses namespace procurement internal yang relevan
+- `REQUESTER`
+  - bisa create dan melihat purchase request dalam namespace internal
+- `APPROVER`
+  - bisa mengakses approval task internal
 
-### Verified local MySQL connection example
+Entity scope enforcement diterapkan di:
 
-These values were verified to work in local development:
+- detail read tertentu
+- update status tertentu
+- submit/approval flows tertentu
+- user creation rules
 
-- host: `localhost`
-- port: `3306`
-- user: `root`
-- password: empty
-- database: `e_procurement`
+## API Routes
 
-### Direct MySQL connection examples
+### Public Routes
 
-Connect using TCP:
+| Method | Route | Description |
+| --- | --- | --- |
+| `GET` | `/health` | Health check |
+| `POST` | `/api/v1/auth/login` | Login |
+
+### Internal Protected Routes
+
+Perlu bearer token dan role yang sesuai.
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `GET` | `/api/v1/internal/auth/me` | Current authenticated user |
+| `GET` | `/api/v1/internal/purchase-requests` | List purchase requests |
+| `POST` | `/api/v1/internal/purchase-requests` | Create purchase request |
+| `GET` | `/api/v1/internal/purchase-requests/:id` | Purchase request detail |
+| `POST` | `/api/v1/internal/purchase-requests/:id/submit` | Submit purchase request |
+| `GET` | `/api/v1/internal/rfqs` | List RFQs |
+| `POST` | `/api/v1/internal/rfqs` | Create RFQ |
+| `GET` | `/api/v1/internal/rfqs/:id` | RFQ detail |
+| `PATCH` | `/api/v1/internal/rfqs/:id/status` | Update RFQ status |
+| `GET` | `/api/v1/internal/purchase-orders` | List purchase orders |
+| `POST` | `/api/v1/internal/purchase-orders` | Create purchase order |
+| `GET` | `/api/v1/internal/purchase-orders/:id` | Purchase order detail |
+| `PATCH` | `/api/v1/internal/purchase-orders/:id/status` | Update purchase order status |
+| `GET` | `/api/v1/internal/vendors` | List vendors |
+| `POST` | `/api/v1/internal/vendors` | Create vendor |
+| `GET` | `/api/v1/internal/vendors/:id` | Vendor detail |
+| `PUT` | `/api/v1/internal/vendors/:id` | Update vendor |
+| `GET` | `/api/v1/internal/approvals/tasks` | My approval tasks |
+| `POST` | `/api/v1/internal/approvals/tasks/:id/approve` | Approve task |
+| `POST` | `/api/v1/internal/approvals/tasks/:id/reject` | Reject task |
+
+### Additional Protected Namespace Routes
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `GET` | `/api/v1/vendor/health` | Vendor namespace health |
+| `GET` | `/api/v1/files/health` | Files namespace health |
+| `GET` | `/api/v1/reports/health` | Reports namespace health |
+| `GET` | `/api/v1/admin/health` | Admin namespace health |
+| `GET` | `/api/v1/admin/entities` | List entities |
+| `GET` | `/api/v1/admin/entities/:id` | Entity detail |
+| `POST` | `/api/v1/admin/entities` | Create entity, `SUPER_ADMIN` only |
+| `GET` | `/api/v1/admin/users` | List users |
+| `POST` | `/api/v1/admin/users` | Create user |
+| `GET` | `/api/v1/admin/users/:id` | User detail |
+
+### Common Query Parameters
+
+List endpoint yang saat ini mendukung filter/query:
+
+- purchase requests
+  - `page`
+  - `page_size`
+  - `status`
+  - `department_code`
+- RFQs
+  - `page`
+  - `page_size`
+  - `status`
+- purchase orders
+  - `page`
+  - `page_size`
+  - `status`
+  - `vendor_id`
+- vendors
+  - `page`
+  - `page_size`
+  - `active_only`
+- users
+  - `entity_id`
+  - `status`
+
+Beberapa filter entity diterapkan otomatis berdasarkan claim/token caller.
+
+## Example Payloads
+
+Contoh di bawah ini mengikuti request shape yang saat ini digunakan oleh service/handler.
+
+### Create Purchase Request
+
+```http
+POST /api/v1/internal/purchase-requests
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "title": "Pengadaan Laptop Operasional",
+  "description": "Pengadaan laptop untuk tim procurement",
+  "department_code": "PROC",
+  "procurement_type": "goods",
+  "routine_type": "non_routine",
+  "budget_status": "within_budget",
+  "need_date": "2026-04-10T00:00:00Z",
+  "items": [
+    {
+      "item_name": "Laptop Business",
+      "specification": "RAM 16GB SSD 512GB",
+      "qty": 5,
+      "uom": "unit",
+      "estimated_unit_price": 15000000
+    }
+  ]
+}
+```
+
+### Submit Purchase Request
+
+```http
+POST /api/v1/internal/purchase-requests/:id/submit
+Authorization: Bearer <token>
+```
+
+Behavior penting:
+
+- hanya PR dengan status `Draft` atau `Revised` yang dapat di-submit
+- submit akan mengubah status menjadi `Pending Approval`
+- submit juga membuat `approval_tasks` record
+
+### Create RFQ
+
+```http
+POST /api/v1/internal/rfqs
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "pr_id": 1,
+  "title": "RFQ Laptop Operasional",
+  "technical_requirement": "Minimal RAM 16GB",
+  "commercial_requirement": "Garansi resmi 3 tahun",
+  "minimum_vendor_count": 2,
+  "deadline_at": "2026-04-15T00:00:00Z",
+  "vendor_ids": [1, 2]
+}
+```
+
+Behavior penting:
+
+- PR harus berada dalam entity scope caller
+- `minimum_vendor_count` otomatis menjadi `1` bila dikirim `0` atau negatif
+
+### Update RFQ Status
+
+```http
+PATCH /api/v1/internal/rfqs/:id/status
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+Status values saat ini tidak dibatasi ketat di handler, tetapi model menyediakan status constants seperti:
+
+- `Created`
+- `Published`
+- `Vendor Submission`
+- `Closed`
+- `Reopened`
+- `Evaluation`
+- `BAFO`
+- `Vendor Selected`
+- `Cancelled`
+
+### Create Purchase Order
+
+```http
+POST /api/v1/internal/purchase-orders
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "pr_id": 1,
+  "rfq_id": 1,
+  "vendor_id": 1,
+  "po_date": "2026-04-20T00:00:00Z",
+  "expected_date": "2026-04-30T00:00:00Z",
+  "delivery_address": "Jakarta Head Office",
+  "payment_terms": "30 days after invoice",
+  "notes": "Handle with care",
+  "items": [
+    {
+      "pr_item_id": 1,
+      "item_name": "Laptop Business",
+      "specification": "RAM 16GB SSD 512GB",
+      "qty": 5,
+      "uom": "unit",
+      "unit_price": 14500000
+    }
+  ]
+}
+```
+
+Behavior penting:
+
+- `vendor_id`, `po_date`, `delivery_address`, dan minimal satu item wajib ada
+- bila `pr_id` atau `rfq_id` dikirim, record tersebut harus masih berada dalam entity scope caller
+- currency default saat ini adalah `IDR`
+- status awal saat create adalah `Draft`
+
+### Create Vendor
+
+```http
+POST /api/v1/internal/vendors
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "vendor_name": "PT Vendor Teknologi",
+  "tax_id": "01.234.567.8-999.000",
+  "email": "vendor@example.com",
+  "phone": "0211234567",
+  "address": "Jakarta"
+}
+```
+
+Behavior penting:
+
+- code vendor digenerate otomatis dengan format `V-0001`
+- status default vendor baru:
+  - `approved_status=approved`
+  - `blacklist_status=false`
+  - `eligibility_status=eligible`
+
+### Create Entity
+
+```http
+POST /api/v1/admin/entities
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "entity_code": "SUB1",
+  "entity_name": "Subsidiary 1",
+  "entity_type": "subsidiary",
+  "governance_mode": "entity_only",
+  "status": "active"
+}
+```
+
+Defaulting behavior:
+
+- `entity_type` default `subsidiary`
+- `governance_mode` default `entity_only`
+- `status` default `active`
+
+### Create User
+
+```http
+POST /api/v1/admin/users
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "entity_id": 1,
+  "department_id": 1,
+  "full_name": "Procurement Staff",
+  "email": "proc.staff@example.com",
+  "username": "procstaff",
+  "password": "StrongPass123",
+  "role_code": "REQUESTER",
+  "scope_type": "own_entity",
+  "status": "active",
+  "force_change_password": true
+}
+```
+
+Behavior penting:
+
+- password minimal 8 karakter
+- role harus ada dan aktif
+- `ENTITY_ADMIN` tidak boleh membuat user di luar entity miliknya
+- `ENTITY_ADMIN` juga tidak boleh assign scope `cross_entity`
+
+## Database and Migration Notes
+
+### Auto-Migrated Main Tables
+
+Migration saat ini membuat atau menyesuaikan area tabel berikut:
+
+- `entities`
+- `departments`
+- `roles`
+- `users`
+- `user_roles`
+- `delegate_approvers`
+- `vendors`
+- `vendor_users`
+- `vendor_blacklists`
+- `reference_prices`
+- `budgets`
+- `procurement_policy_rules`
+- `approval_models`
+- `approval_matrices`
+- `purchase_requests`
+- `purchase_request_items`
+- `pr_attachments`
+- `pr_approvals`
+- `rfqs`
+- `rfq_vendors`
+- `quotations`
+- `quotation_items`
+- `vendor_evaluations`
+- `bafo_rounds`
+- `vendor_selections`
+- `direct_appointments`
+- `purchase_orders`
+- `purchase_order_items`
+- `po_approvals`
+- `vendor_confirmations`
+- `approval_tasks`
+- `notifications`
+- `audit_logs`
+- `app_logs`
+
+### Migration Behavior
+
+Catatan penting:
+
+- migration menggunakan GORM `AutoMigrate`
+- foreign key constraint creation saat migration dinonaktifkan
+- strategi ini dipakai untuk mengurangi konflik dengan schema lokal lama yang pernah ada
+
+### Existing Database Caution
+
+Jika sebelumnya pernah menjalankan versi lama project ini:
+
+- beberapa tabel lama bisa masih tersisa
+- beberapa tabel akan berubah in place
+- hasil schema bisa campuran antara baseline lama dan foundation baru
+
+Untuk local development, baseline paling bersih adalah:
 
 ```bash
-mysql -u root -h 127.0.0.1 -P 3306
+DB_RESET=true DB_MIGRATE=true DB_SEED=true go run ./cmd/api/main.go
 ```
 
-Connect using socket:
-
-```bash
-mysql -u root --socket=/tmp/mysql.sock
-```
-
-Show databases:
+### Quick Database Checks
 
 ```bash
 mysql -u root -e "SHOW DATABASES;"
-```
-
-Show application tables:
-
-```bash
 mysql -u root -D e_procurement -e "SHOW TABLES;"
+mysql -u root -D e_procurement -e "SELECT username, email, status FROM users;"
+mysql -u root -D e_procurement -e "SELECT role_code, role_name FROM roles;"
 ```
-
-### Important migration note
-
-The codebase has been refactored toward the BRD, FSD, and TSD foundation. If you already ran an older version of this project before the refactor:
-
-- existing tables may be altered in place during migration
-- new TSD-aligned tables such as `entities`, `user_roles`, `budgets`, `purchase_requests`, and `notifications` will be added
-- local development is safest with a fresh database if you want a clean schema baseline
-
-Use `DB_RESET=true` or `make reset-db` when you want that clean baseline locally.
 
 ## Troubleshooting
 
-### 1. `go: command not found`
+### `go: command not found`
 
-Go is not installed or not available in your shell `PATH`.
+Go belum ter-install atau belum masuk ke `PATH`.
 
 Check:
 
@@ -635,15 +928,9 @@ Check:
 go version
 ```
 
-Install if needed:
+### `mysql: command not found`
 
-```bash
-brew install go
-```
-
-### 2. `mysql: command not found`
-
-MySQL client is not installed or not available in your shell `PATH`.
+MySQL client belum tersedia di shell.
 
 Check:
 
@@ -651,89 +938,96 @@ Check:
 mysql --version
 ```
 
-Install if needed:
+### Failed to connect to database
 
-```bash
-brew install mysql
-```
+Periksa:
 
-### 3. `Failed to connect to database`
-
-Check:
-
-- MySQL service is running
-- database exists
-- `.env` credentials are correct
-- host and port match your local MySQL instance
+- service MySQL berjalan
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, dan `DB_NAME` sudah benar
+- database user memiliki akses ke database target
 
 Useful commands:
 
 ```bash
-brew services list
 mysql -u root -e "SHOW DATABASES;"
+mysql -u root -e "SELECT VERSION();"
 ```
 
-### 4. Port `8080` already in use
+### Port `8080` already in use
 
-Find the process:
+Check process:
 
 ```bash
 lsof -nP -iTCP:8080 -sTCP:LISTEN
 ```
 
-Then stop the conflicting process or change `APP_PORT` in `.env`.
+Lalu ganti `APP_PORT` atau stop process yang bentrok.
 
-### 5. Login fails with `invalid credentials`
+### Login fails with `invalid credentials`
 
-Most common causes:
+Periksa:
 
-- seed data has not been run yet
-- username is wrong
-- `SEED_ADMIN_PASSWORD` does not match the password you are trying
-- user is inactive
+- apakah `DB_SEED=true` pernah dijalankan
+- username/password sesuai seed atau user yang dibuat
+- user status masih `active`
 
-### 6. Tables exist but all endpoints return empty data
+### Login fails because account is locked
 
-This is expected for a fresh database after `DB_MIGRATE=true`.
+Service auth saat ini mengenali kondisi `locked_until` pada user. Jika field tersebut terisi dengan waktu yang masih aktif, login akan ditolak.
 
-If you also ran `DB_SEED=true`, only bootstrap master data is inserted. Transactional procurement data remains empty.
+### Endpoint returns validation error
+
+Penyebab umum:
+
+- JSON body tidak valid
+- field required belum dikirim
+- tipe data tidak sesuai
+- email tidak valid
+- password kurang dari 8 karakter pada create user
+- list item kosong pada create PR atau create PO
+
+### Data list kosong setelah migration
+
+Itu normal jika hanya menjalankan:
+
+```bash
+DB_MIGRATE=true go run ./cmd/api/main.go
+```
+
+Migration hanya membuat schema. Untuk baseline master data, jalankan juga seed:
+
+```bash
+DB_SEED=true go run ./cmd/api/main.go
+```
+
+Atau gunakan bootstrap/reset-db.
 
 ## Development Notes
 
-### Main entry point
+Entry points penting:
 
-Application entry point:
+- [main.go](/Users/itvico/Dev/e-proc-api/cmd/api/main.go)
+- [config.go](/Users/itvico/Dev/e-proc-api/internal/config/config.go)
+- [database.go](/Users/itvico/Dev/e-proc-api/internal/database/database.go)
+- [bootstrap.go](/Users/itvico/Dev/e-proc-api/internal/database/bootstrap.go)
+- [router.go](/Users/itvico/Dev/e-proc-api/internal/router/router.go)
+- [response.go](/Users/itvico/Dev/e-proc-api/internal/httpapi/response.go)
+- [auth.go](/Users/itvico/Dev/e-proc-api/internal/services/auth.go)
 
-- [cmd/api/main.go](/Users/itvico/Dev/e-proc-api/cmd/api/main.go)
-
-### Configuration loader
-
-Environment and config loader:
-
-- [internal/config/config.go](/Users/itvico/Dev/e-proc-api/internal/config/config.go)
-
-### Database connection
-
-Database connection and auto migration:
-
-- [internal/database/database.go](/Users/itvico/Dev/e-proc-api/internal/database/database.go)
-
-### Router
-
-Route definitions:
-
-- [internal/router/router.go](/Users/itvico/Dev/e-proc-api/internal/router/router.go)
-
-### Local setup reference
-
-Additional local setup notes:
-
-- [docs/SETUP_LOCAL.md](/Users/itvico/Dev/e-proc-api/docs/SETUP_LOCAL.md)
-
-### Recommended first checks after setup
+Recommended local verification:
 
 ```bash
 go test ./...
 curl http://127.0.0.1:8080/health
+curl -X POST http://127.0.0.1:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"Admin123!"}'
 mysql -u root -D e_procurement -e "SHOW TABLES;"
 ```
+
+## References
+
+- [BRD_E-Procurement.md](/Users/itvico/Dev/e-proc-api/docs/BRD_E-Procurement.md)
+- [FSD_E-Procurement.md](/Users/itvico/Dev/e-proc-api/docs/FSD_E-Procurement.md)
+- [TSD_E-Procurement.md](/Users/itvico/Dev/e-proc-api/docs/TSD_E-Procurement.md)
+- [IMPLEMENTATION_STATUS.md](/Users/itvico/Dev/e-proc-api/docs/IMPLEMENTATION_STATUS.md)
