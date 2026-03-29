@@ -90,3 +90,40 @@ func (h *POHandler) UpdateStatus(c *gin.Context) {
 	}
 	httpapi.RespondOK(c, po)
 }
+
+func (h *POHandler) Submit(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, "Invalid id", "VALIDATION_ERROR", []httpapi.ValidationError{
+			{Field: "id", Message: "must be a positive integer"},
+		})
+		return
+	}
+
+	po, err := h.svc.Submit(uint(id), c.GetUint("user_id"), c.GetUint("entity_id"), c.GetString("scope_type"))
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, err.Error(), "PO_SUBMIT_FAILED", nil)
+		return
+	}
+	httpapi.RespondOK(c, po)
+}
+
+func (h *POHandler) ConfirmByVendor(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, "Invalid id", "VALIDATION_ERROR", []httpapi.ValidationError{
+			{Field: "id", Message: "must be a positive integer"},
+		})
+		return
+	}
+
+	var req services.ConfirmPORequest
+	_ = c.ShouldBindJSON(&req)
+
+	po, err := h.svc.ConfirmByVendor(uint(id), c.GetUint("vendor_id"), c.GetUint("user_id"), req.Remarks)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, err.Error(), "PO_VENDOR_CONFIRM_FAILED", nil)
+		return
+	}
+	httpapi.RespondOK(c, po)
+}

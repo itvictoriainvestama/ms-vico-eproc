@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/itvico/e-proc-api/internal/models"
 	"gorm.io/gorm"
@@ -22,6 +23,10 @@ type CreateVendorRequest struct {
 	Email      string `json:"email"`
 	Phone      string `json:"phone"`
 	Address    string `json:"address"`
+}
+
+type VendorBlacklistRequest struct {
+	Reason string `json:"reason" binding:"required"`
 }
 
 func (s *VendorService) List(page, pageSize int, activeOnly bool) ([]models.Vendor, int64, error) {
@@ -75,6 +80,14 @@ func (s *VendorService) Create(req CreateVendorRequest) (*models.Vendor, error) 
 	if err := s.db.Create(vendor).Error; err != nil {
 		return nil, err
 	}
+	recordAuditLog(s.db, AuditEntry{
+		ModuleCode: "VENDOR",
+		ObjectType: "VENDOR",
+		ObjectID:   vendor.ID,
+		EventCode:  "VENDOR_CREATED",
+		ActorType:  "internal_user",
+		Action:     "create",
+	})
 	return vendor, nil
 }
 
@@ -93,7 +106,92 @@ func (s *VendorService) Update(id uint, req CreateVendorRequest) (*models.Vendor
 	if err := s.db.Save(&vendor).Error; err != nil {
 		return nil, err
 	}
+	recordAuditLog(s.db, AuditEntry{
+		ModuleCode: "VENDOR",
+		ObjectType: "VENDOR",
+		ObjectID:   vendor.ID,
+		EventCode:  "VENDOR_UPDATED",
+		ActorType:  "internal_user",
+		Action:     "update",
+	})
 	return &vendor, nil
+}
+
+func (s *VendorService) Blacklist(id, actorEntityID uint, req VendorBlacklistRequest) (*models.Vendor, error) {
+	var vendor models.Vendor
+	if err := s.db.First(&vendor, id).Error; err != nil {
+		return nil, errors.New("vendor not found")
+	}
+
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&vendor).Updates(map[string]interface{}{
+			"blacklist_status":   true,
+			"eligibility_status": "blacklisted",
+		}).Error; err != nil {
+			return err
+		}
+
+		entry := models.VendorBlacklist{
+			VendorID:      vendor.ID,
+			EntityID:      nil,
+			BlacklistType: "group",
+			Reason:        req.Reason,
+			StartAt:       time.Now(),
+			Status:        "active",
+		}
+		return tx.Create(&entry).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(actorEntityID),
+		ModuleCode: "VENDOR",
+		ObjectType: "VENDOR",
+		ObjectID:   vendor.ID,
+		EventCode:  "VENDOR_BLACKLISTED",
+		ActorType:  "internal_user",
+		Action:     "blacklist",
+		DataAfter:  req.Reason,
+	})
+	return s.GetByID(id)
+}
+
+func (s *VendorService) Unblacklist(id, actorEntityID uint, req VendorBlacklistRequest) (*models.Vendor, error) {
+	var vendor models.Vendor
+	if err := s.db.First(&vendor, id).Error; err != nil {
+		return nil, errors.New("vendor not found")
+	}
+
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&vendor).Updates(map[string]interface{}{
+			"blacklist_status":   false,
+			"eligibility_status": "eligible",
+		}).Error; err != nil {
+			return err
+		}
+
+		return tx.Model(&models.VendorBlacklist{}).
+			Where("vendor_id = ? AND status = ?", vendor.ID, "active").
+			Updates(map[string]interface{}{
+				"status": "inactive",
+				"end_at": time.Now(),
+			}).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(actorEntityID),
+		ModuleCode: "VENDOR",
+		ObjectType: "VENDOR",
+		ObjectID:   vendor.ID,
+		EventCode:  "VENDOR_UNBLACKLISTED",
+		ActorType:  "internal_user",
+		Action:     "unblacklist",
+		DataAfter:  req.Reason,
+	})
+	return s.GetByID(id)
 }
 
 func (s *VendorService) generateVendorCode() (string, error) {

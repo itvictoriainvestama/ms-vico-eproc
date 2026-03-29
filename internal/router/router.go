@@ -48,6 +48,7 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 		internal.Use(middleware.AuthMiddleware(cfg))
 		{
 			internal.GET("/auth/me", h.Auth.Me)
+			internal.POST("/auth/change-password", middleware.RequireSubjectType("internal_user"), h.Auth.ChangePassword)
 
 			purchaseRequests := internal.Group("/purchase-requests")
 			purchaseRequests.Use(middleware.RequireRole("SUPER_ADMIN", "ENTITY_ADMIN", "PROCUREMENT_ADMIN", "REQUESTER"))
@@ -73,6 +74,7 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 				purchaseOrders.GET("", h.PO.List)
 				purchaseOrders.POST("", h.PO.Create)
 				purchaseOrders.GET("/:id", h.PO.Get)
+				purchaseOrders.POST("/:id/submit", h.PO.Submit)
 				purchaseOrders.PATCH("/:id/status", h.PO.UpdateStatus)
 			}
 
@@ -96,10 +98,15 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 
 		vendor := v1.Group("/vendor")
 		vendor.Use(middleware.AuthMiddleware(cfg))
+		vendor.Use(middleware.RequireSubjectType("vendor_user"))
 		{
 			vendor.GET("/health", func(c *gin.Context) {
 				httpapi.RespondOK(c, gin.H{"portal": "vendor"})
 			})
+			vendor.GET("/tenders", h.RFQ.VendorList)
+			vendor.GET("/tenders/:id", h.RFQ.VendorGet)
+			vendor.POST("/tenders/:id/quotation", h.RFQ.VendorSubmitQuotation)
+			vendor.POST("/purchase-orders/:id/confirm", h.PO.ConfirmByVendor)
 		}
 
 		files := v1.Group("/files")
@@ -132,12 +139,17 @@ func New(cfg *config.Config, h Handlers) *gin.Engine {
 			admin.GET("/users", h.User.List)
 			admin.POST("/users", h.User.Create)
 			admin.GET("/users/:id", h.User.Get)
+			admin.POST("/users/:id/reset-password", h.User.ResetPassword)
+			admin.GET("/delegate-approvers", h.User.ListDelegates)
+			admin.POST("/delegate-approvers", h.User.CreateDelegate)
 		}
 
 		superAdmin := admin.Group("")
 		superAdmin.Use(middleware.RequireRole("SUPER_ADMIN"))
 		{
 			superAdmin.POST("/entities", h.Entity.Create)
+			superAdmin.POST("/vendors/:id/blacklist", h.Vendor.Blacklist)
+			superAdmin.POST("/vendors/:id/unblacklist", h.Vendor.Unblacklist)
 		}
 	}
 

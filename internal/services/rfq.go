@@ -27,6 +27,20 @@ type CreateRFQRequest struct {
 	VendorIDs             []uint    `json:"vendor_ids" binding:"required,min=1"`
 }
 
+type VendorQuotationRequest struct {
+	PaymentTerms  string                `json:"payment_terms"`
+	DeliveryTerms string                `json:"delivery_terms"`
+	ValidUntil    *time.Time            `json:"valid_until"`
+	Items         []VendorQuotationItem `json:"items" binding:"required,min=1"`
+}
+
+type VendorQuotationItem struct {
+	PRItemID  *uint   `json:"pr_item_id"`
+	Qty       float64 `json:"qty" binding:"required,gt=0"`
+	UnitPrice float64 `json:"unit_price" binding:"required,gt=0"`
+	Note      string  `json:"note"`
+}
+
 func (s *RFQService) List(page, pageSize int, status string, entityID uint) ([]models.RFQ, int64, error) {
 	if page < 1 {
 		page = 1
@@ -94,6 +108,17 @@ func (s *RFQService) Create(req CreateRFQRequest, entityID uint) (*models.RFQ, e
 
 	vendors := make([]models.RFQVendor, 0, len(req.VendorIDs))
 	for _, vendorID := range req.VendorIDs {
+		var vendor models.Vendor
+		if err := s.db.Select("id", "blacklist_status", "eligibility_status").First(&vendor, vendorID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.New("vendor not found")
+			}
+			return nil, err
+		}
+		if vendor.BlacklistStatus || vendor.EligibilityStatus != "eligible" {
+			return nil, errors.New("all invited vendors must be eligible and not blacklisted")
+		}
+
 		vendors = append(vendors, models.RFQVendor{
 			VendorID:            vendorID,
 			InvitationType:      "restricted",
@@ -118,6 +143,15 @@ func (s *RFQService) Create(req CreateRFQRequest, entityID uint) (*models.RFQ, e
 	if err := s.db.Create(rfq).Error; err != nil {
 		return nil, err
 	}
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(entityID),
+		ModuleCode: "RFQ",
+		ObjectType: "RFQ",
+		ObjectID:   rfq.ID,
+		EventCode:  "RFQ_CREATED",
+		ActorType:  "internal_user",
+		Action:     "create",
+	})
 	return s.GetByIDScoped(rfq.ID, entityID, "")
 }
 
@@ -132,7 +166,130 @@ func (s *RFQService) UpdateStatus(id uint, actorEntityID uint, scopeType, newSta
 	if err := s.db.Model(&rfq).Update("status", newStatus).Error; err != nil {
 		return nil, err
 	}
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(rfq.EntityID),
+		ModuleCode: "RFQ",
+		ObjectType: "RFQ",
+		ObjectID:   rfq.ID,
+		EventCode:  "RFQ_STATUS_UPDATED",
+		ActorType:  "internal_user",
+		Action:     "update_status",
+		DataAfter:  newStatus,
+	})
 	return s.GetByIDScoped(id, actorEntityID, scopeType)
+}
+
+func (s *RFQService) ListVendorTenders(vendorID uint) ([]models.RFQ, error) {
+	var rfqs []models.RFQ
+	err := s.db.
+		Joins("JOIN rfq_vendors ON rfq_vendors.rfq_id = rfqs.id").
+		Where("rfq_vendors.vendor_id = ? AND rfq_vendors.eligibility_status = ? AND rfq_vendors.participation_status IN ? AND rfqs.status IN ?", vendorID, "eligible", []string{"invited", "viewed", "submitted"}, []string{models.RFQStatusPublished, models.RFQStatusVendorSubmission}).
+		Preload("PR").
+		Find(&rfqs).Error
+	return rfqs, err
+}
+
+func (s *RFQService) GetVendorTender(id, vendorID uint) (*models.RFQ, error) {
+	var rfq models.RFQ
+	if err := s.db.
+		Joins("JOIN rfq_vendors ON rfq_vendors.rfq_id = rfqs.id").
+		Where("rfqs.id = ? AND rfq_vendors.vendor_id = ?", id, vendorID).
+		Preload("PR").
+		Preload("Vendors", "vendor_id = ?", vendorID).
+		First(&rfq).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("tender not found")
+		}
+		return nil, err
+	}
+
+	now := time.Now()
+	_ = s.db.Model(&models.RFQVendor{}).
+		Where("rfq_id = ? AND vendor_id = ?", id, vendorID).
+		Updates(map[string]interface{}{
+			"viewed_at":            &now,
+			"participation_status": "viewed",
+		}).Error
+	return &rfq, nil
+}
+
+func (s *RFQService) SubmitQuotation(rfqID, vendorID, vendorUserID uint, req VendorQuotationRequest) (*models.VendorBid, error) {
+	var vendor models.Vendor
+	if err := s.db.First(&vendor, vendorID).Error; err != nil {
+		return nil, errors.New("vendor not found")
+	}
+	if vendor.BlacklistStatus || vendor.EligibilityStatus != "eligible" {
+		return nil, errors.New("vendor is not eligible for tender participation")
+	}
+
+	var rfq models.RFQ
+	if err := s.db.First(&rfq, rfqID).Error; err != nil {
+		return nil, errors.New("rfq not found")
+	}
+	if time.Now().After(rfq.DeadlineAt) {
+		return nil, errors.New("batas waktu bidding telah berakhir")
+	}
+	if rfq.Status != models.RFQStatusPublished && rfq.Status != models.RFQStatusVendorSubmission {
+		return nil, errors.New("rfq is not open for vendor submission")
+	}
+
+	var invitation models.RFQVendor
+	if err := s.db.Where("rfq_id = ? AND vendor_id = ?", rfqID, vendorID).First(&invitation).Error; err != nil {
+		return nil, errors.New("vendor is not invited to this rfq")
+	}
+
+	var total float64
+	items := make([]models.BidItem, 0, len(req.Items))
+	for _, item := range req.Items {
+		lineTotal := item.Qty * item.UnitPrice
+		total += lineTotal
+		items = append(items, models.BidItem{
+			PRItemID:   item.PRItemID,
+			Qty:        item.Qty,
+			UnitPrice:  item.UnitPrice,
+			TotalPrice: lineTotal,
+			Note:       item.Note,
+		})
+	}
+
+	submittedAt := time.Now()
+	bid := &models.VendorBid{
+		RFQID:          rfqID,
+		VendorID:       vendorID,
+		EntityID:       rfq.EntityID,
+		QuotationTotal: total,
+		PaymentTerms:   req.PaymentTerms,
+		DeliveryTerms:  req.DeliveryTerms,
+		ValidUntil:     req.ValidUntil,
+		SubmittedAt:    &submittedAt,
+		Status:         "Submitted",
+		Items:          items,
+	}
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(bid).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&models.RFQVendor{}).
+			Where("rfq_id = ? AND vendor_id = ?", rfqID, vendorID).
+			Update("participation_status", "submitted").Error; err != nil {
+			return err
+		}
+		return tx.Model(&rfq).Where("id = ?", rfqID).Update("status", models.RFQStatusVendorSubmission).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(rfq.EntityID),
+		ModuleCode: "RFQ",
+		ObjectType: "QUOTATION",
+		ObjectID:   bid.ID,
+		EventCode:  "QUOTATION_SUBMITTED",
+		ActorType:  "vendor_user",
+		ActorID:    uintPtr(vendorUserID),
+		Action:     "submit_quotation",
+	})
+	return bid, nil
 }
 
 func (s *RFQService) generateRFQNumber() (string, error) {

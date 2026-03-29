@@ -157,6 +157,16 @@ func (s *PRService) Create(req CreatePRRequest, requestorID, entityID uint) (*mo
 	if err := s.db.Create(pr).Error; err != nil {
 		return nil, err
 	}
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(pr.EntityID),
+		ModuleCode: "PROCUREMENT",
+		ObjectType: "PR",
+		ObjectID:   pr.ID,
+		EventCode:  "PR_CREATED",
+		ActorType:  "internal_user",
+		ActorID:    uintPtr(requestorID),
+		Action:     "create",
+	})
 	return s.GetByID(pr.ID)
 }
 
@@ -173,25 +183,54 @@ func (s *PRService) Submit(id uint, actorID, actorEntityID uint, scopeType strin
 	}
 
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		assignee, originalUserID, err := resolveEntityApprover(tx, pr.EntityID, "APPROVER", "ENTITY_ADMIN", "SUPER_ADMIN")
+		if err != nil {
+			return errors.New("no approver is configured for this entity")
+		}
+
 		if err := tx.Model(&pr).Update("status", models.PRStatusPendingApproval).Error; err != nil {
 			return err
 		}
 
 		task := models.ApprovalTask{
-			EntityID:     pr.EntityID,
-			AssigneeID:   actorID,
-			DocumentType: "PR",
-			DocumentID:   pr.ID,
-			RefNumber:    pr.PRNumber,
-			Summary:      pr.Title,
-			Amount:       pr.EstimatedAmount,
-			Priority:     "Normal",
-			Status:       models.ApprovalStatusPending,
+			EntityID:         pr.EntityID,
+			AssigneeID:       assignee.ID,
+			OriginalUserID:   originalUserID,
+			DocumentType:     "PR",
+			DocumentID:       pr.ID,
+			RefNumber:        pr.PRNumber,
+			Summary:          pr.Title,
+			Amount:           pr.EstimatedAmount,
+			Priority:         "Normal",
+			ApprovalLevel:    1,
+			ApproverRoleCode: primaryRoleCode(assignee),
+			Status:           models.ApprovalStatusPending,
 		}
-		return tx.Create(&task).Error
+		if err := tx.Create(&task).Error; err != nil {
+			return err
+		}
+
+		approval := models.PRApproval{
+			PRID:               pr.ID,
+			EntityID:           pr.EntityID,
+			ApprovalLevel:      1,
+			AssignedApproverID: &assignee.ID,
+		}
+		return tx.Create(&approval).Error
 	}); err != nil {
 		return nil, err
 	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(pr.EntityID),
+		ModuleCode: "PROCUREMENT",
+		ObjectType: "PR",
+		ObjectID:   pr.ID,
+		EventCode:  "PR_SUBMITTED",
+		ActorType:  "internal_user",
+		ActorID:    uintPtr(actorID),
+		Action:     "submit",
+	})
 
 	return s.GetByIDScoped(id, actorEntityID, scopeType)
 }

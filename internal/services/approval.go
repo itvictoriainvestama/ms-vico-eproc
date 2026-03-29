@@ -62,6 +62,7 @@ func (s *ApprovalService) Approve(taskID, approverID, actorEntityID uint, scopeT
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&task).Updates(map[string]interface{}{
 			"status":       models.ApprovalStatusApproved,
+			"notes":        req.Notes,
 			"completed_at": &now,
 		}).Error; err != nil {
 			return err
@@ -69,10 +70,34 @@ func (s *ApprovalService) Approve(taskID, approverID, actorEntityID uint, scopeT
 
 		switch task.DocumentType {
 		case "PR":
+			if err := tx.Model(&models.PRApproval{}).
+				Where("pr_id = ? AND approval_level = ?", task.DocumentID, task.ApprovalLevel).
+				Updates(map[string]interface{}{
+					"acted_by_user_id":     approverID,
+					"on_behalf_of_user_id": task.OriginalUserID,
+					"action":               "approve",
+					"remarks":              req.Notes,
+					"acted_at":             &now,
+					"status_after_action":  models.PRStatusApproved,
+				}).Error; err != nil {
+				return err
+			}
 			return tx.Model(&models.PurchaseRequisition{}).
 				Where("id = ?", task.DocumentID).
 				Update("status", models.PRStatusApproved).Error
 		case "PO":
+			if err := tx.Model(&models.POApproval{}).
+				Where("po_id = ? AND approval_level = ?", task.DocumentID, task.ApprovalLevel).
+				Updates(map[string]interface{}{
+					"acted_by_user_id":     approverID,
+					"on_behalf_of_user_id": task.OriginalUserID,
+					"action":               "approve",
+					"remarks":              req.Notes,
+					"acted_at":             &now,
+					"status_after_action":  models.POStatusApproved,
+				}).Error; err != nil {
+				return err
+			}
 			return tx.Model(&models.PurchaseOrder{}).
 				Where("id = ?", task.DocumentID).
 				Update("status", models.POStatusApproved).Error
@@ -83,7 +108,17 @@ func (s *ApprovalService) Approve(taskID, approverID, actorEntityID uint, scopeT
 		return err
 	}
 
-	_ = req
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(task.EntityID),
+		ModuleCode: "APPROVAL",
+		ObjectType: task.DocumentType,
+		ObjectID:   task.DocumentID,
+		EventCode:  "APPROVAL_APPROVED",
+		ActorType:  "internal_user",
+		ActorID:    uintPtr(approverID),
+		Action:     "approve",
+		DataAfter:  req.Notes,
+	})
 	return nil
 }
 
@@ -103,9 +138,10 @@ func (s *ApprovalService) Reject(taskID, approverID, actorEntityID uint, scopeTy
 	}
 
 	now := time.Now()
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&task).Updates(map[string]interface{}{
 			"status":       models.ApprovalStatusRejected,
+			"notes":        req.Notes,
 			"completed_at": &now,
 		}).Error; err != nil {
 			return err
@@ -113,15 +149,54 @@ func (s *ApprovalService) Reject(taskID, approverID, actorEntityID uint, scopeTy
 
 		switch task.DocumentType {
 		case "PR":
+			if err := tx.Model(&models.PRApproval{}).
+				Where("pr_id = ? AND approval_level = ?", task.DocumentID, task.ApprovalLevel).
+				Updates(map[string]interface{}{
+					"acted_by_user_id":     approverID,
+					"on_behalf_of_user_id": task.OriginalUserID,
+					"action":               "reject",
+					"remarks":              req.Notes,
+					"acted_at":             &now,
+					"status_after_action":  models.PRStatusRejected,
+				}).Error; err != nil {
+				return err
+			}
 			return tx.Model(&models.PurchaseRequisition{}).
 				Where("id = ?", task.DocumentID).
 				Update("status", models.PRStatusRejected).Error
 		case "PO":
+			if err := tx.Model(&models.POApproval{}).
+				Where("po_id = ? AND approval_level = ?", task.DocumentID, task.ApprovalLevel).
+				Updates(map[string]interface{}{
+					"acted_by_user_id":     approverID,
+					"on_behalf_of_user_id": task.OriginalUserID,
+					"action":               "reject",
+					"remarks":              req.Notes,
+					"acted_at":             &now,
+					"status_after_action":  models.POStatusRejected,
+				}).Error; err != nil {
+				return err
+			}
 			return tx.Model(&models.PurchaseOrder{}).
 				Where("id = ?", task.DocumentID).
 				Update("status", models.POStatusRejected).Error
 		default:
 			return nil
 		}
+	}); err != nil {
+		return err
+	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(task.EntityID),
+		ModuleCode: "APPROVAL",
+		ObjectType: task.DocumentType,
+		ObjectID:   task.DocumentID,
+		EventCode:  "APPROVAL_REJECTED",
+		ActorType:  "internal_user",
+		ActorID:    uintPtr(approverID),
+		Action:     "reject",
+		DataAfter:  req.Notes,
 	})
+	return nil
 }

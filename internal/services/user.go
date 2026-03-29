@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/itvico/e-proc-api/internal/models"
 	"golang.org/x/crypto/bcrypt"
@@ -37,6 +38,18 @@ type CreateUserRequest struct {
 	ScopeType           string `json:"scope_type"`
 	Status              string `json:"status"`
 	ForceChangePassword bool   `json:"force_change_password"`
+}
+
+type ResetPasswordRequest struct {
+	NewPassword string `json:"new_password"`
+}
+
+type CreateDelegateApproverRequest struct {
+	OriginalUserID uint   `json:"original_user_id" binding:"required"`
+	DelegateUserID uint   `json:"delegate_user_id" binding:"required"`
+	StartAt        string `json:"start_at" binding:"required"`
+	EndAt          string `json:"end_at" binding:"required"`
+	Reason         string `json:"reason"`
 }
 
 func (s *UserService) List(actorEntityID uint, scopeType string, params UserListParams) (*UserListResult, error) {
@@ -177,4 +190,107 @@ func (s *UserService) Create(req CreateUserRequest, actorEntityID uint, actorSco
 	}
 
 	return s.GetByID(user.ID, actorEntityID, actorScopeType)
+}
+
+func (s *UserService) ResetPassword(id, actorEntityID uint, actorScopeType string, req ResetPasswordRequest) error {
+	user, err := s.GetByID(id, actorEntityID, actorScopeType)
+	if err != nil {
+		return err
+	}
+
+	newPassword := req.NewPassword
+	if newPassword == "" {
+		newPassword = "Temp123!"
+	}
+	if err := validatePasswordPolicy(newPassword); err != nil {
+		return err
+	}
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	if err := s.db.Model(user).Updates(map[string]interface{}{
+		"password_hash":         string(passwordHash),
+		"force_change_password": true,
+		"failed_login_count":    0,
+		"locked_until":          nil,
+	}).Error; err != nil {
+		return err
+	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(user.EntityID),
+		ModuleCode: "USER_MANAGEMENT",
+		ObjectType: "USER",
+		ObjectID:   user.ID,
+		EventCode:  "USER_RESET_PASSWORD",
+		ActorType:  "internal_user",
+		ActorID:    uintPtr(actorEntityID),
+		Action:     "reset_password",
+	})
+	return nil
+}
+
+func (s *UserService) ListDelegates(actorEntityID uint, scopeType string) ([]models.DelegateApprover, error) {
+	query := s.db.Model(&models.DelegateApprover{})
+	query = applyEntityScope(query, "entity_id", actorEntityID, scopeType)
+
+	var delegates []models.DelegateApprover
+	if err := query.Order("start_at DESC").Find(&delegates).Error; err != nil {
+		return nil, err
+	}
+	return delegates, nil
+}
+
+func (s *UserService) CreateDelegate(req CreateDelegateApproverRequest, actorEntityID uint, scopeType string) (*models.DelegateApprover, error) {
+	startAt, err := time.Parse(time.RFC3339, req.StartAt)
+	if err != nil {
+		return nil, errors.New("start_at must use RFC3339 format")
+	}
+	endAt, err := time.Parse(time.RFC3339, req.EndAt)
+	if err != nil {
+		return nil, errors.New("end_at must use RFC3339 format")
+	}
+	if !endAt.After(startAt) {
+		return nil, errors.New("end_at must be after start_at")
+	}
+
+	originalUser, err := s.GetByID(req.OriginalUserID, actorEntityID, scopeType)
+	if err != nil {
+		return nil, err
+	}
+	delegateUser, err := s.GetByID(req.DelegateUserID, actorEntityID, scopeType)
+	if err != nil {
+		return nil, err
+	}
+	if originalUser.EntityID != delegateUser.EntityID {
+		return nil, errors.New("delegate approver must be in the same entity")
+	}
+
+	delegate := &models.DelegateApprover{
+		EntityID:       originalUser.EntityID,
+		OriginalUserID: originalUser.ID,
+		DelegateUserID: delegateUser.ID,
+		StartAt:        startAt,
+		EndAt:          endAt,
+		Reason:         req.Reason,
+		Status:         "active",
+	}
+	if err := s.db.Create(delegate).Error; err != nil {
+		return nil, err
+	}
+
+	recordAuditLog(s.db, AuditEntry{
+		EntityID:   uintPtr(delegate.EntityID),
+		ModuleCode: "USER_MANAGEMENT",
+		ObjectType: "DELEGATE_APPROVER",
+		ObjectID:   delegate.ID,
+		EventCode:  "USER_DELEGATE_CREATE",
+		ActorType:  "internal_user",
+		ActorID:    uintPtr(actorEntityID),
+		Action:     "create_delegate",
+	})
+	return delegate, nil
 }

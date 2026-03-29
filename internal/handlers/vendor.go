@@ -88,3 +88,53 @@ func (h *VendorHandler) Update(c *gin.Context) {
 	}
 	httpapi.RespondOK(c, vendor)
 }
+
+func (h *VendorHandler) Blacklist(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, "Invalid id", "VALIDATION_ERROR", []httpapi.ValidationError{
+			{Field: "id", Message: "must be a positive integer"},
+		})
+		return
+	}
+
+	var req services.VendorBlacklistRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, "Validation failed", "VALIDATION_ERROR", []httpapi.ValidationError{
+			{Field: "body", Message: err.Error()},
+		})
+		return
+	}
+
+	vendor, err := h.svc.Blacklist(uint(id), c.GetUint("entity_id"), req)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, err.Error(), "VENDOR_BLACKLIST_FAILED", nil)
+		return
+	}
+	httpapi.RespondOK(c, vendor)
+}
+
+func (h *VendorHandler) Unblacklist(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, "Invalid id", "VALIDATION_ERROR", []httpapi.ValidationError{
+			{Field: "id", Message: "must be a positive integer"},
+		})
+		return
+	}
+
+	var req services.VendorBlacklistRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, "Validation failed", "VALIDATION_ERROR", []httpapi.ValidationError{
+			{Field: "body", Message: err.Error()},
+		})
+		return
+	}
+
+	vendor, err := h.svc.Unblacklist(uint(id), c.GetUint("entity_id"), req)
+	if err != nil {
+		httpapi.RespondError(c, http.StatusBadRequest, err.Error(), "VENDOR_UNBLACKLIST_FAILED", nil)
+		return
+	}
+	httpapi.RespondOK(c, vendor)
+}
