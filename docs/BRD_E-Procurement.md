@@ -412,6 +412,85 @@ Peran dalam sistem E-Procurement dibagi menjadi Peran Administrasi, Peran Bisnis
 
 _Catatan: Sebagian peran bisnis melekat pada level entitas, sementara peran tertentu seperti Holding Approver, serta fungsi monitoring dan audit tertentu, dapat berada pada level group sesuai governance yang ditetapkan oleh Holding Admin._
 
+**7\. BUSINESS SUCCESS METRICS DAN KPI**
+
+Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga dari dampak bisnis setelah implementasi.
+
+| **KPI / Outcome**                    | **Baseline Awal**                | **Target Tahun 1**                                | **Owner Bisnis**         |
+| ------------------------------------ | -------------------------------- | ------------------------------------------------- | ------------------------ |
+| Lead time approval PR/PO             | Manual, tidak terukur konsisten  | Penurunan lead time minimum 30%                   | Procurement + Management |
+| SLA approval compliance              | Belum terukur sistematis         | >= 90% approval selesai dalam SLA                 | Entity Admin             |
+| Ketersediaan audit trail             | Parsial, berbasis email dan file | 100% transaksi utama memiliki jejak audit         | Internal Audit + IT      |
+| Transparansi evaluasi vendor         | Tidak seragam                    | 100% vendor selection memiliki evidence evaluasi  | Procurement              |
+| Pengendalian budget                  | Manual / reaktif                 | 100% PR memiliki status budget terdokumentasi     | Entity Admin + Finance   |
+| Adopsi penggunaan sistem             | Belum ada                        | >= 95% proses in-scope berjalan melalui sistem    | Management + IT          |
+| Monitoring lintas entitas            | Manual                           | Dashboard group-level tersedia dan dipakai rutin  | Holding Admin            |
+
+**8\. PRIORITAS KEBUTUHAN DAN RENCANA IMPLEMENTASI BERTAHAP**
+
+| **Prioritas** | **Makna** | **Contoh Cakupan** |
+| ------------- | --------- | ------------------ |
+| Must Have | Wajib tersedia agar sistem layak go-live | PR, approval workflow, budget validation, RFQ, quotation, vendor evaluation, PO, audit trail, role access |
+| Should Have | Sangat penting, tetapi masih dapat menyusul setelah core stabil | Delegate approver, vendor blacklist, Reference Price / eCatalog, print/export, reminder SLA |
+| Could Have | Nilai tambah operasional dan monitoring | Dashboard lanjutan, report agregat, auto-generated reference price, BAFO refinement |
+| Future Phase | Direncanakan setelah fase inti berhasil | ERP integration, MFA, SSO, mobile approval, vendor performance scoring historis |
+
+**Rencana Implementasi Bertahap**
+
+| **Fase** | **Fokus** | **Output Utama** |
+| -------- | --------- | ---------------- |
+| Phase 1 | Core transactional procurement | Login, PR, approval task, RFQ dasar, quotation, PO, vendor confirmation, user/entity management |
+| Phase 2 | Governance strengthening | Budget management penuh, dynamic procurement policy, dynamic approval workflow, vendor blacklist, delegate approver |
+| Phase 3 | Monitoring dan optimization | Dashboard lanjutan, export/report, Reference Price enrichment, advanced notification dan escalation |
+| Phase 4 | Enterprise integration | ERP integration, SSO/MFA, data warehouse / BI, future automation |
+
+**9\. STAKEHOLDER DAN RACI BISNIS**
+
+| **Area / Keputusan** | **Responsible** | **Accountable** | **Consulted** | **Informed** |
+| -------------------- | --------------- | --------------- | ------------- | ------------ |
+| Kebijakan procurement group | Holding Admin | Direksi / Management | Procurement, Internal Audit | Seluruh entitas |
+| Governance approval per entitas | Holding Admin, Entity Admin | Direksi / Management | Finance, Procurement | Approver terkait |
+| Budget governance | Entity Admin, Finance | Direksi / Management | Holding Admin, Procurement | Requestor, Approver |
+| Operasional procurement harian | Procurement | Management entitas | Requestor, Approver | Internal Audit |
+| Vendor evaluation dan selection | Procurement | Management entitas sesuai kewenangan | User teknis / requestor | Internal Audit |
+| User access dan SoD | Holding Admin, Entity Admin | Management / Governance owner | Internal Audit, IT | User terkait |
+| Audit review dan compliance | Internal Audit | Direksi / Komite terkait | Holding Admin, IT, Procurement | Management |
+| Persetujuan go-live | Divisi IT, Procurement | Direksi / Management | Internal Audit, stakeholder entitas | Seluruh project stakeholder |
+
+**10\. KRITERIA PENERIMAAN BISNIS DAN UAT LEVEL**
+
+| **Area UAT** | **Kriteria Penerimaan Bisnis** |
+| ------------ | ------------------------------ |
+| Login dan role access | User internal dan vendor hanya dapat mengakses menu dan data sesuai role serta scope entitasnya |
+| Purchase Request | Requestor dapat membuat, submit, revisi, dan memonitor PR dengan dokumen pendukung lengkap |
+| Budget validation | Setiap PR memiliki hasil status Within Budget / Over Budget / Non Budget yang mempengaruhi alur approval |
+| Approval workflow | Approval berjalan berurutan, tidak dapat dilewati, dan sesuai governance entitas / holding |
+| Procurement method | Sistem dapat membedakan alur RFQ/Bidding vs Direct Appointment sesuai policy |
+| RFQ dan quotation | Vendor eligible dapat menerima tender, melihat detail, dan submit quotation sebelum deadline |
+| Vendor evaluation | Procurement dapat melakukan prequalification, evaluasi teknis/komersial, dan mendokumentasikan alasan pemilihan |
+| Purchase Order | PO hanya dapat diterbitkan dari proses yang sah dan mengikuti approval yang berlaku |
+| Vendor confirmation | Vendor dapat mengkonfirmasi PO dan status transaksi berubah sesuai lifecycle yang didefinisikan |
+| Audit trail dan report | Aktivitas utama tercatat, dapat difilter, dan dapat diekspor untuk kebutuhan audit |
+
+**11\. ASUMSI, KETERGANTUNGAN, DAN CONSTRAINT BISNIS**
+
+- Data master entitas, user, vendor, kategori, dan struktur organisasi tersedia atau dapat disiapkan sebelum UAT.
+- Kebijakan approval, budget, dan procurement policy per entitas disepakati sebelum konfigurasi final di sistem.
+- Proses pembayaran vendor, invoice verification, dan penerimaan barang/jasa tetap berada di luar ruang lingkup fase ini.
+- Notifikasi email bergantung pada ketersediaan layanan SMTP dan kebijakan keamanan infrastruktur perusahaan.
+- Keberhasilan adopsi sistem memerlukan sosialisasi, pelatihan user, dan dukungan change management dari manajemen.
+- Jika terdapat kebutuhan lintas entitas yang spesifik, keputusan governance tetap ditetapkan oleh Holding Admin dan Direksi sesuai kewenangan.
+
+**12\. OPEN ISSUES / KEPUTUSAN BISNIS YANG MASIH PERLU DITETAPKAN**
+
+| **Topik** | **Dampak** | **Owner Keputusan** |
+| --------- | ---------- | ------------------- |
+| Batas nilai final per level approver pada tiap entitas | Mempengaruhi konfigurasi approval matrix dan UAT | Holding Admin + Management |
+| Apakah escalation SLA bersifat reminder-only atau dapat auto-escalate pada fase berikutnya | Mempengaruhi governance operasional dan ekspektasi user | Management + Internal Audit |
+| Kebijakan final penggunaan Direct Appointment per kategori pengadaan | Mempengaruhi dynamic procurement policy dan kontrol fraud | Procurement + Management |
+| Kebutuhan tanda tangan digital formal pada dokumen output | Mempengaruhi legal acceptance dan desain output report | Management + Legal / Compliance |
+| Prioritas integrasi ERP / finance pada fase berikutnya | Mempengaruhi roadmap dan desain transisi proses pasca-go-live | Direksi + IT + Finance |
+
 **LAMPIRAN A: DYNAMIC APPROVAL MATRIX**
 
 Matriks Approval ini menjadi dasar konfigurasi workflow sistem, yang kini bersifat dinamis dan dapat ditentukan berdasarkan kebijakan pengadaan. Workflow dapat dikonfigurasi melalui sistem tanpa perlu perubahan kode program.

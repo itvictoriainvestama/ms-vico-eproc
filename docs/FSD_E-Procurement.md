@@ -5,7 +5,7 @@ Functional Specification Document (FSD)
 
 **PT. Victoria Investama, Tbk (VICO)**
 
-Ver 2.0.0
+Ver 2.1.0
 
 # Document Information
 
@@ -16,6 +16,8 @@ Ver 2.0.0
 | 1.0.0       | 28/03/2026         | Initial Document                                                                                                                                                                                                                        | Divisi IT     |
 | ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
 | 2.0.0       | 28/03/2026         | Penambahan: Login/Logout, Reset Password, Vendor Blacklist, Reference Price, Cancel/Void, Delegate Approver, Ganti Password, Field Validation, Notification Rules, Error Handling, Search/Filter, Print/Export, Pre/Post System Process | Divisi IT     |
+| ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
+| 2.1.0       | 04/04/2026         | Penambahan traceability, business rules catalog, acceptance criteria, source-of-truth rules, dan UAT scenario prioritas                                                                                                              | Divisi IT     |
 | ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
 
 ## 2\. Daftar Distribusi
@@ -2337,6 +2339,63 @@ stateDiagram-v2
     Voided --> [*]
     Completed --> [*]
 ```
+
+# Business Rules Catalog
+
+Katalog berikut merangkum aturan fungsional utama yang berlaku lintas modul agar implementasi, QA, dan UAT memiliki acuan yang sama.
+
+| **Rule ID** | **Aturan Fungsional** | **Perilaku Sistem yang Diharapkan** |
+| ----------- | --------------------- | ----------------------------------- |
+| BR-01 | Setiap transaksi procurement harus berada dalam scope entitas yang valid | Sistem menolak akses atau aksi lintas entitas tanpa kewenangan |
+| BR-02 | PR tidak dapat di-submit tanpa data inti dan dokumen wajib | Sistem menolak submit dan menampilkan validation error |
+| BR-03 | Setiap PR wajib memiliki status budget | Sistem menghitung dan menandai Within Budget / Over Budget / Non Budget |
+| BR-04 | Approval berjalan berurutan sesuai workflow yang dikonfigurasi | Tidak ada approver yang dapat melompati level sebelumnya |
+| BR-05 | Kondisi Over Budget / Non Budget dapat menambah approver Finance | Sistem menyisipkan Finance sesuai governance rule |
+| BR-06 | Delegate approver hanya berlaku dalam periode aktif yang ditentukan | Approval diarahkan ke delegate bila delegasi aktif dan valid |
+| BR-07 | Vendor blacklist tidak boleh ikut proses procurement yang mensyaratkan eligibility | Sistem memblok vendor blacklist pada prequalification, RFQ, Direct Appointment, dan/atau PO sesuai policy |
+| BR-08 | Direct Appointment wajib memiliki justifikasi terdokumentasi | Sistem mewajibkan field justifikasi sebelum proses dilanjutkan |
+| BR-09 | Reference Price / eCatalog hanya menjadi pembanding, bukan override otomatis harga vendor | Sistem menampilkan alert/perbandingan, tetapi keputusan tetap melalui evaluasi dan approval |
+| BR-10 | Dokumen yang sudah di-submit menjadi bagian dari audit trail | Attachment dan histori transaksi tidak dapat dihapus sembarangan |
+| BR-11 | Cancel/Void wajib menyimpan alasan dan jejak audit | Sistem menolak aksi tanpa alasan wajib |
+| BR-12 | Vendor hanya dapat melihat tender dan PO yang memang menjadi scope vendor tersebut | Data vendor lain tidak boleh terlihat di Vendor Portal |
+| BR-13 | Setiap approval, rejection, reset password, delegation, dan perubahan governance harus tercatat | Sistem mencatat event ke audit trail |
+| BR-14 | Print/export hanya tersedia untuk role yang berwenang | Sistem menerapkan akses export sesuai role matrix |
+| BR-15 | Dashboard dan laporan wajib mengikuti kewenangan entity/group pengguna | Sistem membatasi data monitoring sesuai scope akses |
+
+# Acceptance Criteria dan Definition of Done
+
+Section ini menjadi jembatan antara requirement fungsional dan test/UAT agar tiap modul memiliki tolok ukur selesai yang jelas.
+
+| **Modul / Area** | **Acceptance Criteria Minimum** |
+| ---------------- | ------------------------------- |
+| Authentication dan access | Login, logout, force change password, dan pembatasan role berjalan tanpa membuka akses data di luar scope |
+| Purchase Request | PR dapat dibuat, divalidasi, disubmit, direvisi, dan ditolak/disetujui sesuai lifecycle |
+| Budget Management | Status budget selalu terhitung dan mempengaruhi workflow sesuai kebijakan |
+| Approval Workflow | Approval task terbentuk, approver resolved dengan benar, dan histori approval dapat ditelusuri |
+| RFQ / Bidding | RFQ dapat dipublish ke vendor eligible, quotation dapat disubmit sebelum deadline, dan close/reopen mengikuti aturan |
+| Vendor Evaluation | Prequalification, technical/commercial evaluation, ranking, dan alasan pemilihan vendor terdokumentasi |
+| Direct Appointment | Justifikasi wajib tersimpan dan vendor tetap lolos kontrol eligibility |
+| Purchase Order | PO hanya dapat dibentuk dari proses sah, mengikuti approval, dan lifecycle vendor confirmation |
+| User / Entity / Governance | User, entity, role, delegate approver, dan governance rule dapat dikelola sesuai kewenangan |
+| Notification / Audit / Export | Event utama mengirim notifikasi, tercatat di audit trail, dan output export dapat dihasilkan sesuai akses |
+
+# Source of Truth dan Ownership Rules
+
+Aturan ini menjelaskan sumber data utama, pemilik bisnis, dan batas perubahan data untuk mengurangi konflik interpretasi lintas modul.
+
+| **Objek / Data** | **Source of Truth** | **Owner Bisnis** | **Dapat Diubah Oleh** | **Menjadi Immutable Setelah** |
+| ---------------- | ------------------- | ---------------- | --------------------- | ----------------------------- |
+| Entity master | Entity Management | Holding Admin | Holding Admin | Digunakan oleh transaksi aktif, kecuali perubahan terkontrol |
+| User role dan scope | User Management | Holding Admin / Entity Admin | Admin sesuai kewenangan | Tercatat per perubahan role |
+| Budget master | Budget Management | Entity Admin / Finance | Admin sesuai governance | Periode budget ditutup |
+| Procurement policy | Dynamic Procurement Policy | Holding Admin / Entity Admin | Admin sesuai governance | Menjadi referensi transaksi baru setelah publish |
+| Approval workflow rule | Dynamic Approval Workflow | Holding Admin / Entity Admin | Admin sesuai governance | Berlaku untuk submit berikutnya |
+| PR header dan item | Purchase Request | Requestor | Requestor selama Draft / Rejected | Submit ke approval |
+| RFQ setup dan invited vendor | RFQ | Procurement | Procurement selama Draft / sebelum publish | RFQ Published |
+| Quotation vendor | Vendor Portal | Vendor | Vendor selama tender masih open | Submit quotation / bidding closed |
+| Vendor evaluation | Evaluation module | Procurement | Procurement sesuai tahap evaluasi | Vendor selection final / approval terkait |
+| Purchase Order | PO module | Procurement | Procurement selama Draft / Rejected | Submit approval / send to vendor sesuai status |
+| Audit trail | Audit module | System / Internal Audit (read) | System generated only | Saat event tercatat |
 
 # Field-Level Validation Rules
 
