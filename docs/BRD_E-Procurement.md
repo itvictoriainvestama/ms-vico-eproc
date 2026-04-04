@@ -34,6 +34,15 @@ Dokumen ini disusun untuk:
 - Menjadi acuan pengembangan sistem oleh Divisi IT.
 - Mendukung kebutuhan audit internal dan eksternal.
 
+**1.3 Catatan Konsistensi Dokumen**
+
+Untuk menjaga konsistensi antar dokumen proyek:
+
+- BRD menjadi acuan utama kebutuhan bisnis, governance, dan target proses procurement.
+- FSD menjadi turunan kebutuhan fungsional, use case, lifecycle, validasi, dan aturan operasional sistem.
+- TSD menjadi turunan rancangan teknis implementasi, termasuk model autentikasi, arsitektur layanan, integrasi, dan kontrol keamanan.
+- Jika pada FSD terdapat lampiran alignment implementasi backend berjalan, lampiran tersebut diperlakukan sebagai konteks implementasi saat ini dan tidak mengubah kebutuhan bisnis target-state yang didefinisikan dalam BRD.
+
 **2\. TUJUAN PROYEK**
 
 Pengembangan Sistem E-Procurement bertujuan untuk:
@@ -212,10 +221,19 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Penetapan role user.
 - Aktivasi/deaktivasi user.
 - User role assignment.
+- Reset password oleh Holding Admin atau Entity Admin sesuai kewenangan.
+- Delegate approver sementara dengan periode berlaku tertentu.
 - Holding Admin dapat mengelola user lintas entitas.
 - Entity Admin hanya dapat mengelola user di entitasnya sendiri sesuai governance.
 
-**K. Modul Vendor Portal / Vendor Participation Portal**
+**K. Modul Vendor Blacklist dan Vendor Eligibility Control**
+
+- Holding Admin dapat menetapkan vendor sebagai blacklist atau menghapus blacklist sesuai kebijakan yang berlaku.
+- Status blacklist wajib mempengaruhi eligibility vendor pada proses tender dan pemilihan vendor.
+- Blacklist check menjadi kontrol wajib pada vendor prequalification, RFQ, direct appointment, dan pembuatan PO.
+- Alasan blacklist dan unblacklist harus terdokumentasi untuk kebutuhan audit.
+
+**L. Modul Vendor Portal / Vendor Participation Portal**
 
 - Portal eksternal untuk partisipasi vendor dalam tender.
 - Vendor dapat melihat tender yang dipublikasikan.
@@ -373,6 +391,8 @@ Peran dalam sistem E-Procurement dibagi menjadi Peran Administrasi, Peran Bisnis
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Procurement      | Entitas       | Mengelola RFQ, bidding, comparison, BAFO, dan PO.                                                                                                                                                                                                                                                                                                                            |
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
+| Finance          | Entitas/Group | Memberikan approval tambahan untuk kondisi over budget atau non budget sesuai governance yang berlaku.                                                                                                                                                                                                                                                                      |
+| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Management       | Entitas/Group | Monitoring dan evaluasi kinerja pengadaan.                                                                                                                                                                                                                                                                                                                                   |
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Internal Audit   | Entitas/Group | Review dan pengujian kepatuhan sistem dan proses lintas entitas.                                                                                                                                                                                                                                                                                                             |
@@ -442,6 +462,8 @@ Matriks ini mencerminkan pengendalian yang diperkuat melalui Budget Management, 
 
 Matriks ini merangkum hak akses fungsional utama untuk setiap peran dalam sistem E-Procurement.
 
+_Catatan: Peran Finance tidak ditampilkan sebagai kolom terpisah pada matriks ini karena keterlibatannya bersifat conditional, yaitu sebagai approver tambahan untuk pengadaan over budget atau non budget sesuai governance yang berlaku._
+
 | **Capability Utama**           | **Holding Admin** | **Entity Admin** | **Requestor** | **Entity Approver** | **Holding Approver** | **Procurement** | **Management** | **Internal Audit** | **Vendor** |
 | ------------------------------ | ----------------- | ---------------- | ------------- | ------------------- | -------------------- | --------------- | -------------- | ------------------ | ---------- |
 | Create PR                      | \-                | \-               | R/W           | \-                  | \-                   | \-              | \-             | \-                 | \-         |
@@ -460,13 +482,21 @@ Matriks ini merangkum hak akses fungsional utama untuk setiap peran dalam sistem
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Assign User Role               | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
+| Reset Password                 | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
+| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
+| Delegate Approver              | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
+| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Set Entity Governance          | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Set Dynamic Approval Workflow  | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Set Budget Governance          | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
+| Vendor Blacklist Management    | R/W               | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
+| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Vendor Comparison / Evaluation | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
+| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
+| Reference Price / eCatalog     | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Create PO                      | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
 | ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |

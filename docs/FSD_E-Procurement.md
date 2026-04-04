@@ -2613,6 +2613,8 @@ Matriks pengendalian risiko fraud dan kepatuhan:
 
 _Keterangan: R/W = Read/Write/Modify, R = Read/View Only, - = No Access_
 
+_Catatan: Peran Finance tidak ditampilkan sebagai kolom terpisah pada matriks ini karena keterlibatannya bersifat conditional, yaitu sebagai approver tambahan untuk pengadaan over budget atau non budget sesuai governance yang berlaku._
+
 | **Capability**         | **Hold. Admin** | **Ent. Admin** | **Requestor** | **Ent. Appr.** | **Hold. Appr.** | **Procure.** | **Mgmt** | **Audit** | **Vendor** |
 | ---------------------- | --------------- | -------------- | ------------- | -------------- | --------------- | ------------ | -------- | --------- | ---------- |
 | **Create PR**          | \-              | \-             | R/W           | \-             | \-              | \-           | \-       | \-        | \-         |
