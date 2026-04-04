@@ -1657,6 +1657,179 @@ Catatan implementasi:
 - Setelah approval PO, status menjadi `Approved`; transisi ke `Sent to Vendor` saat ini dilakukan melalui endpoint update status generik jika dibutuhkan.
 - Vendor hanya dapat mengkonfirmasi PO miliknya sendiri dan hanya pada status yang diizinkan oleh service.
 
+## 6\. Ganti Password Internal User
+
+```mermaid
+sequenceDiagram
+    actor InternalUser as Internal User
+    participant API as Internal Auth API
+    participant MW as Auth + Subject Middleware
+    participant Auth as AuthService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    InternalUser->>API: POST /api/v1/internal/auth/change-password
+    API->>MW: Validasi Bearer token + subject_type=internal_user
+    MW-->>API: user_id
+    API->>Auth: ChangePassword(user_id, current_password, new_password)
+    Auth->>DB: Ambil user berdasarkan user_id
+    Auth->>Auth: Verifikasi current password
+    Auth->>Auth: Validasi password policy
+    Auth->>Auth: Hash password baru dengan bcrypt
+    Auth->>DB: Update password_hash, force_change_password=false, reset failed_login_count
+    Auth->>Audit: Simpan AUTH_CHANGE_PASSWORD
+    Auth-->>API: status password_changed
+    API-->>InternalUser: 200 OK
+```
+
+Catatan implementasi:
+
+- Endpoint ini hanya tersedia untuk `internal_user`; vendor belum memiliki endpoint change password terpisah pada code saat ini.
+- Password baru wajib lolos policy validasi yang dipakai service auth.
+
+## 7\. Pengelolaan Entity oleh Super Admin
+
+```mermaid
+sequenceDiagram
+    actor SuperAdmin
+    participant API as Admin Entity API
+    participant MW as Auth + Role Middleware
+    participant Entity as EntityService
+    participant DB as MySQL
+
+    SuperAdmin->>API: POST /api/v1/admin/entities
+    API->>MW: Validasi Bearer token + role SUPER_ADMIN
+    API->>Entity: Create(entity_code, entity_name, parent_entity_id, governance)
+    Entity->>Entity: Set default entity_type, governance_mode, status
+    Entity->>DB: Insert entities
+    Entity-->>API: Detail entity baru
+    API-->>SuperAdmin: 201 Created
+```
+
+Catatan implementasi:
+
+- Create entity hanya dibuka untuk `SUPER_ADMIN`.
+- Pada implementasi saat ini create entity belum menulis audit log eksplisit di service.
+
+## 8\. Pengelolaan User dan Reset Password oleh Admin
+
+```mermaid
+sequenceDiagram
+    actor Admin as SUPER_ADMIN / ENTITY_ADMIN
+    participant API as Admin User API
+    participant MW as Auth + Role Middleware
+    participant UserSvc as UserService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Admin->>API: POST /api/v1/admin/users
+    API->>MW: Validasi Bearer token dan role admin
+    MW-->>API: entity_id, scope_type
+    API->>UserSvc: Create(payload user)
+    UserSvc->>UserSvc: Validasi scope entitas actor
+    UserSvc->>DB: Validasi entity, department, dan role aktif
+    UserSvc->>UserSvc: Hash password awal dengan bcrypt
+    UserSvc->>DB: Transaction
+    DB-->>UserSvc: Insert users
+    DB-->>UserSvc: Insert user_roles(is_primary=true)
+    DB-->>UserSvc: Update users.primary_role_id
+    UserSvc-->>API: Detail user baru
+    API-->>Admin: 201 Created
+
+    Admin->>API: POST /api/v1/admin/users/:id/reset-password
+    API->>UserSvc: ResetPassword(user_id, actor_entity_id, scope_type, new_password?)
+    UserSvc->>DB: Ambil user dalam scope actor
+    UserSvc->>UserSvc: Gunakan password default jika body kosong
+    UserSvc->>UserSvc: Validasi password policy dan hash password baru
+    UserSvc->>DB: Update password_hash, force_change_password=true
+    UserSvc->>Audit: Simpan USER_RESET_PASSWORD
+    API-->>Admin: 200 OK
+```
+
+Catatan implementasi:
+
+- `ENTITY_ADMIN` hanya dapat membuat atau mereset user di entitasnya sendiri.
+- Jika `new_password` tidak dikirim, service memakai default `Temp123!` lalu memaksa user mengganti password saat login berikutnya.
+
+## 9\. Konfigurasi Delegate Approver
+
+```mermaid
+sequenceDiagram
+    actor Admin as SUPER_ADMIN / ENTITY_ADMIN
+    participant API as Admin Delegate API
+    participant MW as Auth + Role Middleware
+    participant UserSvc as UserService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Admin->>API: POST /api/v1/admin/delegate-approvers
+    API->>MW: Validasi Bearer token dan role admin
+    MW-->>API: entity_id, scope_type
+    API->>UserSvc: CreateDelegate(original_user_id, delegate_user_id, start_at, end_at, reason)
+    UserSvc->>UserSvc: Parse start_at/end_at RFC3339
+    UserSvc->>UserSvc: Validasi end_at > start_at
+    UserSvc->>DB: Ambil original user dalam scope actor
+    UserSvc->>DB: Ambil delegate user dalam scope actor
+    UserSvc->>UserSvc: Validasi kedua user berada di entity yang sama
+    UserSvc->>DB: Insert delegate_approvers(status=active)
+    UserSvc->>Audit: Simpan USER_DELEGATE_CREATE
+    UserSvc-->>API: Detail delegate approver
+    API-->>Admin: 201 Created
+```
+
+Catatan implementasi:
+
+- Delegate approver disimpan dengan periode aktif eksplisit `start_at` dan `end_at`.
+- Penggunaan delegate pada alur submit PR/PO terjadi saat service approval/submit memanggil resolver approver entitas.
+
+## 10\. Vendor Master dan Vendor Blacklist
+
+```mermaid
+sequenceDiagram
+    actor Procurement as Admin / Procurement
+    actor SuperAdmin
+    participant VendorAPI as Internal Vendor API
+    participant SuperAPI as Super Admin Vendor API
+    participant VendorSvc as VendorService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Procurement->>VendorAPI: POST /api/v1/internal/vendors
+    VendorAPI->>VendorSvc: Create(vendor_name, tax_id, email, phone, address)
+    VendorSvc->>VendorSvc: Generate vendor_code
+    VendorSvc->>DB: Insert vendors(approved, eligible, not blacklisted)
+    VendorSvc->>Audit: Simpan VENDOR_CREATED
+    VendorAPI-->>Procurement: 201 Created
+
+    Procurement->>VendorAPI: PUT /api/v1/internal/vendors/:id
+    VendorAPI->>VendorSvc: Update(vendor_id, profile)
+    VendorSvc->>DB: Ambil vendor
+    VendorSvc->>DB: Update master data vendor
+    VendorSvc->>Audit: Simpan VENDOR_UPDATED
+    VendorAPI-->>Procurement: 200 OK
+
+    SuperAdmin->>SuperAPI: POST /api/v1/admin/vendors/:id/blacklist
+    SuperAPI->>VendorSvc: Blacklist(vendor_id, actor_entity_id, reason)
+    VendorSvc->>DB: Transaction
+    DB-->>VendorSvc: Update vendors.blacklist_status=true, eligibility_status=blacklisted
+    DB-->>VendorSvc: Insert vendor_blacklists(status=active, blacklist_type=group)
+    VendorSvc->>Audit: Simpan VENDOR_BLACKLISTED
+    SuperAPI-->>SuperAdmin: 200 OK
+
+    SuperAdmin->>SuperAPI: POST /api/v1/admin/vendors/:id/unblacklist
+    SuperAPI->>VendorSvc: Unblacklist(vendor_id, actor_entity_id, reason)
+    VendorSvc->>DB: Transaction
+    DB-->>VendorSvc: Update vendors.blacklist_status=false, eligibility_status=eligible
+    DB-->>VendorSvc: Update vendor_blacklists aktif menjadi inactive + end_at
+    VendorSvc->>Audit: Simpan VENDOR_UNBLACKLISTED
+    SuperAPI-->>SuperAdmin: 200 OK
+```
+
+Catatan implementasi:
+
+- Create dan update vendor tersedia untuk role procurement/admin internal, sedangkan blacklist dan unblacklist dibatasi ke `SUPER_ADMIN`.
+- Blacklist vendor langsung mempengaruhi eligibility sehingga vendor tidak dapat dipakai pada RFQ/PO berikutnya.
+
 # Field-Level Validation Rules
 
 Berikut spesifikasi validasi per field untuk form-form utama dalam sistem. Setiap field memiliki aturan tipe data, format, dan apakah wajib diisi.
