@@ -1,15 +1,14 @@
+# Functional Specification Document (FSD)
 
-**Aplikasi E-Procurement**
+## Sistem E-Procurement
 
-Functional Specification Document (FSD)
+**Entitas:** PT Victoria Investama, Tbk (VICO)
 
-**PT. Victoria Investama, Tbk (VICO)**
+**Versi:** 2.1.1
 
-Ver 2.1.1
+# Informasi Dokumen
 
-# Document Information
-
-## 1\. Ringkasan Revisi
+## 1. Ringkasan Revisi
 
 | **Version** | **Tanggal Terbit** | **Deskripsi**                                                                                                                                                                                                                           | **Author(s)** |
 | ----------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
@@ -22,7 +21,7 @@ Ver 2.1.1
 | 2.1.1       | 05/04/2026         | Harmonisasi terminologi, perapihan editorial, dan standardisasi wording formal lintas section                                                                                                                                            | Divisi IT     |
 | ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
 
-## 2\. Daftar Distribusi
+## 2. Daftar Distribusi
 
 | **Perusahaan**              | **Personil/Kelompok** | **Komentar**      |
 | --------------------------- | --------------------- | ----------------- |
@@ -33,13 +32,13 @@ Ver 2.1.1
 | PT. Victoria Investama, Tbk | Internal Audit        | Compliance Review |
 | ---                         | ---                   | ---               |
 
-## 3\. Prosedur Pembaharuan
+## 3. Prosedur Pembaharuan
 
 Pemilik dokumen ini adalah PT. Victoria Investama, Tbk. Project Manager bertanggung jawab atas dokumen ini. Setiap perubahan harus melalui proses change request dan persetujuan manajemen sesuai standar pengembangan sistem perusahaan.
 
-# Introduction
+# Pendahuluan
 
-## 1\. Tujuan
+## 1. Tujuan
 
 Functional Specification Document (FSD) E-Procurement merupakan dokumen yang berisi spesifikasi fungsional sistem E-Procurement yang akan digunakan untuk mengelola proses pengadaan barang dan jasa di lingkungan PT. Victoria Investama, Tbk dan seluruh anak perusahaan (Victoria Financial Group).
 
@@ -52,7 +51,7 @@ Dokumen ini bertujuan untuk:
 - Mendefinisikan mekanisme dynamic approval workflow, audit trail permanen, dan segregation of duties (SoD) yang harus diimplementasikan.
 - Menjadi referensi utama bagi seluruh pemangku kepentingan (Direksi, Divisi IT, Internal Audit, Entity Admin, dan Procurement) dalam proses implementasi sistem.
 
-## 1\.1 Catatan Konsistensi Dokumen
+### 1.1 Catatan Konsistensi Dokumen
 
 Untuk menjaga konsistensi end-to-end antar dokumen:
 
@@ -62,7 +61,7 @@ Untuk menjaga konsistensi end-to-end antar dokumen:
 - Istilah "session" pada FSD harus dipahami sebagai sesi autentikasi pengguna yang pada implementasi teknis dapat direalisasikan menggunakan access token, refresh token, timeout inaktivitas, dan mekanisme revoke sesuai keputusan teknis pada TSD.
 - Bagian "Sequence Diagram Implementasi Phase 1" pada FSD berfungsi sebagai lampiran alignment terhadap implementasi backend saat ini dan tidak menggantikan kebutuhan fungsional target-state yang tetap mengacu pada BRD dan FSD utama.
 
-## 1\.2 Referensi dan Traceability Ringkas
+### 1.2 Referensi dan Traceability Ringkas
 
 | **Area Bisnis / Fungsional** | **Acuan BRD** | **Cakupan FSD** | **Acuan TSD** | **Status Ringkas** |
 | ---------------------------- | ------------- | --------------- | ------------- | ------------------ |
@@ -79,7 +78,7 @@ Untuk menjaga konsistensi end-to-end antar dokumen:
 
 _Catatan: tabel ini disediakan sebagai panduan traceability cepat. Detail normative tetap mengacu pada narasi lengkap BRD, FSD, dan TSD masing-masing._
 
-## 2\. Ruang Lingkup Service
+## 2. Ruang Lingkup Service
 
 | **No** | **Ruang Lingkup Service**       | **Deskripsi**                                                                                   |
 | ------ | ------------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -92,7 +91,7 @@ _Catatan: tabel ini disediakan sebagai panduan traceability cepat. Detail normat
 | 4      | Pembuatan Dashboard Monitoring  | Digunakan oleh manajemen dan direksi untuk monitoring pengadaan per entitas dan grup            |
 | ---    | ---                             | ---                                                                                             |
 
-## 3\. Peranan User dan Akronim
+## 3. Peranan User dan Akronim
 
 **Peranan User**
 
@@ -209,7 +208,7 @@ Sistem E-Procurement mencakup proses dari pembuatan PR hingga Vendor Confirmatio
 # Analisis dan Konsep
 
 Pengembangan sistem E-Procurement dibangun berdasarkan kebutuhan bisnis dan pengendalian internal, dengan mempertimbangkan kebutuhan fungsional, non-fungsional, pengendalian internal, dan auditability.
-## 1\. Kebutuhan Fungsional
+## 1. Kebutuhan Fungsional
 
 **Modul Sistem**
 
@@ -240,7 +239,7 @@ Pengembangan sistem E-Procurement dibangun berdasarkan kebutuhan bisnis dan peng
 | **Management Reporting**         | Dashboard monitoring, reporting, analisis lead time, rekap pengadaan                                          |
 | ---                              | ---                                                                                                           |
 
-## 2\. Kebutuhan Non Fungsional
+## 2. Kebutuhan Non Fungsional
 
 | **No** | **Kebutuhan Non Fungsional** | **Deskripsi**                                                                    |
 | ------ | ---------------------------- | -------------------------------------------------------------------------------- |
@@ -263,7 +262,7 @@ Pengembangan sistem E-Procurement dibangun berdasarkan kebutuhan bisnis dan peng
 | 9      | Mata Uang                    | Sistem hanya mendukung mata uang IDR (Rupiah) pada fase ini                      |
 | ---    | ---                          | ---                                                                              |
 
-## 3\. Fitur Sistem
+## 3. Fitur Sistem
 
 | **Fitur**                  | **Deskripsi**                                                             |
 | -------------------------- | ------------------------------------------------------------------------- |
@@ -421,32 +420,32 @@ Untuk penjelasan scenario masing-masing use case adalah sebagai berikut:
 
 | **Termination Outcomes**                | **Conditions User**                                                                | **Conditions System**                                                                                                                                                                                          |
 | --------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **User mengakses halaman login**        | 1\. User membuka URL Web Application atau Vendor Portal                            | 2\. Sistem menampilkan halaman login dengan field email/username dan password                                                                                                                                  |
+| **User mengakses halaman login**        | 1. User membuka URL Web Application atau Vendor Portal                            | 2. Sistem menampilkan halaman login dengan field email/username dan password                                                                                                                                  |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **User memasukkan kredensial**          | 3\. User mengisi email/username dan password<br><br>4\. User mengklik tombol Login | 5\. Sistem memvalidasi kredensial terhadap database<br><br>6\. Sistem memeriksa status user (aktif/nonaktif)<br><br>7\. Sistem memeriksa entitas user (aktif/nonaktif)                                         |
+| **User memasukkan kredensial**          | 3. User mengisi email/username dan password<br><br>4. User mengklik tombol Login | 5. Sistem memvalidasi kredensial terhadap database<br><br>6. Sistem memeriksa status user (aktif/nonaktif)<br><br>7. Sistem memeriksa entitas user (aktif/nonaktif)                                         |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Login berhasil**                      |                                                                                    | 8\. Sistem membentuk sesi autentikasi pengguna sesuai kebijakan keamanan yang berlaku (misalnya access token, refresh token, dan timeout inaktivitas)<br><br>9\. Sistem mengarahkan user ke dashboard sesuai role dan entitas<br><br>10\. Sistem mencatat log login (timestamp, IP address, user agent) |
+| **Login berhasil**                      |                                                                                    | 8. Sistem membentuk sesi autentikasi pengguna sesuai kebijakan keamanan yang berlaku (misalnya access token, refresh token, dan timeout inaktivitas)<br><br>9. Sistem mengarahkan user ke dashboard sesuai role dan entitas<br><br>10. Sistem mencatat log login (timestamp, IP address, user agent) |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Login gagal karena kredensial salah** | 11\. User melihat pesan error                                                      | 12\. Sistem menampilkan notifikasi username atau password salah<br><br>13\. Sistem TIDAK memberitahu field mana yang salah (security best practice)                                                            |
+| **Login gagal karena kredensial salah** | 11. User melihat pesan error                                                      | 12. Sistem menampilkan notifikasi username atau password salah<br><br>13. Sistem TIDAK memberitahu field mana yang salah (security best practice)                                                            |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Login gagal karena akun nonaktif**    |                                                                                    | 14\. Sistem menampilkan notifikasi bahwa akun tidak aktif dan mengarahkan user untuk menghubungi Admin                                                                                                         |
+| **Login gagal karena akun nonaktif**    |                                                                                    | 14. Sistem menampilkan notifikasi bahwa akun tidak aktif dan mengarahkan user untuk menghubungi Admin                                                                                                         |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Sesi autentikasi berakhir karena timeout** |                                                                                | 15\. Setelah periode inaktif, sistem otomatis mengakhiri sesi autentikasi aktif<br><br>16\. User diarahkan kembali ke halaman login                                                                                           |
+| **Sesi autentikasi berakhir karena timeout** |                                                                                | 15. Setelah periode inaktif, sistem otomatis mengakhiri sesi autentikasi aktif<br><br>16. User diarahkan kembali ke halaman login                                                                                           |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Logging**                             |                                                                                    | 17\. Sistem mencatat seluruh aktivitas login (berhasil/gagal) dalam audit trail                                                                                                                                |
+| **Logging**                             |                                                                                    | 17. Sistem mencatat seluruh aktivitas login (berhasil/gagal) dalam audit trail                                                                                                                                |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 
 **MOCKUP**
 
-**1\. Halaman Login Web Application**
+**1. Halaman Login Web Application**
 
 _\[Screenshot: Halaman Login Web Application\]_
 
-**2\. Halaman Login Vendor Portal**
+**2. Halaman Login Vendor Portal**
 
 _\[Screenshot: Halaman Login Vendor Portal\]_
 
-**3\. Tampilan Error Login Gagal**
+**3. Tampilan Error Login Gagal**
 
 _\[Screenshot: Tampilan Error Login Gagal\]_
 
@@ -463,14 +462,14 @@ _\[Screenshot: Tampilan Error Login Gagal\]_
 
 | **Termination Outcomes**  | **Conditions User**                            | **Conditions System**                                                                 |
 | ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **User melakukan logout** | 1\. User mengklik tombol Logout di menu/header | 2\. Sistem mengakhiri sesi autentikasi aktif user, menghapus token client-side atau revoke token/sesi server-side sesuai desain keamanan<br><br>3\. Sistem mengarahkan user ke halaman login |
+| **User melakukan logout** | 1. User mengklik tombol Logout di menu/header | 2. Sistem mengakhiri sesi autentikasi aktif user, menghapus token client-side atau revoke token/sesi server-side sesuai desain keamanan<br><br>3. Sistem mengarahkan user ke halaman login |
 | ---                       | ---                                            | ---                                                                                   |
-| **Logging**               |                                                | 4\. Sistem mencatat log logout dalam audit trail                                      |
+| **Logging**               |                                                | 4. Sistem mencatat log logout dalam audit trail                                      |
 | ---                       | ---                                            | ---                                                                                   |
 
 **MOCKUP**
 
-**1\. Tombol Logout di Header/Menu**
+**1. Tombol Logout di Header/Menu**
 
 _\[Screenshot: Tombol Logout di Header/Menu\]_
 
@@ -487,24 +486,24 @@ _\[Screenshot: Tombol Logout di Header/Menu\]_
 
 | **Termination Outcomes**                  | **Conditions User**                                                                      | **Conditions System**                                                                                                                                                                                                                     |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **User mengakses halaman ganti password** | 1\. User mengakses menu Profil / Pengaturan Akun<br><br>2\. User mengklik Ganti Password | 3\. Sistem menampilkan form: Password Lama, Password Baru, Konfirmasi Password Baru                                                                                                                                                       |
+| **User mengakses halaman ganti password** | 1. User mengakses menu Profil / Pengaturan Akun<br><br>2. User mengklik Ganti Password | 3. Sistem menampilkan form: Password Lama, Password Baru, Konfirmasi Password Baru                                                                                                                                                       |
 | ---                                       | ---                                                                                      | ---                                                                                                                                                                                                                                       |
-| **User mengisi form**                     | 4\. User mengisi password lama<br><br>5\. User mengisi password baru dan konfirmasi      | 6\. Sistem memvalidasi password lama<br><br>7\. Sistem memvalidasi password baru: minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan karakter spesial<br><br>8\. Sistem memvalidasi password baru sama dengan konfirmasi |
+| **User mengisi form**                     | 4. User mengisi password lama<br><br>5. User mengisi password baru dan konfirmasi      | 6. Sistem memvalidasi password lama<br><br>7. Sistem memvalidasi password baru: minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan karakter spesial<br><br>8. Sistem memvalidasi password baru sama dengan konfirmasi |
 | ---                                       | ---                                                                                      | ---                                                                                                                                                                                                                                       |
-| **Password berhasil diubah**              | 9\. User mengklik tombol Simpan                                                          | 10\. Sistem menyimpan password baru (encrypted)<br><br>11\. Sistem menampilkan notifikasi berhasil<br><br>12\. Sistem mengirim notifikasi email bahwa password telah diubah                                                               |
+| **Password berhasil diubah**              | 9. User mengklik tombol Simpan                                                          | 10. Sistem menyimpan password baru (encrypted)<br><br>11. Sistem menampilkan notifikasi berhasil<br><br>12. Sistem mengirim notifikasi email bahwa password telah diubah                                                               |
 | ---                                       | ---                                                                                      | ---                                                                                                                                                                                                                                       |
-| **Validasi gagal**                        |                                                                                          | 13\. Sistem menampilkan pesan error spesifik (password lama salah / password baru tidak memenuhi syarat / konfirmasi tidak cocok)                                                                                                         |
+| **Validasi gagal**                        |                                                                                          | 13. Sistem menampilkan pesan error spesifik (password lama salah / password baru tidak memenuhi syarat / konfirmasi tidak cocok)                                                                                                         |
 | ---                                       | ---                                                                                      | ---                                                                                                                                                                                                                                       |
-| **Logging**                               |                                                                                          | 14\. Sistem mencatat log perubahan password dalam audit trail (tanpa menyimpan password dalam log)                                                                                                                                        |
+| **Logging**                               |                                                                                          | 14. Sistem mencatat log perubahan password dalam audit trail (tanpa menyimpan password dalam log)                                                                                                                                        |
 | ---                                       | ---                                                                                      | ---                                                                                                                                                                                                                                       |
 
 **MOCKUP**
 
-**1\. Form Ganti Password**
+**1. Form Ganti Password**
 
 _\[Screenshot: Form Ganti Password\]_
 
-**2\. Notifikasi Password Berhasil Diubah**
+**2. Notifikasi Password Berhasil Diubah**
 
 _\[Screenshot: Notifikasi Password Berhasil Diubah\]_
 
@@ -533,15 +532,15 @@ _Catatan: Sistem mencatat log reset password oleh Admin dalam audit trail, terma
 
 **MOCKUP**
 
-**1\. Halaman User Management - Tombol Reset Password**
+**1. Halaman User Management - Tombol Reset Password**
 
 _\[Screenshot: Halaman User Management - Tombol Reset Password\]_
 
-**2\. Konfirmasi Reset Password oleh Admin**
+**2. Konfirmasi Reset Password oleh Admin**
 
 _\[Screenshot: Konfirmasi Reset Password oleh Admin\]_
 
-**3\. Halaman Force Change Password saat Login Pertama**
+**3. Halaman Force Change Password saat Login Pertama**
 
 _\[Screenshot: Halaman Force Change Password saat Login Pertama\]_
 
@@ -558,36 +557,36 @@ _\[Screenshot: Halaman Force Change Password saat Login Pertama\]_
 
 | **Termination Outcomes**               | **Conditions User**                                                                                                                                                                                                                | **Conditions System**                                                                                                                                                                                                                           |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Requestor membuat PR baru**          | 1\. Requestor mengakses menu Create PR<br><br>2\. Requestor mengisi form PR: judul, deskripsi kebutuhan, kategori pengadaan (Barang/Jasa), kategori (Rutin/Non-Rutin), estimasi nilai pengadaan, tanggal kebutuhan, dan departemen | 3\. Sistem menampilkan form Create PR dengan field yang sesuai entitas Requestor                                                                                                                                                                |
+| **Requestor membuat PR baru**          | 1. Requestor mengakses menu Create PR<br><br>2. Requestor mengisi form PR: judul, deskripsi kebutuhan, kategori pengadaan (Barang/Jasa), kategori (Rutin/Non-Rutin), estimasi nilai pengadaan, tanggal kebutuhan, dan departemen | 3. Sistem menampilkan form Create PR dengan field yang sesuai entitas Requestor                                                                                                                                                                |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
-| **Requestor upload dokumen pendukung** | 4\. Requestor mengunggah dokumen pendukung (TOR, spesifikasi teknis, dll.)                                                                                                                                                         | 5\. Sistem menyimpan attachment dan memvalidasi format file                                                                                                                                                                                     |
+| **Requestor upload dokumen pendukung** | 4. Requestor mengunggah dokumen pendukung (TOR, spesifikasi teknis, dll.)                                                                                                                                                         | 5. Sistem menyimpan attachment dan memvalidasi format file                                                                                                                                                                                     |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
-| **Requestor menambah item pengadaan**  | 6\. Requestor menambahkan detail item: nama barang/jasa, jumlah, satuan, estimasi harga per unit                                                                                                                                   | 7\. Sistem menghitung total estimasi nilai pengadaan secara otomatis                                                                                                                                                                            |
+| **Requestor menambah item pengadaan**  | 6. Requestor menambahkan detail item: nama barang/jasa, jumlah, satuan, estimasi harga per unit                                                                                                                                   | 7. Sistem menghitung total estimasi nilai pengadaan secara otomatis                                                                                                                                                                            |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
-| **Sistem melakukan validasi budget**   |                                                                                                                                                                                                                                    | 8\. Sistem melakukan validasi terhadap budget entitas berdasarkan kategori dan periode<br><br>9\. Sistem menandai status budget: Within Budget / Over Budget / Non Budget                                                                       |
+| **Sistem melakukan validasi budget**   |                                                                                                                                                                                                                                    | 8. Sistem melakukan validasi terhadap budget entitas berdasarkan kategori dan periode<br><br>9. Sistem menandai status budget: Within Budget / Over Budget / Non Budget                                                                       |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
-| **Requestor menyimpan sebagai Draft**  | 10\. Requestor menyimpan PR sebagai Draft (opsional)                                                                                                                                                                               | 11\. Sistem menyimpan PR dengan status Draft                                                                                                                                                                                                    |
+| **Requestor menyimpan sebagai Draft**  | 10. Requestor menyimpan PR sebagai Draft (opsional)                                                                                                                                                                               | 11. Sistem menyimpan PR dengan status Draft                                                                                                                                                                                                    |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
-| **Requestor submit PR**                | 12\. Requestor melakukan klik tombol Submit                                                                                                                                                                                        | 13\. Sistem memvalidasi kelengkapan data PR<br><br>14\. Sistem menentukan workflow approval berdasarkan Dynamic Procurement Policy<br><br>15\. Sistem mengubah status PR menjadi Submitted dan mengirimkan notifikasi ke Approver level pertama |
+| **Requestor submit PR**                | 12. Requestor melakukan klik tombol Submit                                                                                                                                                                                        | 13. Sistem memvalidasi kelengkapan data PR<br><br>14. Sistem menentukan workflow approval berdasarkan Dynamic Procurement Policy<br><br>15. Sistem mengubah status PR menjadi Submitted dan mengirimkan notifikasi ke Approver level pertama |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
-| **Logging**                            |                                                                                                                                                                                                                                    | 16\. Sistem mencatat log pembuatan PR dalam audit trail                                                                                                                                                                                         |
+| **Logging**                            |                                                                                                                                                                                                                                    | 16. Sistem mencatat log pembuatan PR dalam audit trail                                                                                                                                                                                         |
 | ---                                    | ---                                                                                                                                                                                                                                | ---                                                                                                                                                                                                                                             |
 
 **MOCKUP**
 
-**1\. Halaman Create Purchase Request**
+**1. Halaman Create Purchase Request**
 
 _\[Screenshot: Halaman Create Purchase Request\]_
 
-**2\. Form Input Detail Item Pengadaan**
+**2. Form Input Detail Item Pengadaan**
 
 _\[Screenshot: Form Input Detail Item Pengadaan\]_
 
-**3\. Halaman Upload Dokumen Pendukung**
+**3. Halaman Upload Dokumen Pendukung**
 
 _\[Screenshot: Halaman Upload Dokumen Pendukung\]_
 
-**4\. Tampilan Status Budget Validation**
+**4. Tampilan Status Budget Validation**
 
 _\[Screenshot: Tampilan Status Budget Validation\]_
 
@@ -604,40 +603,40 @@ _\[Screenshot: Tampilan Status Budget Validation\]_
 
 | **Termination Outcomes**               | **Conditions User**                                                                           | **Conditions System**                                                                                                                                                                      |
 | -------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Approver melihat daftar PR pending** | 1\. Approver mengakses dashboard/menu Approval                                                | 2\. Sistem menampilkan daftar PR yang memerlukan approval<br><br>3\. Sistem menampilkan badge/notifikasi jumlah PR pending                                                                 |
+| **Approver melihat daftar PR pending** | 1. Approver mengakses dashboard/menu Approval                                                | 2. Sistem menampilkan daftar PR yang memerlukan approval<br><br>3. Sistem menampilkan badge/notifikasi jumlah PR pending                                                                 |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Approver mereview detail PR**        | 4\. Approver mengklik PR untuk melihat detail                                                 | 5\. Sistem menampilkan detail PR: informasi pengadaan, item, estimasi nilai, status budget, dokumen pendukung, dan riwayat approval sebelumnya                                             |
+| **Approver mereview detail PR**        | 4. Approver mengklik PR untuk melihat detail                                                 | 5. Sistem menampilkan detail PR: informasi pengadaan, item, estimasi nilai, status budget, dokumen pendukung, dan riwayat approval sebelumnya                                             |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Approver menyetujui PR**             | 6\. Approver mengklik tombol Approve<br><br>7\. Approver dapat menambahkan catatan (opsional) | 8\. Jika ada level berikutnya: status PR berubah ke Pending Approval level selanjutnya<br><br>9\. Jika level terakhir: status PR berubah ke Approved dan notifikasi dikirim ke Procurement |
+| **Approver menyetujui PR**             | 6. Approver mengklik tombol Approve<br><br>7. Approver dapat menambahkan catatan (opsional) | 8. Jika ada level berikutnya: status PR berubah ke Pending Approval level selanjutnya<br><br>9. Jika level terakhir: status PR berubah ke Approved dan notifikasi dikirim ke Procurement |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Approver menolak PR**                | 10\. Approver mengklik tombol Reject<br><br>11\. Approver WAJIB mengisi alasan penolakan      | 12\. Status PR menjadi Rejected<br><br>13\. Notifikasi dikirim ke Requestor beserta alasan                                                                                                 |
+| **Approver menolak PR**                | 10. Approver mengklik tombol Reject<br><br>11. Approver WAJIB mengisi alasan penolakan      | 12. Status PR menjadi Rejected<br><br>13. Notifikasi dikirim ke Requestor beserta alasan                                                                                                 |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Escalation ke Holding**              |                                                                                               | 14\. Jika governance rule mewajibkan eskalasi, sistem meneruskan ke Holding Approver                                                                                                       |
+| **Escalation ke Holding**              |                                                                                               | 14. Jika governance rule mewajibkan eskalasi, sistem meneruskan ke Holding Approver                                                                                                       |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Finance Approval (Over Budget / Non Budget)** |                                                                                               | 15\. Untuk PR dengan status Over Budget atau Non Budget, sistem otomatis menyisipkan Finance (CFO) sebagai approver tambahan sebelum level management                                      |
+| **Finance Approval (Over Budget / Non Budget)** |                                                                                               | 15. Untuk PR dengan status Over Budget atau Non Budget, sistem otomatis menyisipkan Finance (CFO) sebagai approver tambahan sebelum level management                                      |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **SLA Reminder**                       |                                                                                               | 16\. Jika approval belum dilakukan dalam 2 hari kerja, sistem mengirim reminder otomatis ke approver dan notifikasi ke admin                                                               |
+| **SLA Reminder**                       |                                                                                               | 16. Jika approval belum dilakukan dalam 2 hari kerja, sistem mengirim reminder otomatis ke approver dan notifikasi ke admin                                                               |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Delegate Approver**                  |                                                                                               | 17\. Jika approver tidak tersedia, Admin dapat menunjuk delegate melalui User Management. Approval oleh delegate tercatat di audit trail dengan keterangan delegasi                        |
+| **Delegate Approver**                  |                                                                                               | 17. Jika approver tidak tersedia, Admin dapat menunjuk delegate melalui User Management. Approval oleh delegate tercatat di audit trail dengan keterangan delegasi                        |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Logging**                            |                                                                                               | 18\. Sistem mencatat seluruh aktivitas approval/rejection dalam audit trail                                                                                                                |
+| **Logging**                            |                                                                                               | 18. Sistem mencatat seluruh aktivitas approval/rejection dalam audit trail                                                                                                                |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
 
 **MOCKUP**
 
-**1\. Halaman Daftar PR Pending Approval**
+**1. Halaman Daftar PR Pending Approval**
 
 _\[Screenshot: Halaman Daftar PR Pending Approval\]_
 
-**2\. Halaman Detail PR untuk Review Approver**
+**2. Halaman Detail PR untuk Review Approver**
 
 _\[Screenshot: Halaman Detail PR untuk Review Approver\]_
 
-**3\. Dialog Approve PR dengan Catatan**
+**3. Dialog Approve PR dengan Catatan**
 
 _\[Screenshot: Dialog Approve PR dengan Catatan\]_
 
-**4\. Dialog Reject PR dengan Alasan Wajib**
+**4. Dialog Reject PR dengan Alasan Wajib**
 
 _\[Screenshot: Dialog Reject PR dengan Alasan Wajib\]_
 
@@ -654,22 +653,22 @@ _\[Screenshot: Dialog Reject PR dengan Alasan Wajib\]_
 
 | **Termination Outcomes**         | **Conditions User**                                                                                                                              | **Conditions System**                                                                                                               |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **Requestor melihat PR ditolak** | 1\. Requestor mengakses menu My PR                                                                                                               | 2\. Sistem menampilkan daftar PR dengan status Rejected beserta alasan penolakan                                                    |
+| **Requestor melihat PR ditolak** | 1. Requestor mengakses menu My PR                                                                                                               | 2. Sistem menampilkan daftar PR dengan status Rejected beserta alasan penolakan                                                    |
 | ---                              | ---                                                                                                                                              | ---                                                                                                                                 |
-| **Requestor merevisi PR**        | 3\. Requestor mengklik Revise<br><br>4\. Requestor mengubah data PR sesuai masukan Approver<br><br>5\. Requestor dapat mengubah/menambah dokumen | 6\. Sistem menampilkan form edit dengan data sebelumnya<br><br>7\. Sistem melakukan re-validasi budget                              |
+| **Requestor merevisi PR**        | 3. Requestor mengklik Revise<br><br>4. Requestor mengubah data PR sesuai masukan Approver<br><br>5. Requestor dapat mengubah/menambah dokumen | 6. Sistem menampilkan form edit dengan data sebelumnya<br><br>7. Sistem melakukan re-validasi budget                              |
 | ---                              | ---                                                                                                                                              | ---                                                                                                                                 |
-| **Requestor resubmit**           | 8\. Requestor mengklik Resubmit                                                                                                                  | 9\. Sistem memvalidasi kelengkapan<br><br>10\. Sistem menentukan ulang workflow approval<br><br>11\. Status PR berubah ke Submitted |
+| **Requestor resubmit**           | 8. Requestor mengklik Resubmit                                                                                                                  | 9. Sistem memvalidasi kelengkapan<br><br>10. Sistem menentukan ulang workflow approval<br><br>11. Status PR berubah ke Submitted |
 | ---                              | ---                                                                                                                                              | ---                                                                                                                                 |
-| **Logging**                      |                                                                                                                                                  | 12\. Sistem mencatat log revisi dan resubmit termasuk perubahan data                                                                |
+| **Logging**                      |                                                                                                                                                  | 12. Sistem mencatat log revisi dan resubmit termasuk perubahan data                                                                |
 | ---                              | ---                                                                                                                                              | ---                                                                                                                                 |
 
 **MOCKUP**
 
-**1\. Halaman Daftar PR Rejected**
+**1. Halaman Daftar PR Rejected**
 
 _\[Screenshot: Halaman Daftar PR Rejected\]_
 
-**2\. Form Revisi PR**
+**2. Form Revisi PR**
 
 _\[Screenshot: Form Revisi PR\]_
 
@@ -688,37 +687,37 @@ _\[Screenshot: Form Revisi PR\]_
 
 | **Termination Outcomes**              | **Conditions User**                                                                                                                                         | **Conditions System**                                                              |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| **Procurement mengajukan cancel PR**  | 1\. Procurement mengakses PR Approved yang akan dibatalkan<br><br>2\. Procurement mengklik Cancel PR<br><br>3\. Procurement WAJIB mengisi alasan pembatalan | 4\. Sistem mengirim permintaan cancel ke Entity Approver                           |
+| **Procurement mengajukan cancel PR**  | 1. Procurement mengakses PR Approved yang akan dibatalkan<br><br>2. Procurement mengklik Cancel PR<br><br>3. Procurement WAJIB mengisi alasan pembatalan | 4. Sistem mengirim permintaan cancel ke Entity Approver                           |
 | ---                                   | ---                                                                                                                                                         | ---                                                                                |
-| **Entity Approver menyetujui cancel** | 5\. Entity Approver mereview alasan<br><br>6\. Entity Approver menyetujui pembatalan                                                                        | 7\. Status PR berubah ke Cancelled<br><br>8\. Budget yang ter-alokasi dikembalikan |
+| **Entity Approver menyetujui cancel** | 5. Entity Approver mereview alasan<br><br>6. Entity Approver menyetujui pembatalan                                                                        | 7. Status PR berubah ke Cancelled<br><br>8. Budget yang ter-alokasi dikembalikan |
 | ---                                   | ---                                                                                                                                                         | ---                                                                                |
-| **Logging**                           |                                                                                                                                                             | 9\. Sistem mencatat pembatalan dalam audit trail                                   |
+| **Logging**                           |                                                                                                                                                             | 9. Sistem mencatat pembatalan dalam audit trail                                   |
 | ---                                   | ---                                                                                                                                                         | ---                                                                                |
 
 **Void PO (status Approved atau Sent to Vendor, belum Vendor Confirmed):**
 
 | **Termination Outcomes**            | **Conditions User**                                                                                                                     | **Conditions System**                                                                                                                                                       |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Procurement mengajukan void PO**  | 1\. Procurement mengakses PO yang akan di-void<br><br>2\. Procurement mengklik Void PO<br><br>3\. Procurement WAJIB mengisi alasan void | 4\. Sistem mengirim permintaan void ke Entity Approver                                                                                                                      |
+| **Procurement mengajukan void PO**  | 1. Procurement mengakses PO yang akan di-void<br><br>2. Procurement mengklik Void PO<br><br>3. Procurement WAJIB mengisi alasan void | 4. Sistem mengirim permintaan void ke Entity Approver                                                                                                                      |
 | ---                                 | ---                                                                                                                                     | ---                                                                                                                                                                         |
-| **Entity Approver menyetujui void** | 5\. Entity Approver mereview dan menyetujui                                                                                             | 6\. Status PO berubah ke Voided<br><br>7\. Jika PO sudah dikirim ke vendor, sistem mengirim notifikasi pembatalan ke vendor<br><br>8\. Budget yang ter-alokasi dikembalikan |
+| **Entity Approver menyetujui void** | 5. Entity Approver mereview dan menyetujui                                                                                             | 6. Status PO berubah ke Voided<br><br>7. Jika PO sudah dikirim ke vendor, sistem mengirim notifikasi pembatalan ke vendor<br><br>8. Budget yang ter-alokasi dikembalikan |
 | ---                                 | ---                                                                                                                                     | ---                                                                                                                                                                         |
-| **Logging**                         |                                                                                                                                         | 9\. Sistem mencatat void beserta alasan dalam audit trail                                                                                                                   |
+| **Logging**                         |                                                                                                                                         | 9. Sistem mencatat void beserta alasan dalam audit trail                                                                                                                   |
 | ---                                 | ---                                                                                                                                     | ---                                                                                                                                                                         |
 
 _Catatan: PO yang sudah berstatus Vendor Confirmed TIDAK dapat di-void melalui sistem. Proses pembatalan setelah konfirmasi vendor harus dilakukan secara manual di luar sistem._
 
 **MOCKUP**
 
-**1\. Dialog Cancel PR dengan Alasan Wajib**
+**1. Dialog Cancel PR dengan Alasan Wajib**
 
 _\[Screenshot: Dialog Cancel PR dengan Alasan Wajib\]_
 
-**2\. Dialog Void PO dengan Alasan Wajib**
+**2. Dialog Void PO dengan Alasan Wajib**
 
 _\[Screenshot: Dialog Void PO dengan Alasan Wajib\]_
 
-**3\. Notifikasi Pembatalan ke Vendor**
+**3. Notifikasi Pembatalan ke Vendor**
 
 _\[Screenshot: Notifikasi Pembatalan ke Vendor\]_
 
@@ -735,24 +734,24 @@ _\[Screenshot: Notifikasi Pembatalan ke Vendor\]_
 
 | **Termination Outcomes**             | **Conditions User**                                                                | **Conditions System**                                                                                                                                                  |
 | ------------------------------------ | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Procurement menerima PR Approved** | 1\. Procurement mengakses menu PR Approved                                         | 2\. Sistem menampilkan daftar PR Approved yang belum ditentukan metode                                                                                                 |
+| **Procurement menerima PR Approved** | 1. Procurement mengakses menu PR Approved                                         | 2. Sistem menampilkan daftar PR Approved yang belum ditentukan metode                                                                                                 |
 | ---                                  | ---                                                                                | ---                                                                                                                                                                    |
-| **Procurement memilih metode**       | 3\. Procurement memilih PR dan menentukan metode                                   | 4\. Sistem menampilkan rekomendasi metode berdasarkan Dynamic Procurement Policy<br><br>5\. Sistem mewajibkan justifikasi jika memilih metode berbeda dari rekomendasi |
+| **Procurement memilih metode**       | 3. Procurement memilih PR dan menentukan metode                                   | 4. Sistem menampilkan rekomendasi metode berdasarkan Dynamic Procurement Policy<br><br>5. Sistem mewajibkan justifikasi jika memilih metode berbeda dari rekomendasi |
 | ---                                  | ---                                                                                | ---                                                                                                                                                                    |
-| **Jika RFQ/Bidding**                 | 6\. Procurement mengkonfirmasi RFQ/Bidding                                         | 7\. Sistem mengarahkan ke pembuatan RFQ                                                                                                                                |
+| **Jika RFQ/Bidding**                 | 6. Procurement mengkonfirmasi RFQ/Bidding                                         | 7. Sistem mengarahkan ke pembuatan RFQ                                                                                                                                |
 | ---                                  | ---                                                                                | ---                                                                                                                                                                    |
-| **Jika Penunjukan Langsung**         | 8\. Procurement mengkonfirmasi DA<br><br>9\. Procurement WAJIB mengisi justifikasi | 10\. Sistem menyimpan dan mengarahkan ke proses Direct Appointment                                                                                                     |
+| **Jika Penunjukan Langsung**         | 8. Procurement mengkonfirmasi DA<br><br>9. Procurement WAJIB mengisi justifikasi | 10. Sistem menyimpan dan mengarahkan ke proses Direct Appointment                                                                                                     |
 | ---                                  | ---                                                                                | ---                                                                                                                                                                    |
-| **Logging**                          |                                                                                    | 11\. Sistem mencatat metode dan justifikasi dalam audit trail                                                                                                          |
+| **Logging**                          |                                                                                    | 11. Sistem mencatat metode dan justifikasi dalam audit trail                                                                                                          |
 | ---                                  | ---                                                                                | ---                                                                                                                                                                    |
 
 **MOCKUP**
 
-**1\. Halaman Daftar PR Approved untuk Penentuan Metode**
+**1. Halaman Daftar PR Approved untuk Penentuan Metode**
 
 _\[Screenshot: Halaman Daftar PR Approved untuk Penentuan Metode\]_
 
-**2\. Dialog Pemilihan Metode Pengadaan**
+**2. Dialog Pemilihan Metode Pengadaan**
 
 _\[Screenshot: Dialog Pemilihan Metode Pengadaan\]_
 
@@ -769,22 +768,22 @@ _\[Screenshot: Dialog Pemilihan Metode Pengadaan\]_
 
 | **Termination Outcomes**          | **Conditions User**                                                                                                                                                 | **Conditions System**                                                                                                                                                                                                            |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Procurement membuat RFQ**       | 1\. Procurement mengakses Create RFQ                                                                                                                                | 2\. Sistem men-generate RFQ otomatis dari data PR                                                                                                                                                                                |
+| **Procurement membuat RFQ**       | 1. Procurement mengakses Create RFQ                                                                                                                                | 2. Sistem men-generate RFQ otomatis dari data PR                                                                                                                                                                                |
 | ---                               | ---                                                                                                                                                                 | ---                                                                                                                                                                                                                              |
-| **Procurement melengkapi detail** | 3\. Procurement melengkapi: syarat teknis, syarat komersial, deadline bidding, minimum vendor requirement<br><br>4\. Procurement upload dokumen tambahan jika perlu | 5\. Sistem memvalidasi kelengkapan RFQ                                                                                                                                                                                           |
+| **Procurement melengkapi detail** | 3. Procurement melengkapi: syarat teknis, syarat komersial, deadline bidding, minimum vendor requirement<br><br>4. Procurement upload dokumen tambahan jika perlu | 5. Sistem memvalidasi kelengkapan RFQ                                                                                                                                                                                           |
 | ---                               | ---                                                                                                                                                                 | ---                                                                                                                                                                                                                              |
-| **Procurement publish tender**    | 6\. Procurement mengklik Publish Tender                                                                                                                             | 7\. Sistem mempublikasikan ke Vendor Portal<br><br>8\. Hanya vendor eligible (approved, bukan blacklist) yang dapat melihat<br><br>9\. Sistem mengirim notifikasi ke vendor eligible<br><br>10\. Status RFQ berubah ke Published |
+| **Procurement publish tender**    | 6. Procurement mengklik Publish Tender                                                                                                                             | 7. Sistem mempublikasikan ke Vendor Portal<br><br>8. Hanya vendor eligible (approved, bukan blacklist) yang dapat melihat<br><br>9. Sistem mengirim notifikasi ke vendor eligible<br><br>10. Status RFQ berubah ke Published |
 | ---                               | ---                                                                                                                                                                 | ---                                                                                                                                                                                                                              |
-| **Logging**                       |                                                                                                                                                                     | 11\. Sistem mencatat pembuatan RFQ dan publikasi dalam audit trail                                                                                                                                                               |
+| **Logging**                       |                                                                                                                                                                     | 11. Sistem mencatat pembuatan RFQ dan publikasi dalam audit trail                                                                                                                                                               |
 | ---                               | ---                                                                                                                                                                 | ---                                                                                                                                                                                                                              |
 
 **MOCKUP**
 
-**1\. Halaman Create RFQ**
+**1. Halaman Create RFQ**
 
 _\[Screenshot: Halaman Create RFQ\]_
 
-**2\. Konfirmasi Publish Tender**
+**2. Konfirmasi Publish Tender**
 
 _\[Screenshot: Konfirmasi Publish Tender\]_
 
@@ -801,36 +800,36 @@ _\[Screenshot: Konfirmasi Publish Tender\]_
 
 | **Termination Outcomes**         | **Conditions User**                                                                                       | **Conditions System**                                                                                                        |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| **Vendor melihat daftar tender** | 1\. Vendor mengakses Vendor Portal                                                                        | 2\. Sistem menampilkan tender yang eligible untuk vendor                                                                     |
+| **Vendor melihat daftar tender** | 1. Vendor mengakses Vendor Portal                                                                        | 2. Sistem menampilkan tender yang eligible untuk vendor                                                                     |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
-| **Vendor melihat detail**        | 3\. Vendor mengklik tender                                                                                | 4\. Sistem menampilkan: judul, spesifikasi, syarat, deadline, dokumen                                                        |
+| **Vendor melihat detail**        | 3. Vendor mengklik tender                                                                                | 4. Sistem menampilkan: judul, spesifikasi, syarat, deadline, dokumen                                                        |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
-| **Vendor mengisi quotation**     | 5\. Vendor mengisi: harga per item, total harga, terms of payment, delivery terms, masa berlaku penawaran | 6\. Sistem memvalidasi kelengkapan                                                                                           |
+| **Vendor mengisi quotation**     | 5. Vendor mengisi: harga per item, total harga, terms of payment, delivery terms, masa berlaku penawaran | 6. Sistem memvalidasi kelengkapan                                                                                           |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
-| **Vendor upload dokumen**        | 7\. Vendor upload: company profile, sertifikasi, referensi proyek                                         | 8\. Sistem menyimpan dan validasi format                                                                                     |
+| **Vendor upload dokumen**        | 7. Vendor upload: company profile, sertifikasi, referensi proyek                                         | 8. Sistem menyimpan dan validasi format                                                                                     |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
-| **Vendor submit quotation**      | 9\. Vendor mengklik Submit Quotation                                                                      | 10\. Sistem menyimpan dengan timestamp<br><br>11\. Konfirmasi dikirim ke vendor                                              |
+| **Vendor submit quotation**      | 9. Vendor mengklik Submit Quotation                                                                      | 10. Sistem menyimpan dengan timestamp<br><br>11. Konfirmasi dikirim ke vendor                                              |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
-| **Vendor terlambat submit**      |                                                                                                           | 12\. Quotation yang disubmit setelah deadline (berdasarkan server timestamp) otomatis DITOLAK oleh sistem tanpa pengecualian |
+| **Vendor terlambat submit**      |                                                                                                           | 12. Quotation yang disubmit setelah deadline (berdasarkan server timestamp) otomatis DITOLAK oleh sistem tanpa pengecualian |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
-| **Logging**                      |                                                                                                           | 13\. Sistem mencatat aktivitas vendor dalam audit trail                                                                      |
+| **Logging**                      |                                                                                                           | 13. Sistem mencatat aktivitas vendor dalam audit trail                                                                      |
 | ---                              | ---                                                                                                       | ---                                                                                                                          |
 
 **MOCKUP**
 
-**1\. Daftar Tender di Vendor Portal**
+**1. Daftar Tender di Vendor Portal**
 
 _\[Screenshot: Daftar Tender di Vendor Portal\]_
 
-**2\. Detail Tender dan Requirement**
+**2. Detail Tender dan Requirement**
 
 _\[Screenshot: Detail Tender dan Requirement\]_
 
-**3\. Form Input Quotation Vendor**
+**3. Form Input Quotation Vendor**
 
 _\[Screenshot: Form Input Quotation Vendor\]_
 
-**4\. Konfirmasi Submit Quotation**
+**4. Konfirmasi Submit Quotation**
 
 _\[Screenshot: Konfirmasi Submit Quotation\]_
 
@@ -847,24 +846,24 @@ _\[Screenshot: Konfirmasi Submit Quotation\]_
 
 | **Termination Outcomes**      | **Conditions User**                                                             | **Conditions System**                                                                                                  |
 | ----------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **Procurement review status** | 1\. Procurement mengakses Manage Bidding                                        | 2\. Sistem menampilkan RFQ aktif dengan jumlah quotation dan countdown                                                 |
+| **Procurement review status** | 1. Procurement mengakses Manage Bidding                                        | 2. Sistem menampilkan RFQ aktif dengan jumlah quotation dan countdown                                                 |
 | ---                           | ---                                                                             | ---                                                                                                                    |
-| **Bidding auto-close**        |                                                                                 | 3\. Setelah deadline, sistem otomatis mengubah status ke Closed<br><br>4\. Sistem memeriksa minimum vendor requirement |
+| **Bidding auto-close**        |                                                                                 | 3. Setelah deadline, sistem otomatis mengubah status ke Closed<br><br>4. Sistem memeriksa minimum vendor requirement |
 | ---                           | ---                                                                             | ---                                                                                                                    |
-| **Vendor belum cukup**        | 5\. Procurement memilih Reopen Bidding<br><br>6\. Procurement set deadline baru | 7\. Sistem membuka kembali tender dengan deadline baru                                                                 |
+| **Vendor belum cukup**        | 5. Procurement memilih Reopen Bidding<br><br>6. Procurement set deadline baru | 7. Sistem membuka kembali tender dengan deadline baru                                                                 |
 | ---                           | ---                                                                             | ---                                                                                                                    |
-| **Bidding final**             | 8\. Procurement konfirmasi penutupan                                            | 9\. Status RFQ berubah ke Evaluation                                                                                   |
+| **Bidding final**             | 8. Procurement konfirmasi penutupan                                            | 9. Status RFQ berubah ke Evaluation                                                                                   |
 | ---                           | ---                                                                             | ---                                                                                                                    |
-| **Logging**                   |                                                                                 | 10\. Sistem mencatat penutupan/reopening dalam audit trail                                                             |
+| **Logging**                   |                                                                                 | 10. Sistem mencatat penutupan/reopening dalam audit trail                                                             |
 | ---                           | ---                                                                             | ---                                                                                                                    |
 
 **MOCKUP**
 
-**1\. Halaman Manage Bidding**
+**1. Halaman Manage Bidding**
 
 _\[Screenshot: Halaman Manage Bidding\]_
 
-**2\. Dialog Reopen Bidding**
+**2. Dialog Reopen Bidding**
 
 _\[Screenshot: Dialog Reopen Bidding\]_
 
@@ -883,45 +882,45 @@ _\[Screenshot: Dialog Reopen Bidding\]_
 
 | **Termination Outcomes**   | **Conditions User**                         | **Conditions System**                                                                                                                                                                         |
 | -------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Prequalification check** | 1\. Procurement mengakses Vendor Evaluation | 2\. Sistem menampilkan daftar vendor<br><br>3\. Sistem otomatis cek: Approved vendor status, Blacklist check, Kelayakan administratif<br><br>4\. Vendor tidak lolos ditandai dan tidak lanjut |
+| **Prequalification check** | 1. Procurement mengakses Vendor Evaluation | 2. Sistem menampilkan daftar vendor<br><br>3. Sistem otomatis cek: Approved vendor status, Blacklist check, Kelayakan administratif<br><br>4. Vendor tidak lolos ditandai dan tidak lanjut |
 | ---                        | ---                                         | ---                                                                                                                                                                                           |
 
 **Tahap 2 - Technical Evaluation**
 
 | **Termination Outcomes** | **Conditions User**                                                                                                                                       | **Conditions System**                 |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| **Penilaian teknis**     | 5\. Procurement menilai per vendor: Technical capability, Experience, Compliance, Delivery capability<br><br>6\. Score: Meet / Below / Exceed Expectation | 7\. Sistem menghitung technical score |
+| **Penilaian teknis**     | 5. Procurement menilai per vendor: Technical capability, Experience, Compliance, Delivery capability<br><br>6. Score: Meet / Below / Exceed Expectation | 7. Sistem menghitung technical score |
 | ---                      | ---                                                                                                                                                       | ---                                   |
 
 **Tahap 3 - Commercial Evaluation**
 
 | **Termination Outcomes** | **Conditions User**                                               | **Conditions System**                                                                                                                                         |
 | ------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Penilaian komersial**  | 8\. Procurement evaluasi: Harga, Terms of payment, Delivery terms | 9\. Sistem menghitung commercial score<br><br>10\. Sistem menampilkan Reference Price / eCatalog (manual input + historical PO price) sebagai pembanding kewajaran harga |
+| **Penilaian komersial**  | 8. Procurement evaluasi: Harga, Terms of payment, Delivery terms | 9. Sistem menghitung commercial score<br><br>10. Sistem menampilkan Reference Price / eCatalog (manual input + historical PO price) sebagai pembanding kewajaran harga |
 | ---                      | ---                                                               | ---                                                                                                                                                           |
 
 **Tahap 4 - Weighted Scoring & Ranking**
 
 | **Termination Outcomes** | **Conditions User** | **Conditions System**                                                                                                                                                  |
 | ------------------------ | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem hitung score**  |                     | 11\. Total weighted score = (Technical x Bobot) + (Commercial x Bobot)<br><br>12\. Ranking vendor berdasarkan total score<br><br>13\. Generate Summary Report Evaluasi |
+| **Sistem hitung score**  |                     | 11. Total weighted score = (Technical x Bobot) + (Commercial x Bobot)<br><br>12. Ranking vendor berdasarkan total score<br><br>13. Generate Summary Report Evaluasi |
 | ---                      | ---                 | ---                                                                                                                                                                    |
 
 **MOCKUP**
 
-**1\. Vendor Prequalification Check**
+**1. Vendor Prequalification Check**
 
 _\[Screenshot: Vendor Prequalification Check\]_
 
-**2\. Form Technical Evaluation**
+**2. Form Technical Evaluation**
 
 _\[Screenshot: Form Technical Evaluation\]_
 
-**3\. Form Commercial Evaluation dengan Reference Price**
+**3. Form Commercial Evaluation dengan Reference Price**
 
 _\[Screenshot: Form Commercial Evaluation dengan Reference Price\]_
 
-**4\. Weighted Scoring dan Ranking**
+**4. Weighted Scoring dan Ranking**
 
 _\[Screenshot: Weighted Scoring dan Ranking\]_
 
@@ -938,22 +937,22 @@ _\[Screenshot: Weighted Scoring dan Ranking\]_
 
 | **Termination Outcomes**      | **Conditions User**                                                                 | **Conditions System**                                                                      |
 | ----------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| **Procurement inisiasi BAFO** | 1\. Procurement memilih vendor untuk BAFO<br><br>2\. Procurement klik Initiate BAFO | 3\. Undangan BAFO dikirim ke vendor via Portal/email<br><br>4\. Status RFQ berubah ke BAFO |
+| **Procurement inisiasi BAFO** | 1. Procurement memilih vendor untuk BAFO<br><br>2. Procurement klik Initiate BAFO | 3. Undangan BAFO dikirim ke vendor via Portal/email<br><br>4. Status RFQ berubah ke BAFO |
 | ---                           | ---                                                                                 | ---                                                                                        |
-| **Vendor kirim BAFO**         | 5\. Vendor akses Portal dan isi penawaran final                                     | 6\. Sistem menyimpan BAFO response                                                         |
+| **Vendor kirim BAFO**         | 5. Vendor akses Portal dan isi penawaran final                                     | 6. Sistem menyimpan BAFO response                                                         |
 | ---                           | ---                                                                                 | ---                                                                                        |
-| **Procurement review**        | 7\. Procurement review hasil BAFO                                                   | 8\. Perbandingan BAFO vs penawaran awal<br><br>9\. Ranking vendor di-update                |
+| **Procurement review**        | 7. Procurement review hasil BAFO                                                   | 8. Perbandingan BAFO vs penawaran awal<br><br>9. Ranking vendor di-update                |
 | ---                           | ---                                                                                 | ---                                                                                        |
-| **Logging**                   |                                                                                     | 10\. Seluruh proses BAFO tercatat dalam audit trail                                        |
+| **Logging**                   |                                                                                     | 10. Seluruh proses BAFO tercatat dalam audit trail                                        |
 | ---                           | ---                                                                                 | ---                                                                                        |
 
 **MOCKUP**
 
-**1\. Halaman Initiate BAFO**
+**1. Halaman Initiate BAFO**
 
 _\[Screenshot: Halaman Initiate BAFO\]_
 
-**2\. Review dan Perbandingan BAFO**
+**2. Review dan Perbandingan BAFO**
 
 _\[Screenshot: Review dan Perbandingan BAFO\]_
 
@@ -970,20 +969,20 @@ _\[Screenshot: Review dan Perbandingan BAFO\]_
 
 | **Termination Outcomes**       | **Conditions User**                                                                      | **Conditions System**                                                                                                |
 | ------------------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Procurement memilih vendor** | 1\. Review ranking<br><br>2\. Pilih vendor<br><br>3\. WAJIB dokumentasi alasan pemilihan | 4\. Comparison report lengkap ditampilkan                                                                            |
+| **Procurement memilih vendor** | 1. Review ranking<br><br>2. Pilih vendor<br><br>3. WAJIB dokumentasi alasan pemilihan | 4. Comparison report lengkap ditampilkan                                                                            |
 | ---                            | ---                                                                                      | ---                                                                                                                  |
-| **Konfirmasi selection**       | 5\. Procurement klik Confirm Vendor Selection                                            | 6\. Status RFQ berubah ke Vendor Selected<br><br>7\. Generate Vendor Selection Report<br><br>8\. Proses lanjut ke PO |
+| **Konfirmasi selection**       | 5. Procurement klik Confirm Vendor Selection                                            | 6. Status RFQ berubah ke Vendor Selected<br><br>7. Generate Vendor Selection Report<br><br>8. Proses lanjut ke PO |
 | ---                            | ---                                                                                      | ---                                                                                                                  |
-| **Logging**                    |                                                                                          | 9\. Pemilihan vendor dan alasan tercatat dalam audit trail                                                           |
+| **Logging**                    |                                                                                          | 9. Pemilihan vendor dan alasan tercatat dalam audit trail                                                           |
 | ---                            | ---                                                                                      | ---                                                                                                                  |
 
 **MOCKUP**
 
-**1\. Vendor Ranking dan Comparison Report**
+**1. Vendor Ranking dan Comparison Report**
 
 _\[Screenshot: Vendor Ranking dan Comparison Report\]_
 
-**2\. Dokumentasi Alasan Pemilihan**
+**2. Dokumentasi Alasan Pemilihan**
 
 _\[Screenshot: Dokumentasi Alasan Pemilihan\]_
 
@@ -1000,24 +999,24 @@ _\[Screenshot: Dokumentasi Alasan Pemilihan\]_
 
 | **Termination Outcomes**        | **Conditions User**                                                    | **Conditions System**                                                                               |
 | ------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Procurement pilih vendor**    | 1\. Procurement memilih vendor                                         | 2\. Sistem cek: Approved status, Blacklist, Kelayakan<br><br>3\. Peringatan jika vendor tidak lolos |
+| **Procurement pilih vendor**    | 1. Procurement memilih vendor                                         | 2. Sistem cek: Approved status, Blacklist, Kelayakan<br><br>3. Peringatan jika vendor tidak lolos |
 | ---                             | ---                                                                    | ---                                                                                                 |
-| **Procurement isi justifikasi** | 4\. WAJIB mengisi justifikasi detail                                   | 5\. Validasi justifikasi terisi                                                                     |
+| **Procurement isi justifikasi** | 4. WAJIB mengisi justifikasi detail                                   | 5. Validasi justifikasi terisi                                                                     |
 | ---                             | ---                                                                    | ---                                                                                                 |
-| **Procurement upload dokumen**  | 6\. Upload: quotation, price list, kontrak sebelumnya, referensi harga | 7\. Sistem menyimpan untuk audit                                                                    |
+| **Procurement upload dokumen**  | 6. Upload: quotation, price list, kontrak sebelumnya, referensi harga | 7. Sistem menyimpan untuk audit                                                                    |
 | ---                             | ---                                                                    | ---                                                                                                 |
-| **Konfirmasi**                  | 8\. Klik Confirm Direct Appointment                                    | 9\. Proses lanjut ke PO                                                                             |
+| **Konfirmasi**                  | 8. Klik Confirm Direct Appointment                                    | 9. Proses lanjut ke PO                                                                             |
 | ---                             | ---                                                                    | ---                                                                                                 |
-| **Logging**                     |                                                                        | 10\. Seluruh dokumentasi DA tercatat dalam audit trail                                              |
+| **Logging**                     |                                                                        | 10. Seluruh dokumentasi DA tercatat dalam audit trail                                              |
 | ---                             | ---                                                                    | ---                                                                                                 |
 
 **MOCKUP**
 
-**1\. Direct Appointment - Pemilihan Vendor**
+**1. Direct Appointment - Pemilihan Vendor**
 
 _\[Screenshot: Direct Appointment - Pemilihan Vendor\]_
 
-**2\. Form Justifikasi DA**
+**2. Form Justifikasi DA**
 
 _\[Screenshot: Form Justifikasi DA\]_
 
@@ -1034,22 +1033,22 @@ _\[Screenshot: Form Justifikasi DA\]_
 
 | **Termination Outcomes** | **Conditions User**                                                                                    | **Conditions System**                                                                                                  |
 | ------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| **Procurement buat PO**  | 1\. Akses Create PO                                                                                    | 2\. Sistem generate PO dengan data otomatis dari PR dan vendor terpilih                                                |
+| **Procurement buat PO**  | 1. Akses Create PO                                                                                    | 2. Sistem generate PO dengan data otomatis dari PR dan vendor terpilih                                                |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
-| **Procurement lengkapi** | 3\. Lengkapi: nomor PO (dihasilkan otomatis), tanggal delivery, terms of payment, delivery address, catatan | 4\. Sistem validasi kelengkapan                                                                                        |
+| **Procurement lengkapi** | 3. Lengkapi: nomor PO (dihasilkan otomatis), tanggal delivery, terms of payment, delivery address, catatan | 4. Sistem validasi kelengkapan                                                                                        |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
-| **Submit PO**            | 5\. Klik Submit PO                                                                                     | 6\. Workflow approval PO sesuai governance<br><br>7\. Status PO: Pending Approval<br><br>8\. Notifikasi ke Approver PO |
+| **Submit PO**            | 5. Klik Submit PO                                                                                     | 6. Workflow approval PO sesuai governance<br><br>7. Status PO: Pending Approval<br><br>8. Notifikasi ke Approver PO |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
-| **Logging**              |                                                                                                        | 9\. Pembuatan PO tercatat dalam audit trail                                                                            |
+| **Logging**              |                                                                                                        | 9. Pembuatan PO tercatat dalam audit trail                                                                            |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
 
 **MOCKUP**
 
-**1\. Halaman Create PO**
+**1. Halaman Create PO**
 
 _\[Screenshot: Halaman Create PO\]_
 
-**2\. Form Detail PO**
+**2. Form Detail PO**
 
 _\[Screenshot: Form Detail PO\]_
 
@@ -1066,26 +1065,26 @@ _\[Screenshot: Form Detail PO\]_
 
 | **Termination Outcomes** | **Conditions User**                  | **Conditions System**                                                                                                                                               |
 | ------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Approver review PO**   | 1\. Akses PO Approval                | 2\. Detail PO ditampilkan: vendor, item, harga, riwayat evaluasi                                                                                                    |
+| **Approver review PO**   | 1. Akses PO Approval                | 2. Detail PO ditampilkan: vendor, item, harga, riwayat evaluasi                                                                                                    |
 | ---                      | ---                                  | ---                                                                                                                                                                 |
-| **Approve PO**           | 3\. Klik Approve                     | 4\. Jika ada level berikutnya: lanjut ke Approver selanjutnya<br><br>5\. Jika terakhir: PO Approved<br><br>6\. Jika eskalasi ke Holding: lanjut ke Holding Approver |
+| **Approve PO**           | 3. Klik Approve                     | 4. Jika ada level berikutnya: lanjut ke Approver selanjutnya<br><br>5. Jika terakhir: PO Approved<br><br>6. Jika eskalasi ke Holding: lanjut ke Holding Approver |
 | ---                      | ---                                  | ---                                                                                                                                                                 |
-| **PO dikirim ke vendor** |                                      | 7\. Status PO: Sent to Vendor<br><br>8\. PO dikirim via email/Vendor Portal                                                                                         |
+| **PO dikirim ke vendor** |                                      | 7. Status PO: Sent to Vendor<br><br>8. PO dikirim via email/Vendor Portal                                                                                         |
 | ---                      | ---                                  | ---                                                                                                                                                                 |
-| **Reject PO**            | 9\. Klik Reject + alasan WAJIB       | 10\. Status PO: Rejected, notifikasi ke Procurement                                                                                                                 |
+| **Reject PO**            | 9. Klik Reject + alasan WAJIB       | 10. Status PO: Rejected, notifikasi ke Procurement                                                                                                                 |
 | ---                      | ---                                  | ---                                                                                                                                                                 |
-| **Revisi PO**            | 11\. Procurement revisi dan resubmit | 12\. Workflow approval ulang                                                                                                                                        |
+| **Revisi PO**            | 11. Procurement revisi dan resubmit | 12. Workflow approval ulang                                                                                                                                        |
 | ---                      | ---                                  | ---                                                                                                                                                                 |
-| **Logging**              |                                      | 13\. Seluruh approval PO tercatat dalam audit trail                                                                                                                 |
+| **Logging**              |                                      | 13. Seluruh approval PO tercatat dalam audit trail                                                                                                                 |
 | ---                      | ---                                  | ---                                                                                                                                                                 |
 
 **MOCKUP**
 
-**1\. Daftar PO Pending Approval**
+**1. Daftar PO Pending Approval**
 
 _\[Screenshot: Daftar PO Pending Approval\]_
 
-**2\. Detail PO untuk Review**
+**2. Detail PO untuk Review**
 
 _\[Screenshot: Detail PO untuk Review\]_
 
@@ -1102,22 +1101,22 @@ _\[Screenshot: Detail PO untuk Review\]_
 
 | **Termination Outcomes**     | **Conditions User**             | **Conditions System**                                                                                                                                        |
 | ---------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Vendor terima notifikasi** | 1\. Vendor terima notifikasi PO | 2\. PO ditampilkan di Vendor Portal                                                                                                                          |
+| **Vendor terima notifikasi** | 1. Vendor terima notifikasi PO | 2. PO ditampilkan di Vendor Portal                                                                                                                          |
 | ---                          | ---                             | ---                                                                                                                                                          |
-| **Vendor review PO**         | 3\. Vendor review detail PO     |                                                                                                                                                              |
+| **Vendor review PO**         | 3. Vendor review detail PO     |                                                                                                                                                              |
 | ---                          | ---                             | ---                                                                                                                                                          |
-| **Vendor konfirmasi**        | 4\. Klik Confirm PO             | 5\. Konfirmasi dicatat dengan timestamp<br><br>6\. Status PO: Vendor Confirmed<br><br>7\. Notifikasi ke Procurement<br><br>8\. Proses procurement: Completed |
+| **Vendor konfirmasi**        | 4. Klik Confirm PO             | 5. Konfirmasi dicatat dengan timestamp<br><br>6. Status PO: Vendor Confirmed<br><br>7. Notifikasi ke Procurement<br><br>8. Proses procurement: Completed |
 | ---                          | ---                             | ---                                                                                                                                                          |
-| **Logging**                  |                                 | 9\. Konfirmasi vendor tercatat dalam audit trail                                                                                                             |
+| **Logging**                  |                                 | 9. Konfirmasi vendor tercatat dalam audit trail                                                                                                             |
 | ---                          | ---                             | ---                                                                                                                                                          |
 
 **MOCKUP**
 
-**1\. Vendor Portal - PO yang Diterima**
+**1. Vendor Portal - PO yang Diterima**
 
 _\[Screenshot: Vendor Portal - PO yang Diterima\]_
 
-**2\. Konfirmasi PO oleh Vendor**
+**2. Konfirmasi PO oleh Vendor**
 
 _\[Screenshot: Konfirmasi PO oleh Vendor\]_
 
@@ -1134,28 +1133,28 @@ _\[Screenshot: Konfirmasi PO oleh Vendor\]_
 
 | **Termination Outcomes**   | **Conditions User**                                                                                          | **Conditions System**                                                    |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| **Buat entitas baru**      | 1\. Akses Entity Management<br><br>2\. Klik Create New Entity<br><br>3\. Isi: nama, kode, alamat, status     | 4\. Validasi data<br><br>5\. Entitas baru dengan data isolation terpisah |
+| **Buat entitas baru**      | 1. Akses Entity Management<br><br>2. Klik Create New Entity<br><br>3. Isi: nama, kode, alamat, status     | 4. Validasi data<br><br>5. Entitas baru dengan data isolation terpisah |
 | ---                        | ---                                                                                                          | ---                                                                      |
-| **Atur governance**        | 6\. Pilih entitas<br><br>7\. Tentukan model approval: a) cukup di entitas, b) wajib eskalasi, c) conditional | 8\. Governance setting disimpan                                          |
+| **Atur governance**        | 6. Pilih entitas<br><br>7. Tentukan model approval: a) cukup di entitas, b) wajib eskalasi, c) conditional | 8. Governance setting disimpan                                          |
 | ---                        | ---                                                                                                          | ---                                                                      |
-| **Atur budget governance** | 9\. Atur mode Limited/Unlimited budget                                                                       | 10\. Budget governance disimpan                                          |
+| **Atur budget governance** | 9. Atur mode Limited/Unlimited budget                                                                       | 10. Budget governance disimpan                                          |
 | ---                        | ---                                                                                                          | ---                                                                      |
-| **Ubah status entitas**    | 11\. Ubah aktif/nonaktif                                                                                     | 12\. Jika nonaktif, user entitas tidak bisa akses                        |
+| **Ubah status entitas**    | 11. Ubah aktif/nonaktif                                                                                     | 12. Jika nonaktif, user entitas tidak bisa akses                        |
 | ---                        | ---                                                                                                          | ---                                                                      |
-| **Logging**                |                                                                                                              | 13\. Seluruh perubahan tercatat dalam audit trail                        |
+| **Logging**                |                                                                                                              | 13. Seluruh perubahan tercatat dalam audit trail                        |
 | ---                        | ---                                                                                                          | ---                                                                      |
 
 **MOCKUP**
 
-**1\. Daftar Entitas**
+**1. Daftar Entitas**
 
 _\[Screenshot: Daftar Entitas\]_
 
-**2\. Form Create/Edit Entitas**
+**2. Form Create/Edit Entitas**
 
 _\[Screenshot: Form Create/Edit Entitas\]_
 
-**3\. Governance Setting per Entitas**
+**3. Governance Setting per Entitas**
 
 _\[Screenshot: Governance Setting per Entitas\]_
 
@@ -1172,38 +1171,38 @@ _\[Screenshot: Governance Setting per Entitas\]_
 
 | **Termination Outcomes**           | **Conditions User**                                                                                                                                              | **Conditions System**                                                                                                                                                                                                                                                                   |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Admin buat user baru**           | 1\. Akses User Management<br><br>2\. Klik Create New User<br><br>3\. Isi: nama, email, departemen, entitas                                                       | 4\. Validasi data dan cek duplikasi email<br><br>5\. Kirim undangan/kredensial ke email                                                                                                                                                                                                 |
+| **Admin buat user baru**           | 1. Akses User Management<br><br>2. Klik Create New User<br><br>3. Isi: nama, email, departemen, entitas                                                       | 4. Validasi data dan cek duplikasi email<br><br>5. Kirim undangan/kredensial ke email                                                                                                                                                                                                 |
 | ---                                | ---                                                                                                                                                              | ---                                                                                                                                                                                                                                                                                     |
-| **Admin assign role**              | 6\. Pilih role: Requestor, Entity Approver, Holding Approver, Procurement, Finance, Management, Internal Audit                                                                              | 7\. Sistem cek SoD: tidak boleh overlap berisiko<br><br>8\. Jika konflik SoD, tampilkan peringatan                                                                                                                                                                                      |
+| **Admin assign role**              | 6. Pilih role: Requestor, Entity Approver, Holding Approver, Procurement, Finance, Management, Internal Audit                                                                              | 7. Sistem cek SoD: tidak boleh overlap berisiko<br><br>8. Jika konflik SoD, tampilkan peringatan                                                                                                                                                                                      |
 | ---                                | ---                                                                                                                                                              | ---                                                                                                                                                                                                                                                                                     |
-| **Admin reset password**           | 9\. Admin cari user di daftar<br><br>10\. Klik Reset Password                                                                                                    | 11\. Sistem mereset password ke default<br><br>12\. Admin menginformasikan password default ke user di luar sistem<br><br>13\. Saat user login dengan default password, sistem memaksa ganti password                                                                                   |
+| **Admin reset password**           | 9. Admin cari user di daftar<br><br>10. Klik Reset Password                                                                                                    | 11. Sistem mereset password ke default<br><br>12. Admin menginformasikan password default ke user di luar sistem<br><br>13. Saat user login dengan default password, sistem memaksa ganti password                                                                                   |
 | ---                                | ---                                                                                                                                                              | ---                                                                                                                                                                                                                                                                                     |
-| **Admin set delegate approver**    | 14\. Admin pilih approver yang akan didelegasikan<br><br>15\. Admin pilih user pengganti<br><br>16\. Admin tentukan periode delegasi (tanggal mulai dan selesai) | 17\. Sistem memvalidasi bahwa delegate memiliki role yang sesuai<br><br>18\. Selama periode aktif, approval masuk ke delegate<br><br>19\. Approver asli TIDAK bisa approve selama delegasi aktif<br><br>20\. Di audit trail, approval oleh delegate tercatat dengan keterangan delegasi |
+| **Admin set delegate approver**    | 14. Admin pilih approver yang akan didelegasikan<br><br>15. Admin pilih user pengganti<br><br>16. Admin tentukan periode delegasi (tanggal mulai dan selesai) | 17. Sistem memvalidasi bahwa delegate memiliki role yang sesuai<br><br>18. Selama periode aktif, approval masuk ke delegate<br><br>19. Approver asli TIDAK bisa approve selama delegasi aktif<br><br>20. Di audit trail, approval oleh delegate tercatat dengan keterangan delegasi |
 | ---                                | ---                                                                                                                                                              | ---                                                                                                                                                                                                                                                                                     |
-| **Admin aktivasi/deaktivasi user** | 21\. Ubah status aktif/nonaktif                                                                                                                                  | 22\. User nonaktif tidak bisa login                                                                                                                                                                                                                                                     |
+| **Admin aktivasi/deaktivasi user** | 21. Ubah status aktif/nonaktif                                                                                                                                  | 22. User nonaktif tidak bisa login                                                                                                                                                                                                                                                     |
 | ---                                | ---                                                                                                                                                              | ---                                                                                                                                                                                                                                                                                     |
-| **Logging**                        |                                                                                                                                                                  | 23\. Seluruh perubahan user management tercatat dalam audit trail                                                                                                                                                                                                                       |
+| **Logging**                        |                                                                                                                                                                  | 23. Seluruh perubahan user management tercatat dalam audit trail                                                                                                                                                                                                                       |
 | ---                                | ---                                                                                                                                                              | ---                                                                                                                                                                                                                                                                                     |
 
 **MOCKUP**
 
-**1\. Daftar User**
+**1. Daftar User**
 
 _\[Screenshot: Daftar User\]_
 
-**2\. Form Create/Edit User**
+**2. Form Create/Edit User**
 
 _\[Screenshot: Form Create/Edit User\]_
 
-**3\. Dialog Reset Password**
+**3. Dialog Reset Password**
 
 _\[Screenshot: Dialog Reset Password\]_
 
-**4\. Form Delegate Approver (dengan periode)**
+**4. Form Delegate Approver (dengan periode)**
 
 _\[Screenshot: Form Delegate Approver (dengan periode)\]_
 
-**5\. Peringatan SoD**
+**5. Peringatan SoD**
 
 _\[Screenshot: Peringatan SoD\]_
 
@@ -1220,26 +1219,26 @@ _\[Screenshot: Peringatan SoD\]_
 
 | **Termination Outcomes**                   | **Conditions User**                                                                                                                                                   | **Conditions System**                                                                                                                                                     |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Admin blacklist vendor**                 | 1\. Holding Admin akses menu Vendor Management<br><br>2\. Cari vendor yang akan di-blacklist<br><br>3\. Klik Flag Blacklist<br><br>4\. WAJIB mengisi alasan blacklist | 5\. Sistem mengubah status vendor menjadi Blacklisted<br><br>6\. Vendor tidak dapat mengikuti tender baru<br><br>7\. Vendor masih bisa login ke Vendor Portal (view only) |
+| **Admin blacklist vendor**                 | 1. Holding Admin akses menu Vendor Management<br><br>2. Cari vendor yang akan di-blacklist<br><br>3. Klik Flag Blacklist<br><br>4. WAJIB mengisi alasan blacklist | 5. Sistem mengubah status vendor menjadi Blacklisted<br><br>6. Vendor tidak dapat mengikuti tender baru<br><br>7. Vendor masih bisa login ke Vendor Portal (view only) |
 | ---                                        | ---                                                                                                                                                                   | ---                                                                                                                                                                       |
-| **Vendor request unflag (di luar sistem)** |                                                                                                                                                                       | 8\. Vendor mengirim surat formal ke perusahaan melalui channel resmi (di luar sistem)<br><br>9\. Holding Admin menerima dan mereview permintaan                           |
+| **Vendor request unflag (di luar sistem)** |                                                                                                                                                                       | 8. Vendor mengirim surat formal ke perusahaan melalui channel resmi (di luar sistem)<br><br>9. Holding Admin menerima dan mereview permintaan                           |
 | ---                                        | ---                                                                                                                                                                   | ---                                                                                                                                                                       |
-| **Admin unflag vendor**                    | 10\. Holding Admin akses Vendor Management<br><br>11\. Klik Unflag Blacklist<br><br>12\. WAJIB mengisi alasan unflag                                                  | 13\. Status vendor kembali ke Approved<br><br>14\. Vendor dapat mengikuti tender kembali                                                                                  |
+| **Admin unflag vendor**                    | 10. Holding Admin akses Vendor Management<br><br>11. Klik Unflag Blacklist<br><br>12. WAJIB mengisi alasan unflag                                                  | 13. Status vendor kembali ke Approved<br><br>14. Vendor dapat mengikuti tender kembali                                                                                  |
 | ---                                        | ---                                                                                                                                                                   | ---                                                                                                                                                                       |
-| **Logging**                                |                                                                                                                                                                       | 15\. Seluruh perubahan blacklist tercatat dalam audit trail termasuk alasan                                                                                               |
+| **Logging**                                |                                                                                                                                                                       | 15. Seluruh perubahan blacklist tercatat dalam audit trail termasuk alasan                                                                                               |
 | ---                                        | ---                                                                                                                                                                   | ---                                                                                                                                                                       |
 
 **MOCKUP**
 
-**1\. Daftar Vendor dengan Status Blacklist**
+**1. Daftar Vendor dengan Status Blacklist**
 
 _\[Screenshot: Daftar Vendor dengan Status Blacklist\]_
 
-**2\. Dialog Flag Blacklist dengan Alasan**
+**2. Dialog Flag Blacklist dengan Alasan**
 
 _\[Screenshot: Dialog Flag Blacklist dengan Alasan\]_
 
-**3\. Dialog Unflag Blacklist dengan Alasan**
+**3. Dialog Unflag Blacklist dengan Alasan**
 
 _\[Screenshot: Dialog Unflag Blacklist dengan Alasan\]_
 
@@ -1258,42 +1257,42 @@ _\[Screenshot: Dialog Unflag Blacklist dengan Alasan\]_
 
 | **Termination Outcomes**               | **Conditions User**                                                                                                                                                                                          | **Conditions System**                                                                                               |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| **Procurement input Reference Price**  | 1\. Procurement akses menu Reference Price / eCatalog<br><br>2\. Klik Add Reference Price<br><br>3\. Isi: nama item/kategori, harga referensi, satuan, sumber harga (survei pasar/benchmark), tanggal update | 4\. Sistem menyimpan Reference Price / eCatalog<br><br>5\. Sistem menampilkan flag bahwa harga ini bersumber dari input manual |
+| **Procurement input Reference Price**  | 1. Procurement akses menu Reference Price / eCatalog<br><br>2. Klik Add Reference Price<br><br>3. Isi: nama item/kategori, harga referensi, satuan, sumber harga (survei pasar/benchmark), tanggal update | 4. Sistem menyimpan Reference Price / eCatalog<br><br>5. Sistem menampilkan flag bahwa harga ini bersumber dari input manual |
 | ---                                    | ---                                                                                                                                                                                                          | ---                                                                                                                 |
-| **Procurement mengubah Reference Price** | 6\. Procurement mengedit harga referensi yang sudah ada                                                                                                                                                     | 7\. Sistem menyimpan perubahan dengan versioning (harga lama tetap tersimpan untuk audit)                           |
+| **Procurement mengubah Reference Price** | 6. Procurement mengedit harga referensi yang sudah ada                                                                                                                                                     | 7. Sistem menyimpan perubahan dengan versioning (harga lama tetap tersimpan untuk audit)                           |
 | ---                                    | ---                                                                                                                                                                                                          | ---                                                                                                                 |
 
 **Sumber B - Hasil Generate Otomatis dari Riwayat PO**
 
 | **Termination Outcomes**     | **Conditions User** | **Conditions System**                                                                                                                                                                                                                                                 |
 | ---------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem generate otomatis** |                     | 1\. Setiap PO berstatus Completed, sistem meng-update database Reference Price / eCatalog<br><br>2\. Sistem menghitung rata-rata harga dari 3 PO terakhir untuk item/kategori yang sama<br><br>3\. Reference Price hasil generate otomatis ditandai dengan flag berbeda dari input manual |
+| **Sistem generate otomatis** |                     | 1. Setiap PO berstatus Completed, sistem meng-update database Reference Price / eCatalog<br><br>2. Sistem menghitung rata-rata harga dari 3 PO terakhir untuk item/kategori yang sama<br><br>3. Reference Price hasil generate otomatis ditandai dengan flag berbeda dari input manual |
 | ---                          | ---                 | ---                                                                                                                                                                                                                                                                   |
 
 **Penggunaan saat Evaluasi Vendor**
 
 | **Termination Outcomes**                           | **Conditions User** | **Conditions System**                                                                                                                                                                                                                                                                                                     |
 | -------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem menampilkan Reference Price saat evaluasi** |                  | 1\. Saat Procurement melakukan Commercial Evaluation, sistem otomatis menampilkan: Reference Price manual (jika ada) dan Reference Price dari riwayat PO (jika ada)<br><br>2\. Procurement dapat melihat perbandingan harga vendor vs Reference Price<br><br>3\. Selisih signifikan ditandai oleh sistem sebagai alert |
+| **Sistem menampilkan Reference Price saat evaluasi** |                  | 1. Saat Procurement melakukan Commercial Evaluation, sistem otomatis menampilkan: Reference Price manual (jika ada) dan Reference Price dari riwayat PO (jika ada)<br><br>2. Procurement dapat melihat perbandingan harga vendor vs Reference Price<br><br>3. Selisih signifikan ditandai oleh sistem sebagai alert |
 | ---                                                | ---                 | ---                                                                                                                                                                                                                                                                                                                       |
 
 _Logging: Seluruh perubahan Reference Price / eCatalog tercatat dalam audit trail._
 
 **MOCKUP**
 
-**1\. Halaman Reference Price / eCatalog**
+**1. Halaman Reference Price / eCatalog**
 
 _\[Screenshot: Halaman Reference Price / eCatalog\]_
 
-**2\. Form Input Reference Price Manual**
+**2. Form Input Reference Price Manual**
 
 _\[Screenshot: Form Input Reference Price Manual\]_
 
-**3\. Tampilan Reference Price yang Dihasilkan Otomatis**
+**3. Tampilan Reference Price yang Dihasilkan Otomatis**
 
 _\[Screenshot: Tampilan Reference Price yang Dihasilkan Otomatis\]_
 
-**4\. Reference Price saat Commercial Evaluation**
+**4. Reference Price saat Commercial Evaluation**
 
 _\[Screenshot: Reference Price saat Commercial Evaluation\]_
 
@@ -1310,22 +1309,22 @@ _\[Screenshot: Reference Price saat Commercial Evaluation\]_
 
 | **Termination Outcomes**     | **Conditions User**                                                                                                                                                      | **Conditions System**                                                                                                      |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| **Admin konfigurasi budget** | 1\. Akses Budget Management<br><br>2\. Pilih entitas dan periode<br><br>3\. Isi: nominal per departemen, per kategori<br><br>4\. Tentukan mode: Limited/Unlimited Budget | 5\. Budget disimpan                                                                                                        |
+| **Admin konfigurasi budget** | 1. Akses Budget Management<br><br>2. Pilih entitas dan periode<br><br>3. Isi: nominal per departemen, per kategori<br><br>4. Tentukan mode: Limited/Unlimited Budget | 5. Budget disimpan                                                                                                        |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
-| **Validasi pada PR**         |                                                                                                                                                                          | 6\. Saat PR dibuat: Within Budget / Over Budget / Non Budget<br><br>7\. Status budget mempengaruhi workflow dan escalation |
+| **Validasi pada PR**         |                                                                                                                                                                          | 6. Saat PR dibuat: Within Budget / Over Budget / Non Budget<br><br>7. Status budget mempengaruhi workflow dan escalation |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
-| **Monitor budget**           | 8\. Akses dashboard budget                                                                                                                                               | 9\. Tampilkan: total, terpakai, sisa, daftar PR berstatus Over Budget                                                      |
+| **Monitor budget**           | 8. Akses dashboard budget                                                                                                                                               | 9. Tampilkan: total, terpakai, sisa, daftar PR berstatus Over Budget                                                      |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
-| **Logging**                  |                                                                                                                                                                          | 10\. Perubahan budget tercatat dalam audit trail                                                                           |
+| **Logging**                  |                                                                                                                                                                          | 10. Perubahan budget tercatat dalam audit trail                                                                           |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
 
 **MOCKUP**
 
-**1\. Halaman Budget Management**
+**1. Halaman Budget Management**
 
 _\[Screenshot: Halaman Budget Management\]_
 
-**2\. Dashboard Budget Usage**
+**2. Dashboard Budget Usage**
 
 _\[Screenshot: Dashboard Budget Usage\]_
 
@@ -1342,22 +1341,22 @@ _\[Screenshot: Dashboard Budget Usage\]_
 
 | **Termination Outcomes**     | **Conditions User**                                                                                                                             | **Conditions System**                                                                                                                 |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Admin konfigurasi policy** | 1\. Akses Dynamic Procurement Policy<br><br>2\. Buat/edit rule: Nilai pengadaan, Status Budget, Kategori (Rutin/Non Rutin), Jenis (Barang/Jasa) | 3\. Form konfigurasi rule                                                                                                             |
+| **Admin konfigurasi policy** | 1. Akses Dynamic Procurement Policy<br><br>2. Buat/edit rule: Nilai pengadaan, Status Budget, Kategori (Rutin/Non Rutin), Jenis (Barang/Jasa) | 3. Form konfigurasi rule                                                                                                             |
 | ---                          | ---                                                                                                                                             | ---                                                                                                                                   |
-| **Admin tentukan output**    | 4\. Tentukan: workflow approval, metode procurement rekomendasi, escalation rule                                                                | 5\. Validasi tidak ada konflik antar rule<br><br>6\. Simpan konfigurasi                                                               |
+| **Admin tentukan output**    | 4. Tentukan: workflow approval, metode procurement rekomendasi, escalation rule                                                                | 5. Validasi tidak ada konflik antar rule<br><br>6. Simpan konfigurasi                                                               |
 | ---                          | ---                                                                                                                                             | ---                                                                                                                                   |
-| **Policy diterapkan**        |                                                                                                                                                 | 7\. Saat PR disubmit, sistem cocokkan parameter dengan policy<br><br>8\. Workflow, rekomendasi metode, escalation ditentukan otomatis |
+| **Policy diterapkan**        |                                                                                                                                                 | 7. Saat PR disubmit, sistem cocokkan parameter dengan policy<br><br>8. Workflow, rekomendasi metode, escalation ditentukan otomatis |
 | ---                          | ---                                                                                                                                             | ---                                                                                                                                   |
-| **Logging**                  |                                                                                                                                                 | 9\. Perubahan policy tercatat dalam audit trail                                                                                       |
+| **Logging**                  |                                                                                                                                                 | 9. Perubahan policy tercatat dalam audit trail                                                                                       |
 | ---                          | ---                                                                                                                                             | ---                                                                                                                                   |
 
 **MOCKUP**
 
-**1\. Halaman Dynamic Procurement Policy**
+**1. Halaman Dynamic Procurement Policy**
 
 _\[Screenshot: Halaman Dynamic Procurement Policy\]_
 
-**2\. Form Konfigurasi Rule**
+**2. Form Konfigurasi Rule**
 
 _\[Screenshot: Form Konfigurasi Rule\]_
 
@@ -1374,13 +1373,13 @@ _\[Screenshot: Form Konfigurasi Rule\]_
 
 | **Termination Outcomes**     | **Conditions User**                                                                                                           | **Conditions System**                             |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| **Admin konfigurasi matrix** | 1\. Akses Approval Workflow Configuration<br><br>2\. Tentukan level berdasarkan: range nilai, status budget, governance model | 3\. Approval matrix yang bisa diedit              |
+| **Admin konfigurasi matrix** | 1. Akses Approval Workflow Configuration<br><br>2. Tentukan level berdasarkan: range nilai, status budget, governance model | 3. Approval matrix yang bisa diedit              |
 | ---                          | ---                                                                                                                           | ---                                               |
-| **Admin tentukan approver**  | 4\. Tentukan approver per level: HoD, Direktur, CFO (Over Budget), Holding Approver                                           | 5\. Validasi approver memiliki role sesuai        |
+| **Admin tentukan approver**  | 4. Tentukan approver per level: HoD, Direktur, CFO (Over Budget), Holding Approver                                           | 5. Validasi approver memiliki role sesuai        |
 | ---                          | ---                                                                                                                           | ---                                               |
-| **Admin set ketentuan**      | 6\. Konfigurasi: SLA per level (default 2 hari kerja), sequential approval, auto-reminder, penolakan wajib alasan             | 7\. Simpan konfigurasi                            |
+| **Admin set ketentuan**      | 6. Konfigurasi: SLA per level (default 2 hari kerja), sequential approval, auto-reminder, penolakan wajib alasan             | 7. Simpan konfigurasi                            |
 | ---                          | ---                                                                                                                           | ---                                               |
-| **Logging**                  |                                                                                                                               | 8\. Perubahan workflow tercatat dalam audit trail |
+| **Logging**                  |                                                                                                                               | 8. Perubahan workflow tercatat dalam audit trail |
 | ---                          | ---                                                                                                                           | ---                                               |
 
 **Contoh Konfigurasi Approval Matrix**
@@ -1402,7 +1401,7 @@ _\[Screenshot: Form Konfigurasi Rule\]_
 
 **MOCKUP**
 
-**1\. Halaman Approval Workflow Configuration**
+**1. Halaman Approval Workflow Configuration**
 
 _\[Screenshot: Halaman Approval Workflow Configuration\]_
 
@@ -1419,28 +1418,28 @@ _\[Screenshot: Halaman Approval Workflow Configuration\]_
 
 | **Termination Outcomes** | **Conditions User**      | **Conditions System**                                               |
 | ------------------------ | ------------------------ | ------------------------------------------------------------------- |
-| **User akses dashboard** | 1\. Akses menu Dashboard | 2\. Tampilkan sesuai kewenangan: Entity level atau Group level      |
+| **User akses dashboard** | 1. Akses menu Dashboard | 2. Tampilkan sesuai kewenangan: Entity level atau Group level      |
 | ---                      | ---                      | ---                                                                 |
-| **Monitoring PR**        |                          | 3\. Jumlah PR per status, lead time, PR melewati SLA                |
+| **Monitoring PR**        |                          | 3. Jumlah PR per status, lead time, PR melewati SLA                |
 | ---                      | ---                      | ---                                                                 |
-| **Monitoring RFQ**       |                          | 4\. Tender aktif, vendor participation, lead time bidding           |
+| **Monitoring RFQ**       |                          | 4. Tender aktif, vendor participation, lead time bidding           |
 | ---                      | ---                      | ---                                                                 |
-| **Monitoring PO**        |                          | 5\. PO per status, total nilai per periode, PO pending confirmation |
+| **Monitoring PO**        |                          | 5. PO per status, total nilai per periode, PO pending confirmation |
 | ---                      | ---                      | ---                                                                 |
-| **Monitoring Budget**    |                          | 6\. Budget usage, proporsi Within Budget vs Over Budget, alarm Over Budget |
+| **Monitoring Budget**    |                          | 6. Budget usage, proporsi Within Budget vs Over Budget, alarm Over Budget |
 | ---                      | ---                      | ---                                                                 |
-| **Monitoring Metode**    |                          | 7\. Proporsi bidding vs Direct Appointment, rekap per kategori      |
+| **Monitoring Metode**    |                          | 7. Proporsi bidding vs Direct Appointment, rekap per kategori      |
 | ---                      | ---                      | ---                                                                 |
-| **Export Report**        | 8\. User ekspor laporan  | 9\. Generate report sesuai filter                                   |
+| **Export Report**        | 8. User ekspor laporan  | 9. Generate report sesuai filter                                   |
 | ---                      | ---                      | ---                                                                 |
 
 **MOCKUP**
 
-**1\. Dashboard Utama**
+**1. Dashboard Utama**
 
 _\[Screenshot: Dashboard Utama\]_
 
-**2\. Dashboard Budget Usage**
+**2. Dashboard Budget Usage**
 
 _\[Screenshot: Dashboard Budget Usage\]_
 
@@ -1457,22 +1456,22 @@ _\[Screenshot: Dashboard Budget Usage\]_
 
 | **Termination Outcomes**   | **Conditions User**                                         | **Conditions System**                                                                                                                        |
 | -------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **User akses audit trail** | 1\. Akses menu Audit Trail                                  | 2\. Log ditampilkan sesuai kewenangan                                                                                                        |
+| **User akses audit trail** | 1. Akses menu Audit Trail                                  | 2. Log ditampilkan sesuai kewenangan                                                                                                        |
 | ---                        | ---                                                         | ---                                                                                                                                          |
-| **Filter dan pencarian**   | 3\. Filter: periode, entitas, modul, aktor, jenis aktivitas | 4\. Hasil: timestamp, user, action, module, detail before/after, IP address                                                                  |
+| **Filter dan pencarian**   | 3. Filter: periode, entitas, modul, aktor, jenis aktivitas | 4. Hasil: timestamp, user, action, module, detail before/after, IP address                                                                  |
 | ---                        | ---                                                         | ---                                                                                                                                          |
-| **Detail log**             | 5\. Klik log tertentu                                       | 6\. Detail lengkap: data sebelum/sesudah, dokumen terkait, approval chain                                                                    |
+| **Detail log**             | 5. Klik log tertentu                                       | 6. Detail lengkap: data sebelum/sesudah, dokumen terkait, approval chain                                                                    |
 | ---                        | ---                                                         | ---                                                                                                                                          |
-| **Prinsip**                |                                                             | 7\. Log permanen, tidak bisa dihapus/dimodifikasi<br><br>8\. Setiap perubahan status otomatis tercatat<br><br>9\. Tidak ada proses tanpa log |
+| **Prinsip**                |                                                             | 7. Log permanen, tidak bisa dihapus/dimodifikasi<br><br>8. Setiap perubahan status otomatis tercatat<br><br>9. Tidak ada proses tanpa log |
 | ---                        | ---                                                         | ---                                                                                                                                          |
 
 **MOCKUP**
 
-**1\. Halaman Audit Trail dengan Filter**
+**1. Halaman Audit Trail dengan Filter**
 
 _\[Screenshot: Halaman Audit Trail dengan Filter\]_
 
-**2\. Detail Log Audit Trail**
+**2. Detail Log Audit Trail**
 
 _\[Screenshot: Detail Log Audit Trail\]_
 
@@ -1480,7 +1479,7 @@ _\[Screenshot: Detail Log Audit Trail\]_
 
 Bagian ini menambahkan sequence diagram yang merefleksikan implementasi backend `e-proc-api` saat ini. Diagram difokuskan pada alur API yang sudah ada di codebase Phase 1, sehingga fitur target FSD yang belum sepenuhnya terimplementasi seperti reminder SLA otomatis, notifikasi email/in-app, dan dynamic approval multi-level belum dimodelkan sebagai langkah sistem aktual.
 
-## 1\. Login Internal dan Vendor
+## 1. Login Internal dan Vendor
 
 **Status:** Implemented di backend Phase 1
 
@@ -1522,7 +1521,7 @@ Catatan implementasi:
 - Middleware request context akan meneruskan atau membangkitkan `X-Trace-ID` untuk setiap request.
 - Internal user dapat mengalami temporary lock setelah gagal login berulang.
 
-## 2\. Submit Purchase Request (PR) dan Pembentukan Approval Task
+## 2. Submit Purchase Request (PR) dan Pembentukan Approval Task
 
 **Status:** Implemented di backend Phase 1
 
@@ -1557,7 +1556,7 @@ Catatan implementasi:
 - Endpoint create PR dan submit PR dipisahkan; create menyimpan `Draft`, sedangkan submit membuat task approval.
 - Implementasi saat ini membuat approval level `1` untuk approver entitas, belum menjalankan dynamic approval matrix multi-level.
 
-## 3\. Approve / Reject Approval Task untuk PR dan PO
+## 3. Approve / Reject Approval Task untuk PR dan PO
 
 **Status:** Implemented di backend Phase 1
 
@@ -1597,7 +1596,7 @@ Catatan implementasi:
 - Delegate approver dicatat melalui `original_user_id` dan `on_behalf_of_user_id`.
 - Approval final pada code saat ini terjadi di level pertama; chaining antar-level masih menjadi area pengembangan lanjutan.
 
-## 4\. RFQ Internal dan Vendor Submit Quotation
+## 4. RFQ Internal dan Vendor Submit Quotation
 
 **Status:** Implemented di backend Phase 1
 
@@ -1649,7 +1648,7 @@ Catatan implementasi:
 - Publish tender pada code saat ini dilakukan melalui update status RFQ, bukan endpoint publish yang terpisah.
 - Hanya vendor yang ada pada `rfq_vendors`, eligible, dan tidak blacklist yang dapat melihat serta submit quotation.
 
-## 5\. Submit Purchase Order (PO) dan Vendor Confirmation
+## 5. Submit Purchase Order (PO) dan Vendor Confirmation
 
 **Status:** Implemented di backend Phase 1
 
@@ -1698,7 +1697,7 @@ Catatan implementasi:
 - Setelah approval PO, status menjadi `Approved`; transisi ke `Sent to Vendor` saat ini dilakukan melalui endpoint update status generik jika dibutuhkan.
 - Vendor hanya dapat mengkonfirmasi PO miliknya sendiri dan hanya pada status yang diizinkan oleh service.
 
-## 6\. Ganti Password Internal User
+## 6. Ganti Password Internal User
 
 **Status:** Implemented di backend Phase 1
 
@@ -1730,7 +1729,7 @@ Catatan implementasi:
 - Endpoint ini hanya tersedia untuk `internal_user`; vendor belum memiliki endpoint change password terpisah pada code saat ini.
 - Password baru wajib lolos policy validasi yang dipakai service auth.
 
-## 7\. Pengelolaan Entity oleh Super Admin
+## 7. Pengelolaan Entity oleh Super Admin
 
 **Status:** Implemented di backend Phase 1
 
@@ -1756,7 +1755,7 @@ Catatan implementasi:
 - Create entity hanya dibuka untuk `SUPER_ADMIN`.
 - Pada implementasi saat ini create entity belum menulis audit log eksplisit di service.
 
-## 8\. Pengelolaan User dan Reset Password oleh Admin
+## 8. Pengelolaan User dan Reset Password oleh Admin
 
 **Status:** Implemented di backend Phase 1
 
@@ -1798,7 +1797,7 @@ Catatan implementasi:
 - `ENTITY_ADMIN` hanya dapat membuat atau mereset user di entitasnya sendiri.
 - Jika `new_password` tidak dikirim, service memakai default `Temp123!` lalu memaksa user mengganti password saat login berikutnya.
 
-## 9\. Konfigurasi Delegate Approver
+## 9. Konfigurasi Delegate Approver
 
 **Status:** Implemented di backend Phase 1
 
@@ -1831,7 +1830,7 @@ Catatan implementasi:
 - Delegate approver disimpan dengan periode aktif eksplisit `start_at` dan `end_at`.
 - Penggunaan delegate pada alur submit PR/PO terjadi saat service approval/submit memanggil resolver approver entitas.
 
-## 10\. Vendor Master dan Vendor Blacklist
+## 10. Vendor Master dan Vendor Blacklist
 
 **Status:** Implemented di backend Phase 1
 
@@ -1885,7 +1884,7 @@ Catatan implementasi:
 
 Bagian ini melengkapi use case FSD yang belum seluruhnya tersedia pada backend Phase 1. Diagram di bawah bersifat target-state konseptual berdasarkan alur bisnis dokumen, sehingga dapat mencakup komponen seperti policy engine, notification service, budget service, dashboard analytics, dan approval multi-level.
 
-## 11\. Logout dan Force Change Password Pasca Reset
+## 11. Logout dan Force Change Password Pasca Reset
 
 **Status:** Planned / target-state FSD
 
@@ -1925,7 +1924,7 @@ sequenceDiagram
     AuthAPI-->>AuthUI: Redirect ke halaman login
 ```
 
-## 12\. Create PR, Budget Validation, dan Submit ke Approval Workflow
+## 12. Create PR, Budget Validation, dan Submit ke Approval Workflow
 
 **Status:** Planned / target-state FSD
 
@@ -1965,7 +1964,7 @@ sequenceDiagram
     PRA-->>UI: PR Submitted / Pending Approval
 ```
 
-## 13\. Revisi dan Resubmit PR serta Cancel / Void Dokumen
+## 13. Revisi dan Resubmit PR serta Cancel / Void Dokumen
 
 **Status:** Planned / target-state FSD
 
@@ -2004,7 +2003,7 @@ sequenceDiagram
     end
 ```
 
-## 14\. Penentuan Metode Pengadaan dan Publikasi RFQ
+## 14. Penentuan Metode Pengadaan dan Publikasi RFQ
 
 **Status:** Planned / target-state FSD
 
@@ -2040,7 +2039,7 @@ sequenceDiagram
     RFQAPI-->>UI: RFQ Published
 ```
 
-## 15\. Penutupan Bidding, Evaluasi Vendor, BAFO, dan Vendor Selection
+## 15. Penutupan Bidding, Evaluasi Vendor, BAFO, dan Vendor Selection
 
 **Status:** Planned / target-state FSD
 
@@ -2081,7 +2080,7 @@ sequenceDiagram
     Eval-->>Procurement: Vendor Selected
 ```
 
-## 16\. Direct Appointment
+## 16. Direct Appointment
 
 **Status:** Planned / target-state FSD
 
@@ -2108,7 +2107,7 @@ sequenceDiagram
     DA-->>UI: Direct Appointment Approved for PO creation
 ```
 
-## 17\. Reference Price dan Budget Management
+## 17. Reference Price dan Budget Management
 
 **Status:** Planned / target-state FSD
 
@@ -2143,7 +2142,7 @@ sequenceDiagram
     Budget-->>UI: Within / Over / Non Budget
 ```
 
-## 18\. Dynamic Procurement Policy dan Dynamic Approval Workflow
+## 18. Dynamic Procurement Policy dan Dynamic Approval Workflow
 
 **Status:** Planned / target-state FSD
 
@@ -2174,7 +2173,7 @@ sequenceDiagram
     PRA-->>Requestor: Workflow aktif diterapkan
 ```
 
-## 19\. Dashboard Monitoring dan Audit Trail
+## 19. Dashboard Monitoring dan Audit Trail
 
 **Status:** Planned / target-state FSD
 
@@ -2212,7 +2211,7 @@ sequenceDiagram
 
 Bagian ini menambahkan alur pendukung yang penting untuk kebutuhan UAT, audit, dan operasional dokumen, khususnya notifikasi, reminder SLA, dan proses print/export.
 
-## 20\. Notification, Reminder SLA, dan Escalation
+## 20. Notification, Reminder SLA, dan Escalation
 
 **Status:** Planned / target-state FSD
 
@@ -2252,7 +2251,7 @@ sequenceDiagram
     Workflow->>Audit: Catat notification outcome
 ```
 
-## 21\. Print, Export, dan Report Generation
+## 21. Print, Export, dan Report Generation
 
 **Status:** Planned / target-state FSD
 
@@ -2283,7 +2282,7 @@ sequenceDiagram
 
 Bagian ini melengkapi sequence diagram dengan visual status lifecycle dokumen utama. State diagram mengikuti definisi lifecycle pada FSD, sehingga berguna untuk UAT, review bisnis, dan alignment antar tim.
 
-## 22\. State Diagram Purchase Request (PR)
+## 22. State Diagram Purchase Request (PR)
 
 **Status:** Target-state lifecycle FSD
 
@@ -2301,7 +2300,7 @@ stateDiagram-v2
     Approved --> [*]
 ```
 
-## 23\. State Diagram RFQ / Bidding
+## 23. State Diagram RFQ / Bidding
 
 **Status:** Target-state lifecycle FSD
 
@@ -2322,7 +2321,7 @@ stateDiagram-v2
     Cancelled --> [*]
 ```
 
-## 24\. State Diagram Purchase Order (PO)
+## 24. State Diagram Purchase Order (PO)
 
 **Status:** Target-state lifecycle FSD
 

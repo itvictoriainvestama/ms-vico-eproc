@@ -1,14 +1,14 @@
-# Aplikasi E-Procurement
+# Technical Specification Document (TSD)
 
-Technical Specification Document (TSD)
+## Sistem E-Procurement
 
-**PT. Victoria Investama, Tbk (VICO)**
+**Entitas:** PT Victoria Investama, Tbk (VICO)
 
-Ver 1.2.1
+**Versi:** 1.2.1
 
 ---
 
-# Document Information
+# Informasi Dokumen
 
 ## 1. Ringkasan Revisi
 
@@ -44,7 +44,7 @@ Pemilik dokumen ini adalah PT. Victoria Investama, Tbk. Project Manager / PIC IT
 
 ---
 
-# Introduction
+# Pendahuluan
 
 ## 1. Tujuan
 
@@ -58,7 +58,7 @@ Dokumen ini bertujuan untuk:
 4. Menjadi referensi QA, DevOps, Internal Audit, dan stakeholder manajemen dalam memahami bagaimana sistem dibangun secara teknis.
 5. Menjadi dasar implementasi yang audit-ready, scalable, dan selaras dengan kebutuhan multi-entity procurement governance.
 
-## 1.1 Catatan Konsistensi Dokumen
+### 1.1 Catatan Konsistensi Dokumen
 
 Untuk menjaga konsistensi antar dokumen:
 
@@ -67,7 +67,7 @@ Untuk menjaga konsistensi antar dokumen:
 3. TSD menjadi acuan rancangan teknis final, termasuk model autentikasi, arsitektur backend, kontrol keamanan, integrasi, dan deployment.
 4. Jika FSD memuat lampiran alignment implementasi Phase 1 backend saat ini, bagian tersebut diperlakukan sebagai konteks implementasi berjalan dan bukan pengganti keputusan arsitektur final yang didokumentasikan pada TSD.
 
-## 1.2 Prinsip Terminologi Teknis
+### 1.2 Prinsip Terminologi Teknis
 
 Untuk menjaga konsistensi istilah teknis dengan BRD dan FSD:
 
@@ -76,7 +76,7 @@ Untuk menjaga konsistensi istilah teknis dengan BRD dan FSD:
 3. Penamaan modul atau service pada TSD boleh lebih teknis, tetapi tidak boleh mengubah makna bisnis dari proses yang dijelaskan pada BRD/FSD.
 4. Jika terdapat perbedaan antara status implementasi berjalan dan rancangan target-state, keputusan arsitektur final tetap mengacu pada TSD, sementara detail kondisi implementasi berjalan dicatat sebagai konteks alignment.
 
-## 1.3 Decision Log Ringkas
+### 1.3 Decision Log Ringkas
 
 | Keputusan Teknis | Keputusan Final | Alasan Ringkas |
 | :---- | :---- | :---- |
@@ -322,7 +322,7 @@ Reverse proxy yang dimaksud adalah komponen seperti **Nginx** yang berada di dep
 
 ## 4. Backend Architecture
 
-## 4.1 Prinsip
+### 4.1 Prinsip
 
 Backend mengikuti pola **modular microservice**, tetapi pada fase ini menggunakan **shared database**. Dengan demikian, ini adalah pendekatan **logical microservice with shared data layer**.
 
@@ -335,7 +335,7 @@ Konsekuensi teknis:
 - tiap service **hanya boleh** menulis tabel yang menjadi ownership domain-nya
 - akses antar modul **direkomendasikan melalui API/service call atau event**, bukan cross-update tabel secara bebas
 
-## 4.2 Daftar Service
+### 4.2 Daftar Service
 
 | Service | Tanggung Jawab |
 | :---- | :---- |
@@ -352,7 +352,7 @@ Konsekuensi teknis:
 | Notification Service | In-app notification, email dispatch orchestration |
 | Audit Service | Audit trail, business event recording, security event logging |
 
-## 4.3 Service Boundary Map
+### 4.3 Service Boundary Map
 
 | Modul FSD/BRD | Service Owner Utama |
 | :---- | :---- |
@@ -663,7 +663,7 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 
 ## 4. Tabel Utama dan Field Inti
 
-## 4.1 Master Table
+### 4.1 Master Table
 
 ### `entities`
 
@@ -848,7 +848,7 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `is_mandatory` | Mandatory / optional |
 | `status` | Active / Inactive |
 
-## 4.2 Transaction Table
+### 4.2 Transaction Table
 
 ### `purchase_requests`
 
@@ -1863,7 +1863,7 @@ backend/
 - report berat tidak dijalankan sinkron di request user
 - service yang beban tinggi dapat diskalakan independen
 
-## 1.1 Target NFR Minimum
+### 1.1 Target NFR Minimum
 
 | Area | Target Minimum Awal |
 | :---- | :---- |
