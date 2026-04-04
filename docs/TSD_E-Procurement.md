@@ -4,7 +4,7 @@ Technical Specification Document (TSD)
 
 **PT. Victoria Investama, Tbk (VICO)**
 
-Ver 1.2.0
+Ver 1.2.1
 
 ---
 
@@ -17,15 +17,16 @@ Ver 1.2.0
 | 1.0.0 | 29/03/2026 | Initial Technical Specification Document E-Procurement | Divisi IT |
 | 1.1.0 | 29/03/2026 | Penegasan final technical decision project: tetap menggunakan backend modular microservice; penyesuaian alignment terhadap FSD final dan konfirmasi user terbaru tanpa mengurangi konten teknis sebelumnya | Divisi IT |
 | 1.2.0 | 04/04/2026 | Penambahan decision log, deployment topology, migration & rollout strategy, runbook minimum, retention policy, DR guideline, testing strategy, dan target NFR minimum | Divisi IT |
+| 1.2.1 | 05/04/2026 | Harmonisasi terminologi, perapihan editorial, dan penyelarasan gaya bahasa teknis formal | Divisi IT |
 
 ## 2. Daftar Distribusi
 
 | Perusahaan | Personil / Kelompok | Komentar |
 | :---- | :---- | :---- |
 | PT. Victoria Investama, Tbk | Direksi | Review |
-| PT. Victoria Investama, Tbk | Divisi IT | Development Reference |
-| PT. Victoria Investama, Tbk | Internal Audit | Control & Compliance Review |
-| Victoria Financial Group | Project Stakeholder | Implementation Reference |
+| PT. Victoria Investama, Tbk | Divisi IT | Acuan Pengembangan |
+| PT. Victoria Investama, Tbk | Internal Audit | Review Kontrol dan Kepatuhan |
+| Victoria Financial Group | Stakeholder Proyek | Acuan Implementasi |
 
 ## 3. Prosedur Pembaharuan
 
@@ -426,7 +427,7 @@ Sistem menggunakan:
 
 - **JWT Access Token**
 - **Refresh Token**
-- **Session timeout**
+- **Timeout sesi autentikasi**
 - **Force change password** untuk password default / hasil reset admin
 
 _Catatan: istilah "session" pada TSD ini merujuk pada sesi autentikasi logis pengguna yang direalisasikan melalui kombinasi access token, refresh token, timeout inaktivitas, dan mekanisme revoke._
@@ -608,7 +609,7 @@ flowchart LR
 
 ### 6.1 Aturan Teknis
 
-- nomor PO auto-generated
+- nomor PO dihasilkan otomatis
 - PO approval mengikuti policy / governance
 - PO void tidak boleh jika sudah vendor confirmed
 - void mengembalikan budget reserved jika masih relevan
@@ -1675,8 +1676,8 @@ Aturan minimum:
 3. Seed data governance awal untuk budget, approval model, dan procurement policy.
 4. Lakukan smoke test teknis di staging sebelum SIT/UAT dimulai.
 5. Jalankan UAT berbasis skenario prioritas tinggi dari FSD.
-6. Freeze perubahan konfigurasi kritikal menjelang production cutover.
-7. Lakukan go-live bertahap per entitas bila diperlukan untuk menurunkan risiko.
+6. Bekukan perubahan konfigurasi kritikal menjelang transisi produksi.
+7. Lakukan _go-live_ bertahap per entitas bila diperlukan untuk menurunkan risiko.
 8. Siapkan rollback plan untuk deployment aplikasi, namun perubahan data produksi harus mengikuti prosedur restore yang terkontrol.
 
 ## 3. Operasional Runbook Minimum
@@ -1700,7 +1701,7 @@ Aturan minimum:
 | Notification log | Direkomendasikan 6-12 bulan online | Archive atau purge terkontrol |
 | Exported report file | Direkomendasikan 30-90 hari bila dapat diregenerasi | Purge terkontrol |
 | Attachment procurement | Mengikuti kebijakan dokumen procurement | Archive ke storage tier sesuai kebijakan perusahaan |
-| Refresh token / session data | Pendek sesuai lifecycle keamanan | Expire dan cleanup otomatis |
+| Refresh token / data sesi autentikasi | Pendek sesuai lifecycle keamanan | Expire dan cleanup otomatis |
 
 ## 5. Business Continuity & Disaster Recovery
 
@@ -1940,6 +1941,6 @@ backend/
 | Name | Role | Approval | Date |
 | :---- | :---- | :---- | :---- |
 |  | Prepared By - Divisi IT |  |  |
-|  | Reviewed By - Project Stakeholder |  |  |
+|  | Reviewed By - Stakeholder Proyek |  |  |
 |  | Reviewed By - Internal Audit |  |  |
-|  | Approved By - Direksi / Management |  |  |
+|  | Approved By - Direksi / Manajemen |  |  |

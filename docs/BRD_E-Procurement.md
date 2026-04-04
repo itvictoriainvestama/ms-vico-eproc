@@ -4,9 +4,9 @@
 
 **PT. Victoria Investama, Tbk**
 
-**Tanggal:** 9 Maret 2026
+**Tanggal:** 5 April 2026
 
-**Versi:** 2.0
+**Versi:** 2.1
 
 **Status:** Draft untuk Persetujuan Manajemen
 
@@ -430,32 +430,32 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 
 | **Prioritas** | **Makna** | **Contoh Cakupan** |
 | ------------- | --------- | ------------------ |
-| Must Have | Wajib tersedia agar sistem layak go-live | PR, approval workflow, budget validation, RFQ, quotation, vendor evaluation, PO, audit trail, role access |
+| Must Have | Wajib tersedia agar sistem layak _go-live_ | PR, approval workflow, budget validation, RFQ, quotation, vendor evaluation, PO, audit trail, role access |
 | Should Have | Sangat penting, tetapi masih dapat menyusul setelah core stabil | Delegate approver, vendor blacklist, Reference Price / eCatalog, print/export, reminder SLA |
-| Could Have | Nilai tambah operasional dan monitoring | Dashboard lanjutan, report agregat, auto-generated reference price, BAFO refinement |
+| Could Have | Nilai tambah operasional dan monitoring | Dashboard lanjutan, report agregat, Reference Price yang dihasilkan otomatis, BAFO refinement |
 | Future Phase | Direncanakan setelah fase inti berhasil | ERP integration, MFA, SSO, mobile approval, vendor performance scoring historis |
 
 **Rencana Implementasi Bertahap**
 
 | **Fase** | **Fokus** | **Output Utama** |
 | -------- | --------- | ---------------- |
-| Phase 1 | Core transactional procurement | Login, PR, approval task, RFQ dasar, quotation, PO, vendor confirmation, user/entity management |
-| Phase 2 | Governance strengthening | Budget management penuh, dynamic procurement policy, dynamic approval workflow, vendor blacklist, delegate approver |
-| Phase 3 | Monitoring dan optimization | Dashboard lanjutan, export/report, Reference Price enrichment, advanced notification dan escalation |
-| Phase 4 | Enterprise integration | ERP integration, SSO/MFA, data warehouse / BI, future automation |
+| Phase 1 | Procurement transaksional inti | Login, PR, approval task, RFQ dasar, quotation, PO, vendor confirmation, user/entity management |
+| Phase 2 | Penguatan governance | Budget management penuh, dynamic procurement policy, dynamic approval workflow, vendor blacklist, delegate approver |
+| Phase 3 | Monitoring dan optimisasi | Dashboard lanjutan, export/report, pengayaan Reference Price, advanced notification dan escalation |
+| Phase 4 | Integrasi enterprise | ERP integration, SSO/MFA, data warehouse / BI, future automation |
 
 **9\. STAKEHOLDER DAN RACI BISNIS**
 
 | **Area / Keputusan** | **Responsible** | **Accountable** | **Consulted** | **Informed** |
 | -------------------- | --------------- | --------------- | ------------- | ------------ |
-| Kebijakan procurement group | Holding Admin | Direksi / Management | Procurement, Internal Audit | Seluruh entitas |
-| Governance approval per entitas | Holding Admin, Entity Admin | Direksi / Management | Finance, Procurement | Approver terkait |
-| Budget governance | Entity Admin, Finance | Direksi / Management | Holding Admin, Procurement | Requestor, Approver |
+| Kebijakan procurement group | Holding Admin | Direksi / Manajemen | Procurement, Internal Audit | Seluruh entitas |
+| Governance approval per entitas | Holding Admin, Entity Admin | Direksi / Manajemen | Finance, Procurement | Approver terkait |
+| Budget governance | Entity Admin, Finance | Direksi / Manajemen | Holding Admin, Procurement | Requestor, Approver |
 | Operasional procurement harian | Procurement | Management entitas | Requestor, Approver | Internal Audit |
 | Vendor evaluation dan selection | Procurement | Management entitas sesuai kewenangan | User teknis / requestor | Internal Audit |
 | User access dan SoD | Holding Admin, Entity Admin | Management / Governance owner | Internal Audit, IT | User terkait |
 | Audit review dan compliance | Internal Audit | Direksi / Komite terkait | Holding Admin, IT, Procurement | Management |
-| Persetujuan go-live | Divisi IT, Procurement | Direksi / Management | Internal Audit, stakeholder entitas | Seluruh project stakeholder |
+| Persetujuan _go-live_ | Divisi IT, Procurement | Direksi / Manajemen | Internal Audit, stakeholder entitas | Seluruh stakeholder proyek |
 
 **10\. KRITERIA PENERIMAAN BISNIS DAN UAT LEVEL**
 
@@ -465,7 +465,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Purchase Request | Requestor dapat membuat, submit, revisi, dan memonitor PR dengan dokumen pendukung lengkap |
 | Budget validation | Setiap PR memiliki hasil status Within Budget / Over Budget / Non Budget yang mempengaruhi alur approval |
 | Approval workflow | Approval berjalan berurutan, tidak dapat dilewati, dan sesuai governance entitas / holding |
-| Procurement method | Sistem dapat membedakan alur RFQ/Bidding vs Direct Appointment sesuai policy |
+| Procurement method | Sistem dapat membedakan alur RFQ/Bidding vs Direct Appointment sesuai kebijakan |
 | RFQ dan quotation | Vendor eligible dapat menerima tender, melihat detail, dan submit quotation sebelum deadline |
 | Vendor evaluation | Procurement dapat melakukan prequalification, evaluasi teknis/komersial, dan mendokumentasikan alasan pemilihan |
 | Purchase Order | PO hanya dapat diterbitkan dari proses yang sah dan mengikuti approval yang berlaku |
@@ -486,10 +486,10 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | **Topik** | **Dampak** | **Owner Keputusan** |
 | --------- | ---------- | ------------------- |
 | Batas nilai final per level approver pada tiap entitas | Mempengaruhi konfigurasi approval matrix dan UAT | Holding Admin + Management |
-| Apakah escalation SLA bersifat reminder-only atau dapat auto-escalate pada fase berikutnya | Mempengaruhi governance operasional dan ekspektasi user | Management + Internal Audit |
+| Apakah escalation SLA bersifat pengingat saja atau dapat auto-escalate pada fase berikutnya | Mempengaruhi governance operasional dan ekspektasi user | Management + Internal Audit |
 | Kebijakan final penggunaan Direct Appointment per kategori pengadaan | Mempengaruhi dynamic procurement policy dan kontrol fraud | Procurement + Management |
 | Kebutuhan tanda tangan digital formal pada dokumen output | Mempengaruhi legal acceptance dan desain output report | Management + Legal / Compliance |
-| Prioritas integrasi ERP / finance pada fase berikutnya | Mempengaruhi roadmap dan desain transisi proses pasca-go-live | Direksi + IT + Finance |
+| Prioritas integrasi ERP / Finance pada fase berikutnya | Mempengaruhi roadmap dan desain transisi proses pasca-_go-live_ | Direksi + IT + Finance |
 
 **13\. CHANGE MANAGEMENT DAN ADOPTION READINESS**
 
@@ -501,8 +501,8 @@ Keberhasilan implementasi sangat dipengaruhi oleh kesiapan organisasi, bukan han
 | Pelatihan user internal | Training per role untuk Requestor, Approver, Procurement, Admin, dan Audit | IT + Procurement |
 | Pelatihan vendor | Panduan penggunaan Vendor Portal dan tata cara submit quotation / konfirmasi PO | Procurement + Vendor Management |
 | UAT dan sign-off | Daftar user per entitas untuk UAT, hasil uji, dan sign-off bisnis | Entity Admin + IT |
-| Cutover readiness | Penetapan tanggal go-live, freeze period, dan support pasca go-live | IT + Management |
-| Hypercare pasca go-live | Pendampingan insiden, monitoring issue log, dan evaluasi adopsi awal | IT + Procurement + Internal Audit |
+| Kesiapan transisi produksi | Penetapan tanggal _go-live_, periode freeze, dan dukungan pasca implementasi | IT + Manajemen |
+| Masa stabilisasi pasca implementasi | Pendampingan insiden, monitoring issue log, dan evaluasi adopsi awal | IT + Procurement + Internal Audit |
 
 **LAMPIRAN A: DYNAMIC APPROVAL MATRIX**
 

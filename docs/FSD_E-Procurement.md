@@ -5,7 +5,7 @@ Functional Specification Document (FSD)
 
 **PT. Victoria Investama, Tbk (VICO)**
 
-Ver 2.1.0
+Ver 2.1.1
 
 # Document Information
 
@@ -18,6 +18,8 @@ Ver 2.1.0
 | 2.0.0       | 28/03/2026         | Penambahan: Login/Logout, Reset Password, Vendor Blacklist, Reference Price, Cancel/Void, Delegate Approver, Ganti Password, Field Validation, Notification Rules, Error Handling, Search/Filter, Print/Export, Pre/Post System Process | Divisi IT     |
 | ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
 | 2.1.0       | 04/04/2026         | Penambahan traceability, business rules catalog, acceptance criteria, source-of-truth rules, dan UAT scenario prioritas                                                                                                              | Divisi IT     |
+| ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
+| 2.1.1       | 05/04/2026         | Harmonisasi terminologi, perapihan editorial, dan standardisasi wording formal lintas section                                                                                                                                            | Divisi IT     |
 | ---         | ---                | ---                                                                                                                                                                                                                                     | ---           |
 
 ## 2\. Daftar Distribusi
@@ -429,7 +431,7 @@ Untuk penjelasan scenario masing-masing use case adalah sebagai berikut:
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 | **Login gagal karena akun nonaktif**    |                                                                                    | 14\. Sistem menampilkan notifikasi bahwa akun tidak aktif dan mengarahkan user untuk menghubungi Admin                                                                                                         |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Session timeout**                     |                                                                                    | 15\. Setelah periode inaktif, sistem otomatis mengakhiri sesi autentikasi aktif<br><br>16\. User diarahkan kembali ke halaman login                                                                                           |
+| **Sesi autentikasi berakhir karena timeout** |                                                                                | 15\. Setelah periode inaktif, sistem otomatis mengakhiri sesi autentikasi aktif<br><br>16\. User diarahkan kembali ke halaman login                                                                                           |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 | **Logging**                             |                                                                                    | 17\. Sistem mencatat seluruh aktivitas login (berhasil/gagal) dalam audit trail                                                                                                                                |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
@@ -1034,7 +1036,7 @@ _\[Screenshot: Form Justifikasi DA\]_
 | ------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | **Procurement buat PO**  | 1\. Akses Create PO                                                                                    | 2\. Sistem generate PO dengan data otomatis dari PR dan vendor terpilih                                                |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
-| **Procurement lengkapi** | 3\. Lengkapi: nomor PO (auto-generated), tanggal delivery, terms of payment, delivery address, catatan | 4\. Sistem validasi kelengkapan                                                                                        |
+| **Procurement lengkapi** | 3\. Lengkapi: nomor PO (dihasilkan otomatis), tanggal delivery, terms of payment, delivery address, catatan | 4\. Sistem validasi kelengkapan                                                                                        |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
 | **Submit PO**            | 5\. Klik Submit PO                                                                                     | 6\. Workflow approval PO sesuai governance<br><br>7\. Status PO: Pending Approval<br><br>8\. Notifikasi ke Approver PO |
 | ---                      | ---                                                                                                    | ---                                                                                                                    |
@@ -1245,34 +1247,34 @@ _\[Screenshot: Dialog Unflag Blacklist dengan Alasan\]_
 
 | **Actor**          | Procurement / System (auto-generate)                                                                                                                                                                                                                           |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Pre-Condition**  | \- Procurement telah login<br><br>\- Untuk auto-generate: terdapat historical PO yang telah Completed                                                                                                                                                          |
+| **Pre-Condition**  | \- Procurement telah login<br><br>\- Untuk generate otomatis: tersedia riwayat PO berstatus Completed                                                                                                                                                          |
 | ---                | ---                                                                                                                                                                                                                                                            |
-| **Post-Condition** | \- Reference price tersedia untuk digunakan saat evaluasi vendor                                                                                                                                                                                               |
+| **Post-Condition** | \- Reference Price / eCatalog tersedia untuk digunakan saat evaluasi vendor                                                                                                                                                                                    |
 | ---                | ---                                                                                                                                                                                                                                                            |
-| **Description**    | Reference Price / eCatalog berfungsi sebagai harga pembanding untuk memastikan kewajaran harga vendor saat evaluasi. Sistem mendukung dua sumber: (A) Manual Input oleh Procurement dari survei pasar, dan (B) Auto-Generated dari rata-rata harga PO yang sudah selesai. |
+| **Description**    | Reference Price / eCatalog berfungsi sebagai harga pembanding untuk memastikan kewajaran harga vendor saat evaluasi. Sistem mendukung dua sumber: (A) input manual oleh Procurement dari survei pasar, dan (B) hasil generate otomatis dari rata-rata harga PO yang sudah selesai. |
 | ---                | ---                                                                                                                                                                                                                                                            |
 
-**Sumber A - Manual Input**
+**Sumber A - Input Manual**
 
 | **Termination Outcomes**               | **Conditions User**                                                                                                                                                                                          | **Conditions System**                                                                                               |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| **Procurement input reference price**  | 1\. Procurement akses menu Reference Price / eCatalog<br><br>2\. Klik Add Reference Price<br><br>3\. Isi: nama item/kategori, harga referensi, satuan, sumber harga (survei pasar/benchmark), tanggal update | 4\. Sistem menyimpan Reference Price / eCatalog<br><br>5\. Sistem menampilkan flag bahwa harga ini bersumber dari input manual |
+| **Procurement input Reference Price**  | 1\. Procurement akses menu Reference Price / eCatalog<br><br>2\. Klik Add Reference Price<br><br>3\. Isi: nama item/kategori, harga referensi, satuan, sumber harga (survei pasar/benchmark), tanggal update | 4\. Sistem menyimpan Reference Price / eCatalog<br><br>5\. Sistem menampilkan flag bahwa harga ini bersumber dari input manual |
 | ---                                    | ---                                                                                                                                                                                                          | ---                                                                                                                 |
-| **Procurement update reference price** | 6\. Procurement edit harga referensi yang sudah ada                                                                                                                                                          | 7\. Sistem menyimpan perubahan dengan versioning (harga lama tetap tersimpan untuk audit)                           |
+| **Procurement mengubah Reference Price** | 6\. Procurement mengedit harga referensi yang sudah ada                                                                                                                                                     | 7\. Sistem menyimpan perubahan dengan versioning (harga lama tetap tersimpan untuk audit)                           |
 | ---                                    | ---                                                                                                                                                                                                          | ---                                                                                                                 |
 
-**Sumber B - Auto-Generated dari Historical PO**
+**Sumber B - Hasil Generate Otomatis dari Riwayat PO**
 
 | **Termination Outcomes**     | **Conditions User** | **Conditions System**                                                                                                                                                                                                                                                 |
 | ---------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem generate otomatis** |                     | 1\. Setiap PO berstatus Completed, sistem meng-update database Reference Price / eCatalog<br><br>2\. Sistem menghitung rata-rata harga dari 3 PO terakhir untuk item/kategori yang sama<br><br>3\. Reference Price auto-generated ditandai dengan flag berbeda dari manual input |
+| **Sistem generate otomatis** |                     | 1\. Setiap PO berstatus Completed, sistem meng-update database Reference Price / eCatalog<br><br>2\. Sistem menghitung rata-rata harga dari 3 PO terakhir untuk item/kategori yang sama<br><br>3\. Reference Price hasil generate otomatis ditandai dengan flag berbeda dari input manual |
 | ---                          | ---                 | ---                                                                                                                                                                                                                                                                   |
 
 **Penggunaan saat Evaluasi Vendor**
 
 | **Termination Outcomes**                           | **Conditions User** | **Conditions System**                                                                                                                                                                                                                                                                                                     |
 | -------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem tampilkan reference price saat evaluasi** |                     | 1\. Saat Procurement melakukan Commercial Evaluation, sistem otomatis menampilkan: Reference Price manual (jika ada) dan Reference Price dari historical PO (jika ada)<br><br>2\. Procurement dapat melihat perbandingan harga vendor vs Reference Price<br><br>3\. Selisih signifikan ditandai oleh sistem sebagai alert |
+| **Sistem menampilkan Reference Price saat evaluasi** |                  | 1\. Saat Procurement melakukan Commercial Evaluation, sistem otomatis menampilkan: Reference Price manual (jika ada) dan Reference Price dari riwayat PO (jika ada)<br><br>2\. Procurement dapat melihat perbandingan harga vendor vs Reference Price<br><br>3\. Selisih signifikan ditandai oleh sistem sebagai alert |
 | ---                                                | ---                 | ---                                                                                                                                                                                                                                                                                                                       |
 
 _Logging: Seluruh perubahan Reference Price / eCatalog tercatat dalam audit trail._
@@ -1287,9 +1289,9 @@ _\[Screenshot: Halaman Reference Price / eCatalog\]_
 
 _\[Screenshot: Form Input Reference Price Manual\]_
 
-**3\. Tampilan Auto-Generated Reference Price**
+**3\. Tampilan Reference Price yang Dihasilkan Otomatis**
 
-_\[Screenshot: Tampilan Auto-Generated Reference Price\]_
+_\[Screenshot: Tampilan Reference Price yang Dihasilkan Otomatis\]_
 
 **4\. Reference Price saat Commercial Evaluation**
 
@@ -2128,7 +2130,7 @@ sequenceDiagram
         RefPrice->>POHist: Ambil PO Completed historis
         POHist-->>RefPrice: Harga transaksi sebelumnya
         RefPrice->>RefPrice: Hitung average / benchmark
-        RefPrice->>Audit: Catat auto-generated reference price
+        RefPrice->>Audit: Catat Reference Price hasil generate otomatis
     end
 
     Admin->>UI: Konfigurasi budget per entitas / departemen / kategori / periode
@@ -2556,7 +2558,7 @@ Berikut spesifikasi penanganan error dan edge case dalam sistem:
 | ---                                                    | ---                                                                                                                                                                                                                                                                                                                                                                            |
 | PR/PO perlu dibatalkan setelah approval                | Procurement mengajukan Cancel/Void dengan alasan wajib. Memerlukan approval dari Entity Approver. PO yang sudah Vendor Confirmed tidak bisa di-void melalui sistem (proses manual di luar sistem). Budget yang ter-alokasi dikembalikan setelah cancel/void disetujui.                                                                                                         |
 | ---                                                    | ---                                                                                                                                                                                                                                                                                                                                                                            |
-| Session timeout saat mengisi form                      | Sistem menyimpan draft otomatis (auto-save) setiap 30 detik untuk form PR. Saat user login kembali, draft terakhir dapat dilanjutkan.                                                                                                                                                                                                                                          |
+| Sesi autentikasi berakhir saat mengisi form           | Sistem menyimpan draft otomatis (auto-save) setiap 30 detik untuk form PR. Saat user login kembali, draft terakhir dapat dilanjutkan.                                                                                                                                                                                                                                          |
 | ---                                                    | ---                                                                                                                                                                                                                                                                                                                                                                            |
 | Entitas dinonaktifkan saat ada transaksi aktif         | Sistem menampilkan peringatan kepada Holding Admin jika entitas memiliki PR/RFQ/PO aktif. Admin harus menyelesaikan atau membatalkan transaksi aktif sebelum menonaktifkan entitas.                                                                                                                                                                                            |
 | ---                                                    | ---                                                                                                                                                                                                                                                                                                                                                                            |
@@ -2617,7 +2619,7 @@ Sistem mendukung pencetakan dan ekspor dokumen untuk kebutuhan operasional dan a
 | ---                      | ---        | ---                                                                                                       | ---                                       |
 | Vendor Evaluation Report | PDF / XLSX | Summary evaluasi: prequalification, technical score, commercial score, weighted ranking, alasan pemilihan | Procurement, Management, Internal Audit   |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
-| Vendor Comparison Report | PDF / XLSX | Perbandingan harga dan terms antar vendor, Reference Price comparison                                     | Procurement, Management, Internal Audit   |
+| Vendor Comparison Report | PDF / XLSX | Perbandingan harga dan terms antar vendor, termasuk perbandingan terhadap Reference Price                 | Procurement, Management, Internal Audit   |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
 | Dashboard Report         | PDF / XLSX | Rekap pengadaan per periode, status PR/RFQ/PO, budget usage, proporsi metode                              | Management, Holding Admin, Internal Audit |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
@@ -2628,7 +2630,7 @@ Sistem mendukung pencetakan dan ekspor dokumen untuk kebutuhan operasional dan a
 
 # UAT Scenario Prioritas Tinggi
 
-Daftar ini dapat dijadikan baseline UAT awal untuk memastikan skenario berisiko tinggi sudah tervalidasi sebelum go-live.
+Daftar ini dapat dijadikan baseline UAT awal untuk memastikan skenario berisiko tinggi sudah tervalidasi sebelum _go-live_.
 
 | **UAT ID** | **Skenario** | **Actor** | **Expected Result** |
 | ---------- | ------------ | --------- | ------------------- |
