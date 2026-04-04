@@ -319,7 +319,7 @@ Konsekuensi teknis:
 | API Gateway | Entry point API, auth middleware, routing request, rate limiting sederhana |
 | Auth Service | Login, logout, refresh token, password policy, force change password |
 | User & Entity Service | User management, role assignment, entity management, delegate approver |
-| Procurement Service | Purchase Request, method selection, RFQ, direct appointment |
+| Procurement Service | Purchase Request, method selection, RFQ, Direct Appointment |
 | Workflow Service | Dynamic approval workflow, approval matrix resolution, escalation |
 | Budget Service | Budget master, budget validation, budget reservation/release |
 | Vendor Service | Vendor master, eligibility, blacklist, vendor portal profile |
@@ -375,8 +375,8 @@ Konsekuensi teknis:
 | Requestor | Entitas sendiri | Create/Edit/Submit/Revise PR, lihat status PR |
 | Entity Approver | Entitas sendiri | Approve/Reject PR & PO sesuai policy |
 | Holding Approver | Lintas entitas sesuai policy | Approval level holding |
-| Procurement | Entitas sendiri / group sesuai rule | RFQ, bidding, vendor comparison, BAFO, direct appointment, PO |
-| Finance | Entitas / group sesuai rule | Approval over budget / non-budget, monitoring budget |
+| Procurement | Entitas sendiri / group sesuai rule | RFQ, bidding, vendor comparison, BAFO, Direct Appointment, PO |
+| Finance | Entitas / group sesuai rule | Approval Over Budget / Non Budget, monitoring budget |
 | Management | Entitas / group sesuai rule | Dashboard, report, monitoring |
 | Internal Audit | Lintas entitas read-only | Audit trail, report, monitoring proses |
 | Vendor | Record vendor sendiri | Tender participation, submit quotation, confirm PO |
@@ -406,6 +406,8 @@ Sistem menggunakan:
 - **Refresh Token**
 - **Session timeout**
 - **Force change password** untuk password default / hasil reset admin
+
+_Catatan: istilah "session" pada TSD ini merujuk pada sesi autentikasi logis pengguna yang direalisasikan melalui kombinasi access token, refresh token, timeout inaktivitas, dan mekanisme revoke._
 
 ### 1.1 Token Strategy
 
@@ -1020,7 +1022,7 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | Field | Keterangan |
 | :---- | :---- |
 | `id` | Primary key |
-| `da_id` | Relasi ke direct appointment |
+| `da_id` | Relasi ke Direct Appointment |
 | `object_key` | Lokasi file |
 | `file_name_original` | Nama file asli |
 | `mime_type` | Tipe file |
@@ -1519,7 +1521,7 @@ Aturan minimum:
 
 ### 1.2 Management Dashboard
 - nilai pengadaan per entitas
-- proporsi bidding vs direct appointment
+- proporsi bidding vs Direct Appointment
 - lead time rata-rata
 - SLA compliance
 - budget utilization

@@ -135,8 +135,8 @@ Sistem harus mampu mengelola dan memvalidasi anggaran pengadaan sebelum Purchase
 - Konfigurasi budget per entitas.
 - Mode Limited Budget dan Unlimited Budget.
 - Validasi budget terhadap permintaan pengadaan.
-- Status over budget.
-- Status non-budget.
+- Status Over Budget.
+- Status Non Budget.
 - Escalation approval berdasarkan governance budget.
 - Budget dapat dikelola oleh Holding Admin dan Entity Admin sesuai kewenangan.
 - Budget dapat diatur berdasarkan entitas, departemen, kategori pengadaan, dan periode.
@@ -175,7 +175,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Summary report hasil evaluasi.
 - Dokumentasi alasan pemilihan vendor.
 - BAFO jika diperlukan.
-- Reference price / eCatalog sebagai referensi kewajaran harga.
+- Reference Price / eCatalog sebagai referensi kewajaran harga.
 
 **F. Modul Purchase Order (PO)**
 
@@ -201,9 +201,9 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Analisis lead time end-to-end procurement.
 - Rekap pengadaan per periode.
 - Monitoring nilai pengadaan per kategori.
-- Monitoring proporsi bidding vs direct appointment.
+- Monitoring proporsi bidding vs Direct Appointment.
 - Dashboard per entitas dan dashboard group sesuai kewenangan.
-- Monitoring budget usage dan over budget procurement.
+- Monitoring budget usage dan pengadaan Over Budget.
 
 **I. Modul Entity Management**
 
@@ -230,7 +230,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 
 - Holding Admin dapat menetapkan vendor sebagai blacklist atau menghapus blacklist sesuai kebijakan yang berlaku.
 - Status blacklist wajib mempengaruhi eligibility vendor pada proses tender dan pemilihan vendor.
-- Blacklist check menjadi kontrol wajib pada vendor prequalification, RFQ, direct appointment, dan pembuatan PO.
+- Blacklist check menjadi kontrol wajib pada vendor prequalification, RFQ, Direct Appointment, dan pembuatan PO.
 - Alasan blacklist dan unblacklist harus terdokumentasi untuk kebutuhan audit.
 
 **L. Modul Vendor Portal / Vendor Participation Portal**
@@ -271,7 +271,7 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Workflow approval bersifat dinamis.
 - Ditentukan berdasarkan parameter:
   - Nilai pengadaan.
-  - within budget / over budget / non-budget.
+  - Within Budget / Over Budget / Non Budget.
   - Jenis pengadaan.
   - Kategori pengadaan.
   - governance per entitas.
@@ -391,7 +391,7 @@ Peran dalam sistem E-Procurement dibagi menjadi Peran Administrasi, Peran Bisnis
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Procurement      | Entitas       | Mengelola RFQ, bidding, comparison, BAFO, dan PO.                                                                                                                                                                                                                                                                                                                            |
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
-| Finance          | Entitas/Group | Memberikan approval tambahan untuk kondisi over budget atau non budget sesuai governance yang berlaku.                                                                                                                                                                                                                                                                      |
+| Finance          | Entitas/Group | Memberikan approval tambahan untuk kondisi Over Budget atau Non Budget sesuai governance yang berlaku.                                                                                                                                                                                                                                                                      |
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Management       | Entitas/Group | Monitoring dan evaluasi kinerja pengadaan.                                                                                                                                                                                                                                                                                                                                   |
 | ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
@@ -441,7 +441,7 @@ Matriks ini mencerminkan pengendalian yang diperkuat melalui Budget Management, 
 | ------ | --------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------- | ---------------------------------- |
 | 1      | PR tidak valid              | Memastikan kebutuhan pengadaan sah dan terdokumentasi | Approval berjenjang sesuai workflow                                                      | Preventive       | Entity Approver / Holding Approver |
 | ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
-| 2      | Vendor favorit              | Menjamin transparansi pemilihan vendor                | Minimum vendor bidding atau mandatory justification direct appointment; weighted scoring | Preventive       | Procurement                        |
+| 2      | Vendor favorit              | Menjamin transparansi pemilihan vendor                | Minimum vendor bidding atau mandatory justification Direct Appointment; weighted scoring | Preventive       | Procurement                        |
 | ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 3      | Manipulasi harga            | Menjaga integritas data harga                         | Lock data setelah approval; penggunaan reference price / eCatalog                        | Preventive       | System                             |
 | ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
@@ -462,7 +462,7 @@ Matriks ini mencerminkan pengendalian yang diperkuat melalui Budget Management, 
 
 Matriks ini merangkum hak akses fungsional utama untuk setiap peran dalam sistem E-Procurement.
 
-_Catatan: Peran Finance tidak ditampilkan sebagai kolom terpisah pada matriks ini karena keterlibatannya bersifat conditional, yaitu sebagai approver tambahan untuk pengadaan over budget atau non budget sesuai governance yang berlaku._
+_Catatan: Peran Finance tidak ditampilkan sebagai kolom terpisah pada matriks ini karena keterlibatannya bersifat conditional, yaitu sebagai approver tambahan untuk pengadaan Over Budget atau Non Budget sesuai governance yang berlaku._
 
 | **Capability Utama**           | **Holding Admin** | **Entity Admin** | **Requestor** | **Entity Approver** | **Holding Approver** | **Procurement** | **Management** | **Internal Audit** | **Vendor** |
 | ------------------------------ | ----------------- | ---------------- | ------------- | ------------------- | -------------------- | --------------- | -------------- | ------------------ | ---------- |
