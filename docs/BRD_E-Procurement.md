@@ -10,6 +10,8 @@
 
 **Status:** Draft untuk Persetujuan Manajemen
 
+---
+
 # 1. Pendahuluan
 
 ## 1.1 Latar Belakang
@@ -100,13 +102,13 @@ Victoria Investama (Holding)
 
 └── Victoria Manajemen Investasi
 
-**3.2 Prinsip Tata Kelola Pengadaan**
+## 3.2 Prinsip Tata Kelola Pengadaan
 
 - **Dukungan Arsitektur Multi-Entity:** Sistem wajib memiliki _multi-entity architecture_ yang memungkinkan pemisahan data, _user_, _approval matrix_, dan _budget_ per entitas secara ketat.
 - **Otonomi Pengadaan Entitas:** Setiap entitas memiliki fungsi pengadaan dan _workflow_ yang dapat dikelola secara mandiri oleh _Entity Admin_, namun tetap terikat pada ketentuan Holding.
 - **Oversight Holding:** _Holding Company_ (PT Victoria Investama Tbk) memiliki _governance oversight_ melalui peran **Holding Admin** untuk memastikan keseragaman kebijakan dan kepatuhan pengadaan di seluruh Grup.
 
-**Kewenangan Governance Approval (Pertegas Kewenangan Holding Admin)**
+### Kewenangan Governance Approval
 
 Holding Admin memiliki kewenangan tertinggi untuk menentukan model _governance approval_ bagi masing-masing entitas, yang dapat mencakup:
 
@@ -114,7 +116,7 @@ Holding Admin memiliki kewenangan tertinggi untuk menentukan model _governance a
 - _Approval_ wajib eskalasi ke holding, terlepas dari nilai pengadaan.
 - _Approval_ eskalasi ke holding berdasarkan kondisi atau parameter tertentu (misalnya _Over Budget_ atau nilai pengadaan melebihi batas Entitas).
 
-**3.3 Prinsip Data Isolation dan Cross-Entity Visibility**
+## 3.3 Prinsip Data Isolation dan Cross-Entity Visibility
 
 Untuk menjaga kerahasiaan dan kepatuhan per entitas, sistem harus menerapkan prinsip isolasi data:
 
@@ -126,11 +128,11 @@ Untuk menjaga kerahasiaan dan kepatuhan per entitas, sistem harus menerapkan pri
 
 Seluruh akses lintas entitas dikontrol melalui _role-based access control_ yang dikelola oleh Holding Admin.
 
-**4. RUANG LINGKUP PROYEK**
+# 4. Ruang Lingkup Proyek
 
-**4.1 Ruang Lingkup (In Scope)**
+## 4.1 Ruang Lingkup (In Scope)
 
-**A. Modul Purchase Request (PR)**
+### A. Modul Purchase Request (PR)
 
 - Input permintaan barang/jasa oleh user.
 - Upload dokumen pendukung.
@@ -138,7 +140,7 @@ Seluruh akses lintas entitas dikontrol melalui _role-based access control_ yang 
 - Tracking status permintaan.
 - Fitur revisi dan resubmit jika ditolak.
 
-**B. Modul Budget Management**
+### B. Modul Budget Management
 
 Sistem harus mampu mengelola dan memvalidasi anggaran pengadaan sebelum Purchase Request disetujui.
 
@@ -151,7 +153,7 @@ Sistem harus mampu mengelola dan memvalidasi anggaran pengadaan sebelum Purchase
 - Budget dapat dikelola oleh Holding Admin dan Entity Admin sesuai kewenangan.
 - Budget dapat diatur berdasarkan entitas, departemen, kategori pengadaan, dan periode.
 
-**C. Modul Kebijakan Pengadaan Dinamis / Dynamic Procurement Policy**
+### C. Modul Kebijakan Pengadaan Dinamis / Dynamic Procurement Policy
 
 Sistem harus mendukung konfigurasi Dynamic Procurement Policy untuk menentukan alur proses berdasarkan parameter yang dapat diubah oleh Holding Admin atau Entity Admin tanpa perubahan sistem.
 
@@ -163,7 +165,7 @@ Sistem harus mendukung konfigurasi Dynamic Procurement Policy untuk menentukan a
 - Penentuan metode procurement.
 - Escalation berdasarkan parameter.
 
-**D. Modul RFQ dan Bidding**
+### D. Modul RFQ dan Bidding
 
 - Generate dokumen RFQ otomatis.
 - Pengiriman RFQ kepada vendor.
@@ -173,7 +175,7 @@ Sistem harus mendukung konfigurasi Dynamic Procurement Policy untuk menentukan a
 - Penutupan bidding.
 - Publikasi tender ke Vendor Portal oleh Procurement untuk vendor yang eligible.
 
-**E. Modul Perbandingan dan Evaluasi Vendor**
+### E. Modul Perbandingan dan Evaluasi Vendor
 
 Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 
@@ -187,7 +189,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - BAFO jika diperlukan.
 - Reference Price / eCatalog sebagai referensi kewajaran harga.
 
-**F. Modul Purchase Order (PO)**
+### F. Modul Purchase Order (PO)
 
 - Generate PO berdasarkan vendor terpilih.
 - Workflow approval PO.
@@ -197,7 +199,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Dokumentasi status PO.
 - Sinkron dengan governance approval entity/holding bila dipersyaratkan.
 
-**G. Modul Penunjukan Langsung**
+### G. Modul Penunjukan Langsung
 
 - Pemilihan metode pengadaan oleh Procurement.
 - Penunjukan langsung merupakan pengecualian terhadap minimum vendor bidding dan wajib disertai justifikasi yang terdokumentasi.
@@ -205,7 +207,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Upload quotation / price list / kontrak sebelumnya / referensi harga lain.
 - Dokumentasi untuk audit.
 
-**H. Reporting dan Dashboard**
+### H. Reporting dan Dashboard
 
 - Monitoring status PR, RFQ, dan PO.
 - Analisis lead time end-to-end procurement.
@@ -215,7 +217,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Dashboard per entitas dan dashboard group sesuai kewenangan.
 - Monitoring budget usage dan pengadaan Over Budget.
 
-**I. Modul Entity Management**
+### I. Modul Entity Management
 
 - Pembuatan entitas baru oleh Holding Admin.
 - Pengelolaan struktur dan hierarki entitas.
@@ -224,7 +226,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Pengaitan approval model per entitas.
 - Pengaitan budget governance per entitas.
 
-**J. Modul User Management dan User Role Assignment**
+### J. Modul User Management dan User Role Assignment
 
 - Pembuatan user.
 - Pengaitan user ke entitas tertentu.
@@ -236,14 +238,14 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Holding Admin dapat mengelola user lintas entitas.
 - Entity Admin hanya dapat mengelola user di entitasnya sendiri sesuai governance.
 
-**K. Modul Vendor Blacklist dan Vendor Eligibility Control**
+### K. Modul Vendor Blacklist dan Vendor Eligibility Control
 
 - Holding Admin dapat menetapkan vendor sebagai blacklist atau menghapus blacklist sesuai kebijakan yang berlaku.
 - Status blacklist wajib mempengaruhi eligibility vendor pada proses tender dan pemilihan vendor.
 - Blacklist check menjadi kontrol wajib pada vendor prequalification, RFQ, Direct Appointment, dan pembuatan PO.
 - Alasan blacklist dan unblacklist harus terdokumentasi untuk kebutuhan audit.
 
-**L. Modul Vendor Portal / Vendor Participation Portal**
+### L. Modul Vendor Portal / Vendor Participation Portal
 
 - Portal eksternal untuk partisipasi vendor dalam tender.
 - Vendor dapat melihat tender yang dipublikasikan.
@@ -255,7 +257,7 @@ Sistem harus mendukung proses evaluasi yang lebih komprehensif dan transparan.
 - Partisipasi vendor tetap tunduk pada approved vendor status, blacklist check, dan mekanisme eligibility yang berlaku.
 - Vendor portal bukan full vendor onboarding system.
 
-**4.2 Di Luar Ruang Lingkup (Out of Scope)**
+## 4.2 Di Luar Ruang Lingkup (Out of Scope)
 
 Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Procurement dan harus ditangani oleh sistem eksternal atau proses manual yang terpisah:
 
@@ -265,9 +267,9 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Vendor onboarding system penuh.
 - Integrasi ERP penuh.
 
-**5. GAMBARAN PROSES BISNIS**
+# 5. Gambaran Proses Bisnis
 
-**5.1 Proses Purchase Request**
+## 5.1 Proses Purchase Request
 
 - Requestor membuat PR.
 - Requestor mengunggah dokumen pendukung.
@@ -276,7 +278,7 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Jika ditolak, Requestor melakukan revisi dan resubmit.
 - Jika disetujui, proses dilanjutkan ke tahap penentuan metode pengadaan oleh Procurement.
 
-**5.2 Dynamic Approval Workflow**
+## 5.2 Dynamic Approval Workflow
 
 - Workflow approval bersifat dinamis.
 - Ditentukan berdasarkan parameter:
@@ -290,7 +292,7 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
   - Wajib ke holding.
   - Conditional berdasarkan parameter.
 
-**5.3 Penentuan Metode Pengadaan**
+## 5.3 Penentuan Metode Pengadaan
 
 - Procurement menentukan metode pengadaan.
 - Metode yang tersedia:
@@ -300,7 +302,7 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Jika metode RFQ/Bidding dipilih, proses dilanjutkan ke RFQ dan Vendor Portal.
 - Jika metode Penunjukan Langsung dipilih, proses dilanjutkan ke pemilihan vendor langsung.
 
-**5.4 Proses RFQ dan Bidding**
+## 5.4 Proses RFQ dan Bidding
 
 - Sistem menghasilkan dokumen RFQ.
 - Procurement mempublikasikan tender ke Vendor Portal.
@@ -311,7 +313,7 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Jika jumlah quotation belum memenuhi kebijakan, bidding dapat dibuka ulang.
 - Jika telah memenuhi, bidding ditutup.
 
-**5.5 Vendor Portal Participation Flow**
+## 5.5 Vendor Portal Participation Flow
 
 - Procurement mempublikasikan tender ke Vendor Portal setelah PR approved dan metode RFQ/Bidding dipilih.
 - Vendor yang memenuhi eligibility dapat melihat tender.
@@ -322,44 +324,44 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Vendor dapat melihat status partisipasi tender sesuai mekanisme yang ditetapkan.
 - Vendor dapat melakukan konfirmasi PO melalui portal apabila kebijakan tersebut digunakan.
 
-**5.6 Proses Vendor Prequalification dan Evaluasi Vendor**
+## 5.6 Proses Vendor Prequalification dan Evaluasi Vendor
 
-**Tahap 1 - Vendor Prequalification**
+### Tahap 1 - Vendor Prequalification
 
 - Approved vendor status.
 - Blacklist check.
 - Kelayakan administratif.
 - Eligibility.
 
-**Tahap 2 - Technical Evaluation**
+### Tahap 2 - Technical Evaluation
 
 - Technical capability.
 - Experience.
 - Compliance.
 - Delivery capability.
 
-**Tahap 3 - Commercial Evaluation**
+### Tahap 3 - Commercial Evaluation
 
 - Harga.
 - Term of payment.
 - Delivery terms.
 - Commercial terms lain yang relevan.
 
-**Tahap 4 - Weighted Scoring**
+### Tahap 4 - Weighted Scoring
 
 - Technical score.
 - Commercial score.
 - Bobot evaluasi.
 
-**Tahap 5 - BAFO**
+### Tahap 5 - BAFO
 
 - BAFO dilakukan bila diperlukan kepada vendor yang memenuhi syarat tahap sebelumnya.
 
-**Tahap 6 - Vendor Selection**
+### Tahap 6 - Vendor Selection
 
 - Vendor dipilih dan didokumentasikan alasannya.
 
-**5.7 Proses Penunjukan Langsung**
+## 5.7 Proses Penunjukan Langsung
 
 - Procurement memilih vendor yang akan ditunjuk.
 - Penunjukan langsung merupakan pengecualian terhadap minimum vendor bidding.
@@ -369,7 +371,7 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Sistem menyimpan dokumentasi pengadaan untuk audit.
 - Procurement membuat Purchase Order berdasarkan vendor yang ditunjuk.
 
-**5.8 Proses Purchase Order**
+## 5.8 Proses Purchase Order
 
 - Procurement membuat PO berdasarkan vendor terpilih.
 - PO diajukan untuk approval sesuai governance approval yang berlaku.
@@ -377,42 +379,32 @@ Hal-hal berikut secara eksplisit berada di luar ruang lingkup proyek sistem E-Pr
 - Jika memerlukan revisi, kembali ke Procurement.
 - Jika disetujui, PO dikirim ke vendor.
 
-**5.9 Proses Vendor Confirmation**
+## 5.9 Proses Vendor Confirmation
 
 - Vendor memberikan konfirmasi PO melalui Vendor Portal atau mekanisme resmi lain yang ditetapkan perusahaan.
 - Sistem mencatat status konfirmasi vendor.
 - Proses procurement dinyatakan selesai setelah tahapan vendor confirmation terpenuhi sesuai kebijakan yang berlaku.
 
-**6. STRUKTUR PERAN DAN TANGGUNG JAWAB**
+# 6. Struktur Peran dan Tanggung Jawab
 
 Peran dalam sistem E-Procurement dibagi menjadi Peran Administrasi, Peran Bisnis, dan Pihak Eksternal, dengan level kewenangan yang dapat berada pada level entitas maupun group sesuai governance yang berlaku.
 
 | **Peran**        | **Level**     | **Tanggung Jawab Utama**                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Holding Admin    | Group         | Membuat entitas baru, mengelola seluruh user di semua entitas, menentukan governance rule (kebijakan grup), menentukan model governance approval per entitas, menentukan approval escalation lintas entitas, dan melihat seluruh aktivitas procurement grup.                                                                                                                 |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Entity Admin     | Entitas       | Membuat user dalam entitasnya, mengelola workflow procurement (sesuai governance rule), mengatur budget entitas (sesuai governance Holding), dan monitoring procurement di entitasnya.                                                                                                                                                                                       |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Requestor        | Entitas       | Membuat PR dan melengkapi dokumen.                                                                                                                                                                                                                                                                                                                                           |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Entity Approver  | Entitas       | Pihak yang menyetujui atau menolak PR/PO sesuai limit entitas.                                                                                                                                                                                                                                                                                                               |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Holding Approver | Group         | Pihak approver di level Holding, yang umumnya berada pada level direktur atau pejabat berwenang di Holding, dan hanya terlibat jika governance rule untuk entitas tersebut mewajibkan eskalasi ke holding.                                                                                                                                                                   |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Procurement      | Entitas       | Mengelola RFQ, bidding, comparison, BAFO, dan PO.                                                                                                                                                                                                                                                                                                                            |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Finance          | Entitas/Group | Memberikan approval tambahan untuk kondisi Over Budget atau Non Budget sesuai governance yang berlaku.                                                                                                                                                                                                                                                                      |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Management       | Entitas/Group | Monitoring dan evaluasi kinerja pengadaan.                                                                                                                                                                                                                                                                                                                                   |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Internal Audit   | Entitas/Group | Review dan pengujian kepatuhan sistem dan proses lintas entitas.                                                                                                                                                                                                                                                                                                             |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 | Vendor           | Eksternal     | Pihak eksternal / rekanan yang berpartisipasi dalam tender melalui Vendor Portal atau mekanisme resmi lain. Vendor dapat mengirim quotation, mengunggah dokumen pendukung, dan memberikan konfirmasi PO sesuai kebijakan yang berlaku. Vendor bukan role administratif internal dan tidak memiliki akses ke governance, budget, workflow internal, atau data lintas entitas. |
-| ---              | ---           | ---                                                                                                                                                                                                                                                                                                                                                                          |
 
 _Catatan: Sebagian peran bisnis melekat pada level entitas, sementara peran tertentu seperti Holding Approver, serta fungsi monitoring dan audit tertentu, dapat berada pada level group sesuai governance yang ditetapkan oleh Holding Admin._
 
-**7. BUSINESS SUCCESS METRICS DAN KPI**
+# 7. Business Success Metrics dan KPI
 
 Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga dari dampak bisnis setelah implementasi.
 
@@ -426,7 +418,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Adopsi penggunaan sistem             | Belum ada                        | >= 95% proses in-scope berjalan melalui sistem    | Management + IT          |
 | Monitoring lintas entitas            | Manual                           | Dashboard group-level tersedia dan dipakai rutin  | Holding Admin            |
 
-**8. PRIORITAS KEBUTUHAN DAN RENCANA IMPLEMENTASI BERTAHAP**
+# 8. Prioritas Kebutuhan dan Rencana Implementasi Bertahap
 
 | **Prioritas** | **Makna** | **Contoh Cakupan** |
 | ------------- | --------- | ------------------ |
@@ -435,7 +427,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Could Have | Nilai tambah operasional dan monitoring | Dashboard lanjutan, report agregat, Reference Price yang dihasilkan otomatis, BAFO refinement |
 | Future Phase | Direncanakan setelah fase inti berhasil | ERP integration, MFA, SSO, mobile approval, vendor performance scoring historis |
 
-**Rencana Implementasi Bertahap**
+## Rencana Implementasi Bertahap
 
 | **Fase** | **Fokus** | **Output Utama** |
 | -------- | --------- | ---------------- |
@@ -444,7 +436,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Phase 3 | Monitoring dan optimisasi | Dashboard lanjutan, export/report, pengayaan Reference Price, advanced notification dan escalation |
 | Phase 4 | Integrasi enterprise | ERP integration, SSO/MFA, data warehouse / BI, future automation |
 
-**9. STAKEHOLDER DAN RACI BISNIS**
+# 9. Stakeholder dan RACI Bisnis
 
 | **Area / Keputusan** | **Responsible** | **Accountable** | **Consulted** | **Informed** |
 | -------------------- | --------------- | --------------- | ------------- | ------------ |
@@ -457,7 +449,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Audit review dan compliance | Internal Audit | Direksi / Komite terkait | Holding Admin, IT, Procurement | Management |
 | Persetujuan _go-live_ | Divisi IT, Procurement | Direksi / Manajemen | Internal Audit, stakeholder entitas | Seluruh stakeholder proyek |
 
-**10. KRITERIA PENERIMAAN BISNIS DAN UAT LEVEL**
+# 10. Kriteria Penerimaan Bisnis dan UAT Level
 
 | **Area UAT** | **Kriteria Penerimaan Bisnis** |
 | ------------ | ------------------------------ |
@@ -472,7 +464,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Vendor confirmation | Vendor dapat mengkonfirmasi PO dan status transaksi berubah sesuai lifecycle yang didefinisikan |
 | Audit trail dan report | Aktivitas utama tercatat, dapat difilter, dan dapat diekspor untuk kebutuhan audit |
 
-**11. ASUMSI, KETERGANTUNGAN, DAN CONSTRAINT BISNIS**
+# 11. Asumsi, Ketergantungan, dan Constraint Bisnis
 
 - Data master entitas, user, vendor, kategori, dan struktur organisasi tersedia atau dapat disiapkan sebelum UAT.
 - Kebijakan approval, budget, dan procurement policy per entitas disepakati sebelum konfigurasi final di sistem.
@@ -481,7 +473,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 - Keberhasilan adopsi sistem memerlukan sosialisasi, pelatihan user, dan dukungan change management dari manajemen.
 - Jika terdapat kebutuhan lintas entitas yang spesifik, keputusan governance tetap ditetapkan oleh Holding Admin dan Direksi sesuai kewenangan.
 
-**12. OPEN ISSUES / KEPUTUSAN BISNIS YANG MASIH PERLU DITETAPKAN**
+# 12. Open Issues / Keputusan Bisnis yang Masih Perlu Ditetapkan
 
 | **Topik** | **Dampak** | **Owner Keputusan** |
 | --------- | ---------- | ------------------- |
@@ -491,7 +483,7 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Kebutuhan tanda tangan digital formal pada dokumen output | Mempengaruhi legal acceptance dan desain output report | Management + Legal / Compliance |
 | Prioritas integrasi ERP / Finance pada fase berikutnya | Mempengaruhi roadmap dan desain transisi proses pasca-_go-live_ | Direksi + IT + Finance |
 
-**13. CHANGE MANAGEMENT DAN ADOPTION READINESS**
+# 13. Change Management dan Adoption Readiness
 
 Keberhasilan implementasi sangat dipengaruhi oleh kesiapan organisasi, bukan hanya kesiapan aplikasi.
 
@@ -504,30 +496,24 @@ Keberhasilan implementasi sangat dipengaruhi oleh kesiapan organisasi, bukan han
 | Kesiapan transisi produksi | Penetapan tanggal _go-live_, periode freeze, dan dukungan pasca implementasi | IT + Manajemen |
 | Masa stabilisasi pasca implementasi | Pendampingan insiden, monitoring issue log, dan evaluasi adopsi awal | IT + Procurement + Internal Audit |
 
-**LAMPIRAN A: DYNAMIC APPROVAL MATRIX**
+# Lampiran A: Dynamic Approval Matrix
 
 Matriks Approval ini menjadi dasar konfigurasi workflow sistem, yang kini bersifat dinamis dan dapat ditentukan berdasarkan kebijakan pengadaan. Workflow dapat dikonfigurasi melalui sistem tanpa perlu perubahan kode program.
 
 **Penegasan Governance Approval per Entitas:** Approval Matrix ini merupakan kerangka acuan umum. Penerapan aktual pada masing-masing entitas dapat berbeda sesuai governance setting yang ditetapkan oleh Holding Admin, termasuk apakah approval cukup sampai level entitas, wajib eskalasi ke holding, atau bersifat conditional berdasarkan parameter tertentu.
 
-**Contoh Konfigurasi Approval:**
+## Contoh Konfigurasi Approval
 
 | **Kondisi Pengadaan (Parameter)**  | **Workflow Approval**                                                      |
 | ---------------------------------- | -------------------------------------------------------------------------- |
 | ≤ Rp 50.000.000 dan Within Budget  | Entity Approver cukup di entitas (Head of Division)                        |
-| ---                                | ---                                                                        |
 | \> Rp 50.000.000 - Rp 250.000.000  | Head of Division → Direktur Terkait                                        |
-| ---                                | ---                                                                        |
 | \> Rp 250.000.000 - Rp 500.000.000 | Direktur → Direktur Utama                                                  |
-| ---                                | ---                                                                        |
 | \> Rp 500.000.000                  | Escalation ke Holding Approver (Direktur Utama Holding + Komisaris)        |
-| ---                                | ---                                                                        |
 | Pengadaan Over Budget              | Approval khusus Finance (contoh: CFO Approval) sebelum ke level management |
-| ---                                | ---                                                                        |
 | Pengadaan Non Budget               | Approval khusus Finance dan escalation ke level Direksi                    |
-| ---                                | ---                                                                        |
 
-**Ketentuan Tambahan**
+## Ketentuan Tambahan
 
 - Approval tidak dapat dilewati.
 - Approval dilakukan berurutan.
@@ -535,32 +521,23 @@ Matriks Approval ini menjadi dasar konfigurasi workflow sistem, yang kini bersif
 - Sistem mengirim reminder otomatis jika melewati SLA.
 - Penolakan wajib disertai alasan tertulis.
 
-**LAMPIRAN B: RISK AND FRAUD CONTROL MATRIX (RCM)**
+# Lampiran B: Risk and Fraud Control Matrix (RCM)
 
 Matriks ini mencerminkan pengendalian yang diperkuat melalui Budget Management, Dynamic Procurement Policy, Vendor Prequalification, Weighted Scoring, BAFO, dan Vendor Portal untuk memitigasi risiko fraud, meningkatkan transparansi, dan memperkuat tata kelola pengadaan.
 
 | **No** | **Risiko**                  | **Control Objective**                                 | **Control Activity**                                                                     | **Control Type** | **PIC**                            |
 | ------ | --------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------- | ---------------------------------- |
 | 1      | PR tidak valid              | Memastikan kebutuhan pengadaan sah dan terdokumentasi | Approval berjenjang sesuai workflow                                                      | Preventive       | Entity Approver / Holding Approver |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 2      | Vendor favorit              | Menjamin transparansi pemilihan vendor                | Minimum vendor bidding atau mandatory justification Direct Appointment; weighted scoring | Preventive       | Procurement                        |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 3      | Manipulasi harga            | Menjaga integritas data harga                         | Lock data setelah approval; penggunaan Reference Price / eCatalog                        | Preventive       | System                             |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 4      | Approval bypass             | Menjaga kepatuhan workflow approval                   | Mandatory system approval dan dynamic approval workflow                                  | Preventive       | System                             |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 5      | Keterlambatan approval      | Menjaga SLA approval                                  | Reminder dan escalation                                                                  | Detective        | System                             |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 6      | Perubahan tanpa log         | Menjaga auditability                                  | Audit trail permanen                                                                     | Preventive       | System                             |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 7      | Vendor collusion            | Memastikan harga wajar dan evaluasi objektif          | Comparison report terdokumentasi; technical evaluation; commercial evaluation            | Detective        | Procurement                        |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 8      | Pengadaan melebihi anggaran | Menjaga kepatuhan anggaran                            | Validasi Budget Management Module dan Over Budget Escalation                             | Preventive       | System / Entity Admin              |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 | 9      | Penggunaan vendor blacklist | Menjaga kepatuhan terhadap kebijakan vendor           | Vendor Blacklist Check otomatis saat Vendor Prequalification                             | Preventive       | System                             |
-| ---    | ---                         | ---                                                   | ---                                                                                      | ---              | ---                                |
 
-**LAMPIRAN C: ROLE ACCESS MATRIX**
+# Lampiran C: Role Access Matrix
 
 Matriks ini merangkum hak akses fungsional utama untuk setiap peran dalam sistem E-Procurement.
 
@@ -569,54 +546,29 @@ _Catatan: Peran Finance tidak ditampilkan sebagai kolom terpisah pada matriks in
 | **Capability Utama**           | **Holding Admin** | **Entity Admin** | **Requestor** | **Entity Approver** | **Holding Approver** | **Procurement** | **Management** | **Internal Audit** | **Vendor** |
 | ------------------------------ | ----------------- | ---------------- | ------------- | ------------------- | -------------------- | --------------- | -------------- | ------------------ | ---------- |
 | Create PR                      | \-                | \-               | R/W           | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Revise/Resubmit PR             | \-                | \-               | R/W           | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Approve PR                     | \-                | \-               | \-            | R/W                 | R/W                  | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Select Procurement Method      | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Create/Manage RFQ              | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Manage Entity                  | R/W               | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Manage User                    | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Assign User Role               | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Reset Password                 | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Delegate Approver              | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Set Entity Governance          | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Set Dynamic Approval Workflow  | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Set Budget Governance          | R/W               | R/W              | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Vendor Blacklist Management    | R/W               | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Vendor Comparison / Evaluation | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Reference Price / eCatalog     | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Create PO                      | \-                | \-               | \-            | \-                  | \-                   | R/W             | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Approve PO                     | \-                | \-               | \-            | R/W                 | R/W                  | \-              | \-             | \-                 | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | View Cross-Entity Procurement  | R                 | \-               | \-            | \-                  | \-                   | \-              | R              | R                  | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | View Group Dashboard           | R                 | \-               | \-            | \-                  | \-                   | \-              | R              | R                  | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | View Audit Trail               | R                 | R                | \-            | \-                  | \-                   | \-              | R              | R                  | \-         |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Participate in Tender          | \-                | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | R/W        |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Submit Quotation               | \-                | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | R/W        |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Upload Supporting Documents    | \-                | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | R/W        |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 | Confirm PO                     | \-                | \-               | \-            | \-                  | \-                   | \-              | \-             | \-                 | R/W        |
-| ---                            | ---               | ---              | ---           | ---                 | ---                  | ---             | ---            | ---                | ---        |
 
 Keterangan: R/W = Read / Write / Modify, R = Read / View Only, - = No Access
