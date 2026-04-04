@@ -1830,6 +1830,315 @@ Catatan implementasi:
 - Create dan update vendor tersedia untuk role procurement/admin internal, sedangkan blacklist dan unblacklist dibatasi ke `SUPER_ADMIN`.
 - Blacklist vendor langsung mempengaruhi eligibility sehingga vendor tidak dapat dipakai pada RFQ/PO berikutnya.
 
+# Sequence Diagram Target State FSD Lanjutan
+
+Bagian ini melengkapi use case FSD yang belum seluruhnya tersedia pada backend Phase 1. Diagram di bawah bersifat target-state konseptual berdasarkan alur bisnis dokumen, sehingga dapat mencakup komponen seperti policy engine, notification service, budget service, dashboard analytics, dan approval multi-level.
+
+## 11\. Logout dan Force Change Password Pasca Reset
+
+```mermaid
+sequenceDiagram
+    actor User
+    actor Admin
+    participant AuthUI as Web / Portal UI
+    participant AdminUI as Admin UI
+    participant AuthAPI as Auth API
+    participant UserAPI as User Management API
+    participant Auth as Auth / User Service
+    participant Notify as Notification Channel
+    participant Audit as Audit Trail
+
+    Admin->>AdminUI: Klik Reset Password user
+    AdminUI->>UserAPI: Reset password ke default
+    UserAPI->>Auth: Set password default + force_change_password=true
+    Auth->>Audit: Catat reset password
+    UserAPI-->>AdminUI: Reset berhasil
+    Admin->>Notify: Sampaikan password default via channel resmi di luar sistem
+
+    User->>AuthUI: Login dengan password default
+    AuthUI->>AuthAPI: Request login
+    AuthAPI->>Auth: Validasi kredensial
+    Auth-->>AuthAPI: force_change_password=true
+    AuthAPI-->>AuthUI: Redirect ke form force change password
+    User->>AuthUI: Ubah password
+    AuthUI->>AuthAPI: Submit password baru
+    AuthAPI->>Auth: Simpan password baru
+    Auth->>Audit: Catat change password
+    AuthAPI-->>AuthUI: Password berhasil diubah
+
+    User->>AuthUI: Klik Logout
+    AuthUI->>AuthAPI: Revoke session / token client-side
+    AuthAPI->>Audit: Catat logout
+    AuthAPI-->>AuthUI: Redirect ke halaman login
+```
+
+## 12\. Create PR, Budget Validation, dan Submit ke Approval Workflow
+
+```mermaid
+sequenceDiagram
+    actor Requestor
+    participant UI as Internal Portal
+    participant PRA as PR API
+    participant PR as PR Service
+    participant Budget as Budget Service
+    participant Policy as Procurement Policy Engine
+    participant Workflow as Approval Workflow Engine
+    participant Storage as Attachment Storage
+    participant Notify as Notification Service
+    participant Audit as Audit Trail
+
+    Requestor->>UI: Isi form PR + item + attachment
+    UI->>Storage: Upload dokumen pendukung
+    Storage-->>UI: Object key / file reference
+    UI->>PRA: Create PR
+    PRA->>PR: Validasi field dan hitung total estimasi
+    PR->>Budget: Validasi anggaran entitas / departemen / periode
+    Budget-->>PR: Within Budget / Over Budget / Non Budget
+    PR->>Audit: Catat PR created / draft
+    PR-->>PRA: PR status Draft
+    PRA-->>UI: Draft tersimpan
+
+    Requestor->>UI: Klik Submit PR
+    UI->>PRA: Submit PR
+    PRA->>PR: Validasi kelengkapan
+    PR->>Policy: Resolve procurement rule
+    Policy-->>PR: Rekomendasi metode + escalation rule
+    PR->>Workflow: Generate approval chain
+    Workflow-->>PR: Approver level 1..n
+    PR->>Notify: Kirim notifikasi ke approver level pertama
+    PR->>Audit: Catat PR submitted
+    PRA-->>UI: PR Submitted / Pending Approval
+```
+
+## 13\. Revisi dan Resubmit PR serta Cancel / Void Dokumen
+
+```mermaid
+sequenceDiagram
+    actor Requestor
+    actor Procurement
+    actor Approver as Entity Approver
+    participant UI as Internal Portal
+    participant DocAPI as PR / PO API
+    participant Workflow as Workflow Service
+    participant Budget as Budget Service
+    participant Notify as Notification Service
+    participant Audit as Audit Trail
+
+    alt Revisi dan resubmit PR
+        Approver->>UI: Reject PR dengan alasan
+        UI->>DocAPI: Reject action
+        DocAPI->>Workflow: Update status = Rejected
+        Workflow->>Notify: Kirim notifikasi ke Requestor
+        Workflow->>Audit: Catat rejection
+        Requestor->>UI: Edit PR yang ditolak
+        UI->>DocAPI: Save revisi dan Submit ulang
+        DocAPI->>Workflow: Bangun ulang approval chain
+        Workflow->>Notify: Kirim ke approver level pertama
+        Workflow->>Audit: Catat revise & resubmit
+    else Cancel PR / Void PO
+        Procurement->>UI: Ajukan cancel PR atau void PO + alasan wajib
+        UI->>DocAPI: Submit cancel / void request
+        DocAPI->>Workflow: Buat approval request ke Entity Approver
+        Approver->>UI: Approve cancel / void
+        UI->>DocAPI: Final approval
+        DocAPI->>Budget: Release / return reserved budget
+        DocAPI->>Notify: Notifikasi ke pihak terkait / vendor bila relevan
+        DocAPI->>Audit: Catat cancel / void beserta alasan
+    end
+```
+
+## 14\. Penentuan Metode Pengadaan dan Publikasi RFQ
+
+```mermaid
+sequenceDiagram
+    actor Procurement
+    participant UI as Internal Portal
+    participant Policy as Procurement Policy Engine
+    participant RFQAPI as RFQ API
+    participant RFQ as RFQ Service
+    participant Vendor as Vendor Eligibility Service
+    participant Portal as Vendor Portal
+    participant Notify as Notification Service
+    participant Audit as Audit Trail
+
+    Procurement->>UI: Pilih PR Approved
+    UI->>Policy: Minta rekomendasi metode procurement
+    Policy-->>UI: RFQ / Bidding atau Direct Appointment
+    Procurement->>UI: Pilih metode final + justifikasi bila override
+    UI->>Audit: Catat penentuan metode
+
+    Procurement->>UI: Create RFQ + deadline + syarat + vendor list
+    UI->>RFQAPI: Submit RFQ
+    RFQAPI->>RFQ: Validasi PR dan kelengkapan RFQ
+    RFQ->>Vendor: Validasi vendor eligible dan tidak blacklist
+    Vendor-->>RFQ: Daftar vendor eligible
+    RFQ-->>RFQAPI: RFQ status Created
+    Procurement->>UI: Publish tender
+    UI->>RFQAPI: Publish RFQ
+    RFQAPI->>Portal: Publikasikan tender ke vendor eligible
+    RFQAPI->>Notify: Kirim undangan tender
+    RFQAPI->>Audit: Catat RFQ created dan published
+    RFQAPI-->>UI: RFQ Published
+```
+
+## 15\. Penutupan Bidding, Evaluasi Vendor, BAFO, dan Vendor Selection
+
+```mermaid
+sequenceDiagram
+    actor Procurement
+    actor Vendor
+    participant Portal as Vendor Portal
+    participant RFQ as RFQ Service
+    participant Eval as Evaluation Engine
+    participant RefPrice as Reference Price Service
+    participant Notify as Notification Service
+    participant Audit as Audit Trail
+
+    Vendor->>Portal: Submit quotation sebelum deadline
+    Portal->>RFQ: Simpan quotation
+    RFQ->>Audit: Catat quotation submitted
+
+    Procurement->>RFQ: Tutup bidding saat deadline / manual close
+    RFQ->>Audit: Catat RFQ Closed
+    Procurement->>Eval: Mulai evaluasi vendor
+    Eval->>RefPrice: Ambil harga referensi / historical PO
+    RefPrice-->>Eval: Reference price
+    Eval->>Eval: Hitung technical score, commercial score, weighted score, ranking
+    Eval->>Audit: Catat hasil evaluasi
+
+    opt BAFO diperlukan
+        Procurement->>Eval: Inisiasi BAFO untuk vendor terpilih
+        Eval->>Notify: Kirim undangan BAFO
+        Vendor->>Portal: Submit BAFO response
+        Portal->>Eval: Simpan BAFO offer
+        Eval->>Eval: Update comparison dan ranking
+        Eval->>Audit: Catat BAFO process
+    end
+
+    Procurement->>Eval: Confirm vendor selection + alasan
+    Eval->>Audit: Catat vendor selection report
+    Eval-->>Procurement: Vendor Selected
+```
+
+## 16\. Direct Appointment
+
+```mermaid
+sequenceDiagram
+    actor Procurement
+    participant UI as Internal Portal
+    participant DA as Direct Appointment Service
+    participant Vendor as Vendor Service
+    participant RefPrice as Reference Price Service
+    participant Storage as Document Storage
+    participant Audit as Audit Trail
+
+    Procurement->>UI: Pilih metode Direct Appointment
+    UI->>DA: Create direct appointment request
+    DA->>Vendor: Validasi vendor approved / eligible / not blacklisted
+    Vendor-->>DA: Status vendor
+    Procurement->>UI: Isi justifikasi + upload quotation / price list / referensi
+    UI->>Storage: Simpan dokumen pendukung
+    UI->>DA: Confirm direct appointment
+    DA->>RefPrice: Ambil harga referensi pembanding
+    RefPrice-->>DA: Reference price
+    DA->>Audit: Catat justifikasi, dokumen, dan hasil DA
+    DA-->>UI: Direct Appointment Approved for PO creation
+```
+
+## 17\. Reference Price dan Budget Management
+
+```mermaid
+sequenceDiagram
+    actor Procurement
+    actor Admin
+    participant UI as Internal Portal
+    participant RefPrice as Reference Price Service
+    participant Budget as Budget Service
+    participant POHist as Historical PO Data
+    participant Audit as Audit Trail
+
+    alt Manual reference price
+        Procurement->>UI: Input reference price manual
+        UI->>RefPrice: Simpan item, kategori, harga, sumber
+        RefPrice->>Audit: Catat manual reference price
+    else Auto-generate reference price
+        RefPrice->>POHist: Ambil PO Completed historis
+        POHist-->>RefPrice: Harga transaksi sebelumnya
+        RefPrice->>RefPrice: Hitung average / benchmark
+        RefPrice->>Audit: Catat auto-generated reference price
+    end
+
+    Admin->>UI: Konfigurasi budget per entitas / departemen / kategori / periode
+    UI->>Budget: Simpan nominal dan mode Limited / Unlimited
+    Budget->>Audit: Catat perubahan budget
+    Budget-->>UI: Budget aktif
+
+    Procurement->>UI: Buat PR
+    UI->>Budget: Minta validasi budget
+    Budget-->>UI: Within / Over / Non Budget
+```
+
+## 18\. Dynamic Procurement Policy dan Dynamic Approval Workflow
+
+```mermaid
+sequenceDiagram
+    actor Admin as Holding Admin / Entity Admin
+    actor Requestor
+    participant PolicyUI as Policy Config UI
+    participant WorkflowUI as Approval Config UI
+    participant Policy as Policy Engine
+    participant Workflow as Workflow Engine
+    participant PRA as PR Service
+    participant Audit as Audit Trail
+
+    Admin->>PolicyUI: Buat / edit procurement policy
+    PolicyUI->>Policy: Simpan rule parameter dan output
+    Policy->>Audit: Catat perubahan policy
+
+    Admin->>WorkflowUI: Buat / edit approval matrix
+    WorkflowUI->>Workflow: Simpan approver level, SLA, escalation, sequential rule
+    Workflow->>Audit: Catat perubahan approval workflow
+
+    Requestor->>PRA: Submit PR
+    PRA->>Policy: Cocokkan nilai, budget status, kategori, jenis procurement
+    Policy-->>PRA: Rekomendasi metode + escalation
+    PRA->>Workflow: Resolve approval chain berdasarkan governance rule
+    Workflow-->>PRA: Approval levels + approver list + SLA
+    PRA-->>Requestor: Workflow aktif diterapkan
+```
+
+## 19\. Dashboard Monitoring dan Audit Trail
+
+```mermaid
+sequenceDiagram
+    actor User as Management / Admin / Internal Audit
+    participant UI as Dashboard / Audit UI
+    participant Report as Reporting Service
+    participant Analytics as Aggregation Engine
+    participant AuditSvc as Audit Service
+    participant DB as Transaction DB
+
+    User->>UI: Buka Dashboard
+    UI->>Report: Request KPI berdasarkan role dan scope
+    Report->>Analytics: Hitung PR, RFQ, PO, budget, lead time, SLA
+    Analytics->>DB: Query data transaksi terfilter entitas / grup
+    DB-->>Analytics: Data agregat
+    Analytics-->>Report: KPI dan chart dataset
+    Report-->>UI: Dashboard siap ditampilkan
+
+    User->>UI: Buka Audit Trail + filter
+    UI->>AuditSvc: Cari log berdasarkan periode / entitas / modul / aktor
+    AuditSvc->>DB: Query audit logs
+    DB-->>AuditSvc: Daftar log + detail before/after
+    AuditSvc-->>UI: Hasil audit trail
+
+    opt Export report / audit
+        User->>UI: Klik export
+        UI->>Report: Generate PDF / XLSX / CSV
+        Report-->>UI: File export
+    end
+```
+
 # Field-Level Validation Rules
 
 Berikut spesifikasi validasi per field untuk form-form utama dalam sistem. Setiap field memiliki aturan tipe data, format, dan apakah wajib diisi.
