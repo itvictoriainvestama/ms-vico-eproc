@@ -56,11 +56,20 @@ Dokumen ini bertujuan untuk:
 4. Menjadi referensi QA, DevOps, Internal Audit, dan stakeholder manajemen dalam memahami bagaimana sistem dibangun secara teknis.
 5. Menjadi dasar implementasi yang audit-ready, scalable, dan selaras dengan kebutuhan multi-entity procurement governance.
 
+## 1.1 Catatan Konsistensi Dokumen
+
+Untuk menjaga konsistensi antar dokumen:
+
+1. BRD menjadi acuan target kebutuhan bisnis dan governance proses procurement.
+2. FSD menjadi acuan kebutuhan fungsional, use case, lifecycle, validasi, dan aturan operasional sistem.
+3. TSD menjadi acuan rancangan teknis final, termasuk model autentikasi, arsitektur backend, kontrol keamanan, integrasi, dan deployment.
+4. Jika FSD memuat lampiran alignment implementasi Phase 1 backend saat ini, bagian tersebut diperlakukan sebagai konteks implementasi berjalan dan bukan pengganti keputusan arsitektur final yang didokumentasikan pada TSD.
+
 ## 2. Ruang Lingkup Teknis Service
 
 | No | Service / Komponen | Deskripsi |
 | :---- | :---- | :---- |
-| 1 | Internal Web Portal | Portal React untuk seluruh user internal Victoria Group (Holding Admin, Entity Admin, Requestor, Approver, Procurement, Finance, Management, Internal Audit) dengan menu berbasis role |
+| 1 | Internal Web Portal | Portal React untuk seluruh user internal Victoria Group (Holding Admin, Entity Admin, Requestor, Entity Approver, Holding Approver, Procurement, Finance, Management, Internal Audit) dengan menu berbasis role |
 | 2 | Vendor Portal | Portal React untuk vendor melalui subdomain terpisah, namun berada dalam satu project / repository frontend yang sama |
 | 3 | API Gateway / Reverse Proxy Layer | Layer pintu masuk trafik dari internet/intranet ke frontend dan backend, termasuk HTTPS termination dan routing |
 | 4 | Backend Services | Kumpulan service modular berbasis Go untuk auth, user, entity, PR, RFQ, evaluation, PO, budget, reporting, notification, dan audit |
@@ -1803,4 +1812,3 @@ backend/
 |  | Reviewed By - Project Stakeholder |  |  |
 |  | Reviewed By - Internal Audit |  |  |
 |  | Approved By - Direksi / Management |  |  |
-

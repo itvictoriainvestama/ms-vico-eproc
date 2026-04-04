@@ -48,13 +48,23 @@ Dokumen ini bertujuan untuk:
 - Mendefinisikan mekanisme dynamic approval workflow, audit trail permanen, dan segregation of duties (SoD) yang harus diimplementasikan.
 - Menjadi referensi utama bagi seluruh pemangku kepentingan (Direksi, Divisi IT, Internal Audit, Entity Admin, dan Procurement) dalam proses implementasi sistem.
 
+## 1\.1 Catatan Konsistensi Dokumen
+
+Untuk menjaga konsistensi end-to-end antar dokumen:
+
+- BRD menjadi acuan kebutuhan bisnis dan target proses bisnis.
+- FSD menjadi acuan kebutuhan fungsional, use case, lifecycle, validasi, dan aturan operasional sistem.
+- TSD menjadi acuan rancangan teknis implementasi, termasuk model autentikasi, arsitektur layanan, integrasi, dan kontrol keamanan.
+- Istilah "session" pada FSD harus dipahami sebagai sesi autentikasi pengguna yang pada implementasi teknis dapat direalisasikan menggunakan access token, refresh token, timeout inaktivitas, dan mekanisme revoke sesuai keputusan teknis pada TSD.
+- Bagian "Sequence Diagram Implementasi Phase 1" pada FSD berfungsi sebagai lampiran alignment terhadap implementasi backend saat ini dan tidak menggantikan kebutuhan fungsional target-state yang tetap mengacu pada BRD dan FSD utama.
+
 ## 2\. Ruang Lingkup Service
 
 | **No** | **Ruang Lingkup Service**       | **Deskripsi**                                                                                   |
 | ------ | ------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 1      | Pembuatan Web Service (Backend) | Service untuk mengelola PR, RFQ, PO, approval workflow, budget management, dan reporting        |
+| 1      | Pembuatan Web Service (Backend) | Service untuk mengelola PR, RFQ, PO, approval workflow, budget management, reporting, dan integrasi pendukung |
 | ---    | ---                             | ---                                                                                             |
-| 2      | Pembuatan Web Application       | Digunakan oleh internal user (Requestor, Approver, Procurement, Admin) untuk proses procurement |
+| 2      | Pembuatan Web Application       | Digunakan oleh internal user (Holding Admin, Entity Admin, Requestor, Entity Approver, Holding Approver, Procurement, Finance, Management, dan Internal Audit) untuk proses procurement |
 | ---    | ---                             | ---                                                                                             |
 | 3      | Pembuatan Vendor Portal         | Portal eksternal untuk vendor berpartisipasi dalam tender, submit quotation, dan konfirmasi PO  |
 | ---    | ---                             | ---                                                                                             |
@@ -394,13 +404,13 @@ Untuk penjelasan scenario masing-masing use case adalah sebagai berikut:
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 | **User memasukkan kredensial**          | 3\. User mengisi email/username dan password<br><br>4\. User mengklik tombol Login | 5\. Sistem memvalidasi kredensial terhadap database<br><br>6\. Sistem memeriksa status user (aktif/nonaktif)<br><br>7\. Sistem memeriksa entitas user (aktif/nonaktif)                                         |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Login berhasil**                      |                                                                                    | 8\. Sistem membuat session dengan timeout yang dikonfigurasi<br><br>9\. Sistem mengarahkan user ke dashboard sesuai role dan entitas<br><br>10\. Sistem mencatat log login (timestamp, IP address, user agent) |
+| **Login berhasil**                      |                                                                                    | 8\. Sistem membentuk sesi autentikasi pengguna sesuai kebijakan keamanan yang berlaku (misalnya access token, refresh token, dan timeout inaktivitas)<br><br>9\. Sistem mengarahkan user ke dashboard sesuai role dan entitas<br><br>10\. Sistem mencatat log login (timestamp, IP address, user agent) |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 | **Login gagal karena kredensial salah** | 11\. User melihat pesan error                                                      | 12\. Sistem menampilkan notifikasi username atau password salah<br><br>13\. Sistem TIDAK memberitahu field mana yang salah (security best practice)                                                            |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 | **Login gagal karena akun nonaktif**    |                                                                                    | 14\. Sistem menampilkan notifikasi bahwa akun tidak aktif dan mengarahkan user untuk menghubungi Admin                                                                                                         |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
-| **Session timeout**                     |                                                                                    | 15\. Setelah periode inaktif, sistem otomatis mengakhiri session<br><br>16\. User diarahkan kembali ke halaman login                                                                                           |
+| **Session timeout**                     |                                                                                    | 15\. Setelah periode inaktif, sistem otomatis mengakhiri sesi autentikasi aktif<br><br>16\. User diarahkan kembali ke halaman login                                                                                           |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
 | **Logging**                             |                                                                                    | 17\. Sistem mencatat seluruh aktivitas login (berhasil/gagal) dalam audit trail                                                                                                                                |
 | ---                                     | ---                                                                                | ---                                                                                                                                                                                                            |
@@ -425,14 +435,14 @@ _\[Screenshot: Tampilan Error Login Gagal\]_
 | ------------------ | ------------------------------------------- |
 | **Pre-Condition**  | \- User telah login ke sistem               |
 | ---                | ---                                         |
-| **Post-Condition** | \- User berhasil keluar dan session dihapus |
+| **Post-Condition** | \- User berhasil keluar dan sesi autentikasi aktif diakhiri |
 | ---                | ---                                         |
 | **Description**    | Proses logout dari sistem E-Procurement.    |
 | ---                | ---                                         |
 
 | **Termination Outcomes**  | **Conditions User**                            | **Conditions System**                                                                 |
 | ------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **User melakukan logout** | 1\. User mengklik tombol Logout di menu/header | 2\. Sistem menghapus session user<br><br>3\. Sistem mengarahkan user ke halaman login |
+| **User melakukan logout** | 1\. User mengklik tombol Logout di menu/header | 2\. Sistem mengakhiri sesi autentikasi aktif user, menghapus token client-side atau revoke token/sesi server-side sesuai desain keamanan<br><br>3\. Sistem mengarahkan user ke halaman login |
 | ---                       | ---                                            | ---                                                                                   |
 | **Logging**               |                                                | 4\. Sistem mencatat log logout dalam audit trail                                      |
 | ---                       | ---                                            | ---                                                                                   |
