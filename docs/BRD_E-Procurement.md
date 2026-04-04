@@ -491,6 +491,19 @@ Keberhasilan proyek tidak hanya diukur dari ketersediaan aplikasi, tetapi juga d
 | Kebutuhan tanda tangan digital formal pada dokumen output | Mempengaruhi legal acceptance dan desain output report | Management + Legal / Compliance |
 | Prioritas integrasi ERP / finance pada fase berikutnya | Mempengaruhi roadmap dan desain transisi proses pasca-go-live | Direksi + IT + Finance |
 
+**13\. CHANGE MANAGEMENT DAN ADOPTION READINESS**
+
+Keberhasilan implementasi sangat dipengaruhi oleh kesiapan organisasi, bukan hanya kesiapan aplikasi.
+
+| **Area** | **Kebutuhan Minimum** | **Owner** |
+| -------- | --------------------- | --------- |
+| Sosialisasi proses baru | Komunikasi resmi mengenai perubahan alur PR, approval, RFQ, dan PO | Management + Procurement |
+| Pelatihan user internal | Training per role untuk Requestor, Approver, Procurement, Admin, dan Audit | IT + Procurement |
+| Pelatihan vendor | Panduan penggunaan Vendor Portal dan tata cara submit quotation / konfirmasi PO | Procurement + Vendor Management |
+| UAT dan sign-off | Daftar user per entitas untuk UAT, hasil uji, dan sign-off bisnis | Entity Admin + IT |
+| Cutover readiness | Penetapan tanggal go-live, freeze period, dan support pasca go-live | IT + Management |
+| Hypercare pasca go-live | Pendampingan insiden, monitoring issue log, dan evaluasi adopsi awal | IT + Procurement + Internal Audit |
+
 **LAMPIRAN A: DYNAMIC APPROVAL MATRIX**
 
 Matriks Approval ini menjadi dasar konfigurasi workflow sistem, yang kini bersifat dinamis dan dapat ditentukan berdasarkan kebijakan pengadaan. Workflow dapat dikonfigurasi melalui sistem tanpa perlu perubahan kode program.

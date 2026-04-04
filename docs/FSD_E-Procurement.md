@@ -2626,6 +2626,31 @@ Sistem mendukung pencetakan dan ekspor dokumen untuk kebutuhan operasional dan a
 | PR Detail                | PDF        | Detail PR lengkap: informasi pengadaan, item, approval history, dokumen pendukung                         | Requestor, Approver, Procurement          |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
 
+# UAT Scenario Prioritas Tinggi
+
+Daftar ini dapat dijadikan baseline UAT awal untuk memastikan skenario berisiko tinggi sudah tervalidasi sebelum go-live.
+
+| **UAT ID** | **Skenario** | **Actor** | **Expected Result** |
+| ---------- | ------------ | --------- | ------------------- |
+| UAT-01 | Login internal dengan role valid | Internal User | User masuk ke dashboard sesuai role dan entitas |
+| UAT-02 | Login vendor dengan kredensial valid | Vendor | Vendor hanya melihat portal dan data vendor-nya sendiri |
+| UAT-03 | Submit PR tanpa dokumen wajib | Requestor | Sistem menolak submit dan menampilkan validation error |
+| UAT-04 | Submit PR Within Budget | Requestor | Approval task terbentuk sesuai workflow normal |
+| UAT-05 | Submit PR Over Budget | Requestor | Finance ikut ter-resolve sesuai governance |
+| UAT-06 | Reject PR dan revise/resubmit | Approver, Requestor | PR menjadi Rejected lalu dapat direvisi dan disubmit ulang |
+| UAT-07 | Delegate approver aktif saat approval masuk | Approver / Admin | Approval diarahkan ke delegate dan tercatat di audit trail |
+| UAT-08 | Publish RFQ ke vendor eligible | Procurement | Hanya vendor eligible yang menerima tender |
+| UAT-09 | Vendor blacklist mencoba ikut tender | Vendor / Procurement | Sistem memblok partisipasi sesuai rule blacklist |
+| UAT-10 | Vendor submit quotation setelah deadline | Vendor | Sistem menolak submit quotation |
+| UAT-11 | Commercial evaluation dengan Reference Price | Procurement | Sistem menampilkan pembanding harga dan flag selisih signifikan |
+| UAT-12 | Direct Appointment tanpa justifikasi | Procurement | Sistem menolak proses lanjut |
+| UAT-13 | Submit PO dan approval PO | Procurement / Approver | PO mengikuti workflow approval yang benar |
+| UAT-14 | Vendor confirm PO yang valid | Vendor | Status PO berubah ke Vendor Confirmed |
+| UAT-15 | Void PO setelah vendor confirmed | Procurement | Sistem menolak void sesuai lifecycle rule |
+| UAT-16 | Reset password oleh admin | Admin / User | Password di-reset dan user dipaksa ganti password saat login |
+| UAT-17 | Export audit trail oleh role berwenang | Internal Audit / Holding Admin | File export berhasil dan sesuai filter |
+| UAT-18 | User tanpa akses mencoba melihat data lintas entitas | Any internal user | Sistem menolak akses atau menyembunyikan data |
+
 # Lampiran
 
 ## Lampiran A: Dynamic Approval Matrix

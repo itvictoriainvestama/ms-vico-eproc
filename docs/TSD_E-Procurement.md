@@ -4,7 +4,7 @@ Technical Specification Document (TSD)
 
 **PT. Victoria Investama, Tbk (VICO)**
 
-Ver 1.1.0
+Ver 1.2.0
 
 ---
 
@@ -16,6 +16,7 @@ Ver 1.1.0
 | :---- | :---- | :---- | :---- |
 | 1.0.0 | 29/03/2026 | Initial Technical Specification Document E-Procurement | Divisi IT |
 | 1.1.0 | 29/03/2026 | Penegasan final technical decision project: tetap menggunakan backend modular microservice; penyesuaian alignment terhadap FSD final dan konfirmasi user terbaru tanpa mengurangi konten teknis sebelumnya | Divisi IT |
+| 1.2.0 | 04/04/2026 | Penambahan decision log, deployment topology, migration & rollout strategy, runbook minimum, retention policy, DR guideline, testing strategy, dan target NFR minimum | Divisi IT |
 
 ## 2. Daftar Distribusi
 
@@ -73,6 +74,18 @@ Untuk menjaga konsistensi istilah teknis dengan BRD dan FSD:
 2. Istilah _session_ pada konteks implementasi TSD diperlakukan sebagai **sesi autentikasi logis** yang direalisasikan melalui access token, refresh token, timeout inaktivitas, dan mekanisme revoke.
 3. Penamaan modul atau service pada TSD boleh lebih teknis, tetapi tidak boleh mengubah makna bisnis dari proses yang dijelaskan pada BRD/FSD.
 4. Jika terdapat perbedaan antara status implementasi berjalan dan rancangan target-state, keputusan arsitektur final tetap mengacu pada TSD, sementara detail kondisi implementasi berjalan dicatat sebagai konteks alignment.
+
+## 1.3 Decision Log Ringkas
+
+| Keputusan Teknis | Keputusan Final | Alasan Ringkas |
+| :---- | :---- | :---- |
+| Arsitektur frontend | Satu repository, dua portal | Menjaga reuse komponen dan konsistensi UX/security policy |
+| Arsitektur backend | Go modular microservice | Memisahkan domain utama sambil tetap menjaga skalabilitas modul |
+| Strategi database | Shared MySQL database + `entity_id` isolation | Sederhana untuk fase awal, tetap mendukung governance multi-entitas |
+| Strategi autentikasi | JWT access token + refresh token | Cocok untuk portal internal dan vendor yang terpisah |
+| File storage | MinIO | Memisahkan attachment dari database transaksional |
+| Queue | Redis-backed queue dengan BullMQ-compatible path | Mengakomodasi requirement user sambil tetap membuka jalur alternatif Go-native |
+| Observability | MySQL audit log + Elasticsearch technical log | Memisahkan kebutuhan audit bisnis dan troubleshooting teknis |
 
 ## 2. Ruang Lingkup Teknis Service
 
@@ -1638,6 +1651,70 @@ Aturan minimum:
 
 ---
 
+# Deployment, Migration, and Operability
+
+## 1. Deployment Topology Minimum
+
+| Layer / Komponen | Penempatan Minimum | Catatan |
+| :---- | :---- | :---- |
+| Nginx / Reverse Proxy | Edge / DMZ atau layer ingress internal | TLS termination, routing domain, basic hardening |
+| Frontend Internal Portal | Server aplikasi internal | Hanya diekspos sesuai domain internal |
+| Frontend Vendor Portal | Server aplikasi eksternal/DMZ sesuai kebijakan | Dipisahkan pada hostname/subdomain vendor |
+| API Gateway | App layer | Menjadi pintu masuk seluruh trafik API |
+| Backend Services | App layer internal | Dapat dipisah per service/container sesuai kapasitas |
+| MySQL | Data layer | Tidak diekspos ke publik |
+| Redis | Data / integration layer | Hanya dapat diakses aplikasi dan worker |
+| MinIO | Storage layer | Akses melalui service atau signed URL |
+| Elasticsearch | Logging/monitoring layer | Tidak dibuka ke end user |
+| Scheduler / Queue Worker | Background processing layer | Menjalankan reminder, export, aggregation, retry job |
+
+## 2. Migration & Rollout Strategy
+
+1. Siapkan master data minimum: entity, role, user admin, vendor, kategori, dan konfigurasi dasar.
+2. Deploy schema migration secara versioned dan idempotent.
+3. Seed data governance awal untuk budget, approval model, dan procurement policy.
+4. Lakukan smoke test teknis di staging sebelum SIT/UAT dimulai.
+5. Jalankan UAT berbasis skenario prioritas tinggi dari FSD.
+6. Freeze perubahan konfigurasi kritikal menjelang production cutover.
+7. Lakukan go-live bertahap per entitas bila diperlukan untuk menurunkan risiko.
+8. Siapkan rollback plan untuk deployment aplikasi, namun perubahan data produksi harus mengikuti prosedur restore yang terkontrol.
+
+## 3. Operasional Runbook Minimum
+
+| Domain Operasional | Aktivitas Minimum | Frekuensi / Trigger | Owner |
+| :---- | :---- | :---- | :---- |
+| Health check service | Cek status API gateway, service utama, Redis, MySQL, MinIO | Harian / incident | IT Operations |
+| Queue monitoring | Pantau failed job, retry queue, backlog export/email | Harian | IT Operations |
+| Backup verification | Pastikan backup berjalan dan file dapat diakses | Harian / mingguan | Infra / DBA |
+| Audit log review | Sampling event bisnis kritikal | Mingguan | Internal Audit / IT |
+| Capacity review | Pantau growth DB, object storage, Elasticsearch | Bulanan | Infra / DBA |
+| Secret / credential review | Rotasi sesuai kebijakan keamanan | Berkala / insiden | IT Security |
+| Release verification | Smoke test pasca deploy | Setiap deployment | Dev + QA + Ops |
+
+## 4. Data Retention & Archival Policy
+
+| Jenis Data | Retention Minimum | Tindakan Setelah Retention |
+| :---- | :---- | :---- |
+| Audit trail bisnis | Mengikuti kebijakan audit/perusahaan; direkomendasikan multi-tahun | Archive terkontrol, tetap searchable bila diwajibkan |
+| Technical app logs | Sesuai kapasitas dan kebutuhan troubleshooting; direkomendasikan 30-180 hari online | Rotate / archive snapshot |
+| Notification log | Direkomendasikan 6-12 bulan online | Archive atau purge terkontrol |
+| Exported report file | Direkomendasikan 30-90 hari bila dapat diregenerasi | Purge terkontrol |
+| Attachment procurement | Mengikuti kebijakan dokumen procurement | Archive ke storage tier sesuai kebijakan perusahaan |
+| Refresh token / session data | Pendek sesuai lifecycle keamanan | Expire dan cleanup otomatis |
+
+## 5. Business Continuity & Disaster Recovery
+
+| Area | Target / Prinsip Minimum |
+| :---- | :---- |
+| RPO | Ditentukan bersama infra dan manajemen; target awal menyesuaikan backup harian + incremental capability |
+| RTO | Ditentukan menurut criticality layanan; target awal harus cukup untuk memulihkan operasi procurement inti |
+| Recovery drill | Wajib dilakukan berkala di staging / environment terkontrol |
+| Restore priority | MySQL, konfigurasi, MinIO attachment kritikal, lalu service aplikasi |
+| Manual fallback | Jika sistem unavailable, prosedur approval manual sementara harus terdokumentasi oleh bisnis |
+| Post-incident review | Setiap gangguan mayor menghasilkan RCA dan action item |
+
+---
+
 # Development & Coding Guideline
 
 ## 1. Frontend Guideline
@@ -1708,6 +1785,36 @@ backend/
 
 ---
 
+# Testing Strategy
+
+## 1. Test Pyramid dan Scope
+
+| Jenis Test | Fokus | Minimum Coverage Area |
+| :---- | :---- | :---- |
+| Unit Test | Business rule dan helper/domain logic | budget validation, approval resolution, policy evaluation, status transition |
+| Integration Test | Boundary dengan DB, queue, storage, auth | repository/service utama, transaction flow, signed URL/upload metadata |
+| API / Contract Test | Stabilitas request-response | auth, PR, approval, RFQ, quotation, PO, export |
+| E2E / SIT | User journey kritikal | login, submit PR, approve, RFQ publish, quotation submit, PO confirm |
+| UAT | Kriteria penerimaan bisnis | mengikuti FSD UAT scenario prioritas tinggi |
+
+## 2. Environment dan Test Data Strategy
+
+- Staging harus merepresentasikan topology produksi secara minimal.
+- Seed data untuk UAT harus mencakup minimal dua entitas, beberapa role approver, vendor eligible, vendor blacklist, dan skenario budget berbeda.
+- Data uji harus dipisahkan dari data produksi dan tidak boleh menggunakan kredensial nyata.
+- Test asynchronous flow menggunakan queue worker aktif atau stub yang setara.
+
+## 3. Quality Gate Sebelum Release
+
+- migration berhasil dijalankan pada environment target
+- smoke test seluruh service utama lulus
+- integration/API test untuk fitur yang berubah lulus
+- tidak ada failed job kritikal yang tertinggal dari release candidate
+- audit log untuk event kritikal tervalidasi
+- sign-off QA/UAT untuk scope release tersedia
+
+---
+
 # Error Handling & Resilience
 
 ## 1. Prinsip
@@ -1754,6 +1861,17 @@ backend/
 - upload attachment tidak membebani database
 - report berat tidak dijalankan sinkron di request user
 - service yang beban tinggi dapat diskalakan independen
+
+## 1.1 Target NFR Minimum
+
+| Area | Target Minimum Awal |
+| :---- | :---- |
+| Login / refresh token | respons normal < 3 detik pada beban operasional wajar |
+| List PR / RFQ / PO | respons normal < 3 detik dengan pagination aktif |
+| Dashboard operasional | respons normal < 5 detik untuk query near real-time |
+| Export report | diproses asynchronous; user mendapat notifikasi saat file siap |
+| Upload attachment | tervalidasi dan metadata tersimpan tanpa membebani DB blob |
+| Availability target | disepakati bersama infrastruktur; minimal mengikuti SLA aplikasi internal perusahaan |
 
 ## 2. Strategi
 
@@ -1810,6 +1928,8 @@ backend/
 | Queue Strategy | Defined with note | Redis-backed; BullMQ requires Node.js worker |
 | Storage Strategy | Defined | MinIO for attachments |
 | Logging Strategy | Defined | MySQL business audit + Elasticsearch technical log |
+| Deployment Operability | Defined | Topology minimum, runbook, retention, dan DR baseline ditetapkan |
+| Testing Strategy | Defined | Unit, integration, API, SIT/UAT gate tersedia |
 | Environment | Defined | Staging and Production on-premise |
 | ERP Integration | Placeholder | Future phase, out of scope |
 
