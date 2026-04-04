@@ -65,6 +65,15 @@ Untuk menjaga konsistensi antar dokumen:
 3. TSD menjadi acuan rancangan teknis final, termasuk model autentikasi, arsitektur backend, kontrol keamanan, integrasi, dan deployment.
 4. Jika FSD memuat lampiran alignment implementasi Phase 1 backend saat ini, bagian tersebut diperlakukan sebagai konteks implementasi berjalan dan bukan pengganti keputusan arsitektur final yang didokumentasikan pada TSD.
 
+## 1.2 Prinsip Terminologi Teknis
+
+Untuk menjaga konsistensi istilah teknis dengan BRD dan FSD:
+
+1. Istilah bisnis yang dipakai secara baku tetap mengikuti BRD/FSD, yaitu **Within Budget**, **Over Budget**, **Non Budget**, **Direct Appointment**, dan **Reference Price / eCatalog**.
+2. Istilah _session_ pada konteks implementasi TSD diperlakukan sebagai **sesi autentikasi logis** yang direalisasikan melalui access token, refresh token, timeout inaktivitas, dan mekanisme revoke.
+3. Penamaan modul atau service pada TSD boleh lebih teknis, tetapi tidak boleh mengubah makna bisnis dari proses yang dijelaskan pada BRD/FSD.
+4. Jika terdapat perbedaan antara status implementasi berjalan dan rancangan target-state, keputusan arsitektur final tetap mengacu pada TSD, sementara detail kondisi implementasi berjalan dicatat sebagai konteks alignment.
+
 ## 2. Ruang Lingkup Teknis Service
 
 | No | Service / Komponen | Deskripsi |
@@ -569,7 +578,7 @@ flowchart LR
 
 - justifikasi wajib
 - vendor tetap harus lolos blacklist check
-- reference price dapat dilampirkan
+- Reference Price / eCatalog dapat dilampirkan
 - quotation / price list / kontrak sebelumnya dapat diunggah
 
 ## 6. Purchase Order Flow
@@ -1295,7 +1304,7 @@ Queue dipakai untuk:
 | `generate_report_pdf` | user export | file PDF di MinIO |
 | `generate_report_xlsx` | user export | file XLSX di MinIO |
 | `aggregate_dashboard_daily` | cron harian | summary table refresh |
-| `recalculate_reference_price` | selesai PO | update reference price historis |
+| `recalculate_reference_price` | selesai PO | update Reference Price historis |
 
 ## 3. Catatan Teknologi Queue
 
@@ -1326,7 +1335,7 @@ Scheduler minimal:
 - daily dashboard aggregation
 - cleanup refresh token/sesi autentikasi lama
 - expire delegation period
-- optional reference price refresh from historical PO
+- optional refresh Reference Price dari historical PO
 
 ---
 
@@ -1526,7 +1535,7 @@ Aturan minimum:
 - SLA compliance
 - budget utilization
 - vendor participation rate
-- cost saving vs reference price
+- cost saving vs Reference Price
 
 ## 2. Mode Data Retrieval
 

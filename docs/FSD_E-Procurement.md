@@ -5,7 +5,7 @@ Functional Specification Document (FSD)
 
 **PT. Victoria Investama, Tbk (VICO)**
 
-Ver 1.0.0
+Ver 2.0.0
 
 # Document Information
 
@@ -58,6 +58,23 @@ Untuk menjaga konsistensi end-to-end antar dokumen:
 - Istilah "session" pada FSD harus dipahami sebagai sesi autentikasi pengguna yang pada implementasi teknis dapat direalisasikan menggunakan access token, refresh token, timeout inaktivitas, dan mekanisme revoke sesuai keputusan teknis pada TSD.
 - Bagian "Sequence Diagram Implementasi Phase 1" pada FSD berfungsi sebagai lampiran alignment terhadap implementasi backend saat ini dan tidak menggantikan kebutuhan fungsional target-state yang tetap mengacu pada BRD dan FSD utama.
 
+## 1\.2 Referensi dan Traceability Ringkas
+
+| **Area Bisnis / Fungsional** | **Acuan BRD** | **Cakupan FSD** | **Acuan TSD** | **Status Ringkas** |
+| ---------------------------- | ------------- | --------------- | ------------- | ------------------ |
+| Purchase Request dan Approval | Modul PR, Governance Multi-Entity | Use case `e`, `f`, `g`, state diagram PR, validation rules | `Purchase Request Flow`, `Approval Engine Clarification` | Target-state FSD + sebagian sudah aligned ke backend Phase 1 |
+| Budget Management | Modul Budget Management | Use case `x`, lampiran approval matrix, dashboard budget | `Budget Service`, `Budget validation`, `Reporting & Dashboard` | Target-state FSD |
+| Dynamic Procurement Policy | Modul Kebijakan Pengadaan Dinamis | Use case `i`, `y`, `z` | `Penentuan Metode Pengadaan`, `Workflow Service` | Target-state FSD |
+| RFQ dan Bidding | Modul RFQ dan Bidding | Use case `j`, `k`, `l`, state diagram RFQ / Bidding | `RFQ / Bidding Flow` | Sebagian aligned ke backend Phase 1, sisanya target-state |
+| Evaluasi Vendor, BAFO, Vendor Selection | Modul Perbandingan dan Evaluasi Vendor | Use case `m`, `n`, `o` | `Vendor Evaluation & BAFO` | Target-state FSD |
+| Direct Appointment | Modul Penunjukan Langsung | Use case `p`, sequence diagram Direct Appointment | `Direct Appointment Flow` | Target-state FSD |
+| Purchase Order dan Vendor Confirmation | Modul PO | Use case `q`, `r`, `s`, state diagram PO | `Purchase Order Flow` | Sebagian aligned ke backend Phase 1, sisanya target-state |
+| Entity, User, Reset Password, Delegate Approver | Modul Entity Management dan User Management | Use case `b`, `c`, `d`, `t`, `u` | `Auth Service`, `User & Entity Service`, `Delegation` | Sebagian aligned ke backend Phase 1 |
+| Vendor Blacklist dan Reference Price | Modul Vendor Blacklist dan Vendor Eligibility Control | Use case `v`, `w` | `Vendor Service`, `Evaluation Service`, data table terkait | Sebagian aligned ke backend Phase 1 |
+| Dashboard, Notification, Audit Trail, Export | Reporting dan Dashboard | Use case `aa`, `bb`, notification rules, export specification | `Notification Design`, `Logging, Audit Trail, and Monitoring`, `Reporting & Dashboard Technical Design` | Target-state FSD |
+
+_Catatan: tabel ini disediakan sebagai panduan traceability cepat. Detail normative tetap mengacu pada narasi lengkap BRD, FSD, dan TSD masing-masing._
+
 ## 2\. Ruang Lingkup Service
 
 | **No** | **Ruang Lingkup Service**       | **Deskripsi**                                                                                   |
@@ -87,7 +104,7 @@ Untuk menjaga konsistensi end-to-end antar dokumen:
 | ---                    | ---                                                                                                                                                                                                                      |
 | **Holding Approver**   | Approver di level Holding (direktur/pejabat berwenang), terlibat jika governance rule mewajibkan eskalasi ke holding.                                                                                                    |
 | ---                    | ---                                                                                                                                                                                                                      |
-| **Procurement**        | Mengelola RFQ, bidding, vendor comparison, evaluasi vendor, BAFO, pembuatan PO, dan mengelola reference price.                                                                                                           |
+| **Procurement**        | Mengelola RFQ, bidding, vendor comparison, evaluasi vendor, BAFO, pembuatan PO, dan mengelola Reference Price / eCatalog.                                                                                                 |
 | ---                    | ---                                                                                                                                                                                                                      |
 | **Finance**            | Approval khusus untuk kondisi Over Budget dan Non Budget. Proses pembayaran di luar sistem.                                                                                                                              |
 | ---                    | ---                                                                                                                                                                                                                      |
@@ -855,7 +872,7 @@ _\[Screenshot: Dialog Reopen Bidding\]_
 | ---                | ---                                                                                                                                                        |
 | **Post-Condition** | \- Vendor dievaluasi dan di-ranking berdasarkan weighted scoring                                                                                           |
 | ---                | ---                                                                                                                                                        |
-| **Description**    | Evaluasi vendor melalui: Prequalification, Technical, Commercial, Weighted Scoring. Sistem menampilkan reference price sebagai pembanding kewajaran harga. |
+| **Description**    | Evaluasi vendor melalui: Prequalification, Technical, Commercial, Weighted Scoring. Sistem menampilkan Reference Price / eCatalog sebagai pembanding kewajaran harga. |
 | ---                | ---                                                                                                                                                        |
 
 **Tahap 1 - Vendor Prequalification**
@@ -876,7 +893,7 @@ _\[Screenshot: Dialog Reopen Bidding\]_
 
 | **Termination Outcomes** | **Conditions User**                                               | **Conditions System**                                                                                                                                         |
 | ------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Penilaian komersial**  | 8\. Procurement evaluasi: Harga, Terms of payment, Delivery terms | 9\. Sistem menghitung commercial score<br><br>10\. Sistem menampilkan reference price (manual input + historical PO price) sebagai pembanding kewajaran harga |
+| **Penilaian komersial**  | 8\. Procurement evaluasi: Harga, Terms of payment, Delivery terms | 9\. Sistem menghitung commercial score<br><br>10\. Sistem menampilkan Reference Price / eCatalog (manual input + historical PO price) sebagai pembanding kewajaran harga |
 | ---                      | ---                                                               | ---                                                                                                                                                           |
 
 **Tahap 4 - Weighted Scoring & Ranking**
@@ -1230,14 +1247,14 @@ _\[Screenshot: Dialog Unflag Blacklist dengan Alasan\]_
 | ---                | ---                                                                                                                                                                                                                                                            |
 | **Post-Condition** | \- Reference price tersedia untuk digunakan saat evaluasi vendor                                                                                                                                                                                               |
 | ---                | ---                                                                                                                                                                                                                                                            |
-| **Description**    | Reference price berfungsi sebagai harga pembanding untuk memastikan kewajaran harga vendor saat evaluasi. Sistem mendukung dua sumber: (A) Manual Input oleh Procurement dari survei pasar, dan (B) Auto-Generated dari rata-rata harga PO yang sudah selesai. |
+| **Description**    | Reference Price / eCatalog berfungsi sebagai harga pembanding untuk memastikan kewajaran harga vendor saat evaluasi. Sistem mendukung dua sumber: (A) Manual Input oleh Procurement dari survei pasar, dan (B) Auto-Generated dari rata-rata harga PO yang sudah selesai. |
 | ---                | ---                                                                                                                                                                                                                                                            |
 
 **Sumber A - Manual Input**
 
 | **Termination Outcomes**               | **Conditions User**                                                                                                                                                                                          | **Conditions System**                                                                                               |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| **Procurement input reference price**  | 1\. Procurement akses menu Reference Price / eCatalog<br><br>2\. Klik Add Reference Price<br><br>3\. Isi: nama item/kategori, harga referensi, satuan, sumber harga (survei pasar/benchmark), tanggal update | 4\. Sistem menyimpan reference price<br><br>5\. Sistem menampilkan flag bahwa harga ini bersumber dari input manual |
+| **Procurement input reference price**  | 1\. Procurement akses menu Reference Price / eCatalog<br><br>2\. Klik Add Reference Price<br><br>3\. Isi: nama item/kategori, harga referensi, satuan, sumber harga (survei pasar/benchmark), tanggal update | 4\. Sistem menyimpan Reference Price / eCatalog<br><br>5\. Sistem menampilkan flag bahwa harga ini bersumber dari input manual |
 | ---                                    | ---                                                                                                                                                                                                          | ---                                                                                                                 |
 | **Procurement update reference price** | 6\. Procurement edit harga referensi yang sudah ada                                                                                                                                                          | 7\. Sistem menyimpan perubahan dengan versioning (harga lama tetap tersimpan untuk audit)                           |
 | ---                                    | ---                                                                                                                                                                                                          | ---                                                                                                                 |
@@ -1246,17 +1263,17 @@ _\[Screenshot: Dialog Unflag Blacklist dengan Alasan\]_
 
 | **Termination Outcomes**     | **Conditions User** | **Conditions System**                                                                                                                                                                                                                                                 |
 | ---------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem generate otomatis** |                     | 1\. Setiap PO berstatus Completed, sistem meng-update database reference price<br><br>2\. Sistem menghitung rata-rata harga dari 3 PO terakhir untuk item/kategori yang sama<br><br>3\. Reference price auto-generated ditandai dengan flag berbeda dari manual input |
+| **Sistem generate otomatis** |                     | 1\. Setiap PO berstatus Completed, sistem meng-update database Reference Price / eCatalog<br><br>2\. Sistem menghitung rata-rata harga dari 3 PO terakhir untuk item/kategori yang sama<br><br>3\. Reference Price auto-generated ditandai dengan flag berbeda dari manual input |
 | ---                          | ---                 | ---                                                                                                                                                                                                                                                                   |
 
 **Penggunaan saat Evaluasi Vendor**
 
 | **Termination Outcomes**                           | **Conditions User** | **Conditions System**                                                                                                                                                                                                                                                                                                     |
 | -------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sistem tampilkan reference price saat evaluasi** |                     | 1\. Saat Procurement melakukan Commercial Evaluation, sistem otomatis menampilkan: Reference price manual (jika ada) dan Reference price dari historical PO (jika ada)<br><br>2\. Procurement dapat melihat perbandingan harga vendor vs reference price<br><br>3\. Selisih signifikan ditandai oleh sistem sebagai alert |
+| **Sistem tampilkan reference price saat evaluasi** |                     | 1\. Saat Procurement melakukan Commercial Evaluation, sistem otomatis menampilkan: Reference Price manual (jika ada) dan Reference Price dari historical PO (jika ada)<br><br>2\. Procurement dapat melihat perbandingan harga vendor vs Reference Price<br><br>3\. Selisih signifikan ditandai oleh sistem sebagai alert |
 | ---                                                | ---                 | ---                                                                                                                                                                                                                                                                                                                       |
 
-_Logging: Seluruh perubahan reference price tercatat dalam audit trail._
+_Logging: Seluruh perubahan Reference Price / eCatalog tercatat dalam audit trail._
 
 **MOCKUP**
 
@@ -2541,7 +2558,7 @@ Sistem mendukung pencetakan dan ekspor dokumen untuk kebutuhan operasional dan a
 | ---                      | ---        | ---                                                                                                       | ---                                       |
 | Vendor Evaluation Report | PDF / XLSX | Summary evaluasi: prequalification, technical score, commercial score, weighted ranking, alasan pemilihan | Procurement, Management, Internal Audit   |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
-| Vendor Comparison Report | PDF / XLSX | Perbandingan harga dan terms antar vendor, reference price comparison                                     | Procurement, Management, Internal Audit   |
+| Vendor Comparison Report | PDF / XLSX | Perbandingan harga dan terms antar vendor, Reference Price comparison                                     | Procurement, Management, Internal Audit   |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
 | Dashboard Report         | PDF / XLSX | Rekap pengadaan per periode, status PR/RFQ/PO, budget usage, proporsi metode                              | Management, Holding Admin, Internal Audit |
 | ---                      | ---        | ---                                                                                                       | ---                                       |
@@ -2592,7 +2609,7 @@ Matriks pengendalian risiko fraud dan kepatuhan:
 | ---    | ---                         | ---                               | ---                                                              | ---        | ---                     |
 | 2      | Vendor favorit              | Transparansi pemilihan vendor     | Min vendor bidding; weighted scoring; mandatory justification DA | Preventive | Procurement             |
 | ---    | ---                         | ---                               | ---                                                              | ---        | ---                     |
-| 3      | Manipulasi harga            | Integritas data harga             | Lock data setelah approval; reference price/eCatalog             | Preventive | System                  |
+| 3      | Manipulasi harga            | Integritas data harga             | Lock data setelah approval; Reference Price / eCatalog           | Preventive | System                  |
 | ---    | ---                         | ---                               | ---                                                              | ---        | ---                     |
 | 4      | Approval bypass             | Kepatuhan workflow                | Mandatory system approval; dynamic workflow                      | Preventive | System                  |
 | ---    | ---                         | ---                               | ---                                                              | ---        | ---                     |

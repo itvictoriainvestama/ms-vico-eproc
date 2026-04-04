@@ -43,6 +43,16 @@ Untuk menjaga konsistensi antar dokumen proyek:
 - TSD menjadi turunan rancangan teknis implementasi, termasuk model autentikasi, arsitektur layanan, integrasi, dan kontrol keamanan.
 - Jika pada FSD terdapat lampiran alignment implementasi backend berjalan, lampiran tersebut diperlakukan sebagai konteks implementasi saat ini dan tidak mengubah kebutuhan bisnis target-state yang didefinisikan dalam BRD.
 
+**1.4 Prinsip Terminologi Dokumen**
+
+Untuk mengurangi ambiguitas istilah lintas dokumen proyek:
+
+- Istilah status budget yang digunakan secara baku adalah **Within Budget**, **Over Budget**, dan **Non Budget**.
+- Istilah metode pengadaan langsung yang digunakan secara baku adalah **Direct Appointment (DA)**.
+- Istilah harga referensi yang digunakan secara baku adalah **Reference Price / eCatalog**.
+- Istilah _session_ pada level bisnis/fungsional dipahami sebagai **sesi autentikasi**, sedangkan detail implementasi token dijelaskan pada TSD.
+- Jika sebuah dokumen membedakan antara kondisi **implemented**, **partially implemented**, atau **planned**, penanda tersebut hanya menjelaskan status implementasi saat ini dan tidak mengubah target-state bisnis yang didefinisikan pada BRD.
+
 **2\. TUJUAN PROYEK**
 
 Pengembangan Sistem E-Procurement bertujuan untuk:
