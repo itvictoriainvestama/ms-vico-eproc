@@ -417,7 +417,7 @@ _Catatan: istilah "session" pada TSD ini merujuk pada sesi autentikasi logis pen
 | Refresh Token | Token untuk refresh access token |
 | Token Scope | Internal user dan vendor dibedakan oleh `subject_type`, `role`, dan `portal_type` |
 | Storage | HttpOnly secure cookie atau secure token storage sesuai keputusan frontend security policy |
-| Revocation | Logout, reset password, force revoke session, account deactivation |
+| Revocation | Logout, reset password, force revoke sesi autentikasi, account deactivation |
 
 ### 1.2 Claim JWT yang Direkomendasikan
 
@@ -429,7 +429,7 @@ _Catatan: istilah "session" pada TSD ini merujuk pada sesi autentikasi logis pen
 | `entity_scope` | daftar entitas yang boleh diakses jika lintas entitas |
 | `role_codes` | role aktif user |
 | `portal_type` | `internal` / `vendor` |
-| `session_id` | identitas sesi aktif |
+| `session_id` | identitas sesi autentikasi aktif |
 | `iat` / `exp` | issued at / expired at |
 
 ## 2. Authorization Model
@@ -453,7 +453,7 @@ Sistem menggabungkan:
 
 ## 4. Session Management
 
-- session otomatis timeout setelah 30 menit inaktivitas
+- sesi autentikasi otomatis timeout setelah 30 menit inaktivitas
 - refresh token memiliki masa hidup lebih panjang daripada access token
 - logout menghapus token client-side dan melakukan revoke server-side
 - brute force protection: lock sementara setelah 5 kali gagal berturut-turut
@@ -1324,7 +1324,7 @@ Scheduler minimal:
 - SLA reminder approval
 - H-1 deadline bidding reminder
 - daily dashboard aggregation
-- cleanup refresh token/session lama
+- cleanup refresh token/sesi autentikasi lama
 - expire delegation period
 - optional reference price refresh from historical PO
 
@@ -1377,7 +1377,7 @@ Scheduler minimal:
 | :---- | :---- | :---- |
 | Application Log | Elasticsearch + optional file/stdout | debugging teknis |
 | Business Audit Log | MySQL | audit aktivitas bisnis |
-| Security Log | MySQL + Elasticsearch | login, logout, reset password, revoke session |
+| Security Log | MySQL + Elasticsearch | login, logout, reset password, revoke sesi autentikasi |
 | Job Log | MySQL + Elasticsearch | status queue/worker |
 | Export Log | MySQL | siapa ekspor apa, kapan |
 
@@ -1502,7 +1502,7 @@ Aturan minimum:
 - user tidak dapat memilih approver manual kecuali delegate yang dikonfigurasi admin
 - tidak ada auto-approve
 - reject menghentikan workflow
-- action approval memerlukan actor yang valid dan session aktif
+- action approval memerlukan actor yang valid dan sesi autentikasi aktif
 
 ---
 
@@ -1517,7 +1517,7 @@ Aturan minimum:
 - quotation masuk
 - PO pending approval
 - PO sent / confirmed
-- over budget tracker
+- Over Budget tracker
 
 ### 1.2 Management Dashboard
 - nilai pengadaan per entitas
@@ -1716,7 +1716,7 @@ backend/
 | Login gagal | return error generik tanpa membocorkan field salah |
 | Akun nonaktif | tolak login |
 | PR submit tanpa dokumen wajib | validation error |
-| Budget exhausted | flag over budget / block sesuai governance |
+| Budget exhausted | flag Over Budget / block sesuai governance |
 | Approver tidak tersedia | delegate jika aktif, atau pending sampai admin intervensi |
 | RFQ tanpa vendor eligible | warning / block publish |
 | PO di-void setelah vendor confirmed | tolak via sistem |

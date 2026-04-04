@@ -572,13 +572,13 @@ _\[Screenshot: Tampilan Status Budget Validation\]_
 
 ## f. Use Case Scenario Approval Purchase Request (PR)
 
-| **Actor**          | Entity Approver / Holding Approver / Finance (untuk over/non budget)                                                                                                             |
+| **Actor**          | Entity Approver / Holding Approver / Finance (untuk kondisi Over Budget / Non Budget)                                                                                            |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Pre-Condition**  | \- Approver telah login ke sistem<br><br>\- Terdapat PR dengan status Submitted/Pending Approval<br><br>\- Approver memiliki kewenangan approval sesuai governance rule          |
 | ---                | ---                                                                                                                                                                              |
 | **Post-Condition** | \- PR disetujui (Approved) atau ditolak (Rejected)                                                                                                                               |
 | ---                | ---                                                                                                                                                                              |
-| **Description**    | Proses persetujuan PR mengikuti dynamic approval workflow. Untuk kondisi over budget atau non budget, Finance (CFO) terlibat sebagai approver tambahan sebelum level management. |
+| **Description**    | Proses persetujuan PR mengikuti dynamic approval workflow. Untuk kondisi Over Budget atau Non Budget, Finance (CFO) terlibat sebagai approver tambahan sebelum level management. |
 | ---                | ---                                                                                                                                                                              |
 
 | **Termination Outcomes**               | **Conditions User**                                                                           | **Conditions System**                                                                                                                                                                      |
@@ -593,7 +593,7 @@ _\[Screenshot: Tampilan Status Budget Validation\]_
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
 | **Escalation ke Holding**              |                                                                                               | 14\. Jika governance rule mewajibkan eskalasi, sistem meneruskan ke Holding Approver                                                                                                       |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
-| **Finance Approval (over/non budget)** |                                                                                               | 15\. Untuk PR over budget atau non budget, sistem otomatis menyisipkan Finance (CFO) sebagai approver tambahan sebelum level management                                                    |
+| **Finance Approval (Over Budget / Non Budget)** |                                                                                               | 15\. Untuk PR dengan status Over Budget atau Non Budget, sistem otomatis menyisipkan Finance (CFO) sebagai approver tambahan sebelum level management                                      |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
 | **SLA Reminder**                       |                                                                                               | 16\. Jika approval belum dilakukan dalam 2 hari kerja, sistem mengirim reminder otomatis ke approver dan notifikasi ke admin                                                               |
 | ---                                    | ---                                                                                           | ---                                                                                                                                                                                        |
@@ -1293,7 +1293,7 @@ _\[Screenshot: Reference Price saat Commercial Evaluation\]_
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
 | **Validasi pada PR**         |                                                                                                                                                                          | 6\. Saat PR dibuat: Within Budget / Over Budget / Non Budget<br><br>7\. Status budget mempengaruhi workflow dan escalation |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
-| **Monitor budget**           | 8\. Akses dashboard budget                                                                                                                                               | 9\. Tampilkan: total, terpakai, sisa, daftar PR over budget                                                                |
+| **Monitor budget**           | 8\. Akses dashboard budget                                                                                                                                               | 9\. Tampilkan: total, terpakai, sisa, daftar PR berstatus Over Budget                                                      |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
 | **Logging**                  |                                                                                                                                                                          | 10\. Perubahan budget tercatat dalam audit trail                                                                           |
 | ---                          | ---                                                                                                                                                                      | ---                                                                                                                        |
@@ -1355,7 +1355,7 @@ _\[Screenshot: Form Konfigurasi Rule\]_
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | **Admin konfigurasi matrix** | 1\. Akses Approval Workflow Configuration<br><br>2\. Tentukan level berdasarkan: range nilai, status budget, governance model | 3\. Approval matrix yang bisa diedit              |
 | ---                          | ---                                                                                                                           | ---                                               |
-| **Admin tentukan approver**  | 4\. Tentukan approver per level: HoD, Direktur, CFO (over budget), Holding Approver                                           | 5\. Validasi approver memiliki role sesuai        |
+| **Admin tentukan approver**  | 4\. Tentukan approver per level: HoD, Direktur, CFO (Over Budget), Holding Approver                                           | 5\. Validasi approver memiliki role sesuai        |
 | ---                          | ---                                                                                                                           | ---                                               |
 | **Admin set ketentuan**      | 6\. Konfigurasi: SLA per level (default 2 hari kerja), sequential approval, auto-reminder, penolakan wajib alasan             | 7\. Simpan konfigurasi                            |
 | ---                          | ---                                                                                                                           | ---                                               |
@@ -1406,7 +1406,7 @@ _\[Screenshot: Halaman Approval Workflow Configuration\]_
 | ---                      | ---                      | ---                                                                 |
 | **Monitoring PO**        |                          | 5\. PO per status, total nilai per periode, PO pending confirmation |
 | ---                      | ---                      | ---                                                                 |
-| **Monitoring Budget**    |                          | 6\. Budget usage, proporsi within vs over budget, alarm over budget |
+| **Monitoring Budget**    |                          | 6\. Budget usage, proporsi Within Budget vs Over Budget, alarm Over Budget |
 | ---                      | ---                      | ---                                                                 |
 | **Monitoring Metode**    |                          | 7\. Proporsi bidding vs Direct Appointment, rekap per kategori      |
 | ---                      | ---                      | ---                                                                 |
@@ -1497,7 +1497,7 @@ sequenceDiagram
 
 Catatan implementasi:
 
-- Backend menggunakan JWT Bearer token, bukan session stateful di server.
+- Backend menggunakan JWT Bearer token, bukan sesi stateful di server.
 - Middleware request context akan meneruskan atau membangkitkan `X-Trace-ID` untuk setiap request.
 - Internal user dapat mengalami temporary lock setelah gagal login berulang.
 
@@ -1899,7 +1899,7 @@ sequenceDiagram
     AuthAPI-->>AuthUI: Password berhasil diubah
 
     User->>AuthUI: Klik Logout
-    AuthUI->>AuthAPI: Revoke session / token client-side
+    AuthUI->>AuthAPI: Revoke sesi autentikasi / token client-side
     AuthAPI->>Audit: Catat logout
     AuthAPI-->>AuthUI: Redirect ke halaman login
 ```
@@ -2075,12 +2075,12 @@ sequenceDiagram
     participant Audit as Audit Trail
 
     Procurement->>UI: Pilih metode Direct Appointment
-    UI->>DA: Create direct appointment request
+    UI->>DA: Create Direct Appointment request
     DA->>Vendor: Validasi vendor approved / eligible / not blacklisted
     Vendor-->>DA: Status vendor
     Procurement->>UI: Isi justifikasi + upload quotation / price list / referensi
     UI->>Storage: Simpan dokumen pendukung
-    UI->>DA: Confirm direct appointment
+    UI->>DA: Confirm Direct Appointment
     DA->>RefPrice: Ambil harga referensi pembanding
     RefPrice-->>DA: Reference price
     DA->>Audit: Catat justifikasi, dokumen, dan hasil DA
