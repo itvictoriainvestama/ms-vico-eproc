@@ -1451,6 +1451,8 @@ Bagian ini menambahkan sequence diagram yang merefleksikan implementasi backend 
 
 ## 1\. Login Internal dan Vendor
 
+**Status:** Implemented di backend Phase 1
+
 ```mermaid
 sequenceDiagram
     actor User as User Internal / Vendor
@@ -1491,6 +1493,8 @@ Catatan implementasi:
 
 ## 2\. Submit Purchase Request (PR) dan Pembentukan Approval Task
 
+**Status:** Implemented di backend Phase 1
+
 ```mermaid
 sequenceDiagram
     actor Requestor
@@ -1523,6 +1527,8 @@ Catatan implementasi:
 - Implementasi saat ini membuat approval level `1` untuk approver entitas, belum menjalankan dynamic approval matrix multi-level.
 
 ## 3\. Approve / Reject Approval Task untuk PR dan PO
+
+**Status:** Implemented di backend Phase 1
 
 ```mermaid
 sequenceDiagram
@@ -1561,6 +1567,8 @@ Catatan implementasi:
 - Approval final pada code saat ini terjadi di level pertama; chaining antar-level masih menjadi area pengembangan lanjutan.
 
 ## 4\. RFQ Internal dan Vendor Submit Quotation
+
+**Status:** Implemented di backend Phase 1
 
 ```mermaid
 sequenceDiagram
@@ -1612,6 +1620,8 @@ Catatan implementasi:
 
 ## 5\. Submit Purchase Order (PO) dan Vendor Confirmation
 
+**Status:** Implemented di backend Phase 1
+
 ```mermaid
 sequenceDiagram
     actor Procurement
@@ -1659,6 +1669,8 @@ Catatan implementasi:
 
 ## 6\. Ganti Password Internal User
 
+**Status:** Implemented di backend Phase 1
+
 ```mermaid
 sequenceDiagram
     actor InternalUser as Internal User
@@ -1689,6 +1701,8 @@ Catatan implementasi:
 
 ## 7\. Pengelolaan Entity oleh Super Admin
 
+**Status:** Implemented di backend Phase 1
+
 ```mermaid
 sequenceDiagram
     actor SuperAdmin
@@ -1712,6 +1726,8 @@ Catatan implementasi:
 - Pada implementasi saat ini create entity belum menulis audit log eksplisit di service.
 
 ## 8\. Pengelolaan User dan Reset Password oleh Admin
+
+**Status:** Implemented di backend Phase 1
 
 ```mermaid
 sequenceDiagram
@@ -1753,6 +1769,8 @@ Catatan implementasi:
 
 ## 9\. Konfigurasi Delegate Approver
 
+**Status:** Implemented di backend Phase 1
+
 ```mermaid
 sequenceDiagram
     actor Admin as SUPER_ADMIN / ENTITY_ADMIN
@@ -1783,6 +1801,8 @@ Catatan implementasi:
 - Penggunaan delegate pada alur submit PR/PO terjadi saat service approval/submit memanggil resolver approver entitas.
 
 ## 10\. Vendor Master dan Vendor Blacklist
+
+**Status:** Implemented di backend Phase 1
 
 ```mermaid
 sequenceDiagram
@@ -1836,6 +1856,8 @@ Bagian ini melengkapi use case FSD yang belum seluruhnya tersedia pada backend P
 
 ## 11\. Logout dan Force Change Password Pasca Reset
 
+**Status:** Planned / target-state FSD
+
 ```mermaid
 sequenceDiagram
     actor User
@@ -1873,6 +1895,8 @@ sequenceDiagram
 ```
 
 ## 12\. Create PR, Budget Validation, dan Submit ke Approval Workflow
+
+**Status:** Planned / target-state FSD
 
 ```mermaid
 sequenceDiagram
@@ -1912,6 +1936,8 @@ sequenceDiagram
 
 ## 13\. Revisi dan Resubmit PR serta Cancel / Void Dokumen
 
+**Status:** Planned / target-state FSD
+
 ```mermaid
 sequenceDiagram
     actor Requestor
@@ -1949,6 +1975,8 @@ sequenceDiagram
 
 ## 14\. Penentuan Metode Pengadaan dan Publikasi RFQ
 
+**Status:** Planned / target-state FSD
+
 ```mermaid
 sequenceDiagram
     actor Procurement
@@ -1982,6 +2010,8 @@ sequenceDiagram
 ```
 
 ## 15\. Penutupan Bidding, Evaluasi Vendor, BAFO, dan Vendor Selection
+
+**Status:** Planned / target-state FSD
 
 ```mermaid
 sequenceDiagram
@@ -2022,6 +2052,8 @@ sequenceDiagram
 
 ## 16\. Direct Appointment
 
+**Status:** Planned / target-state FSD
+
 ```mermaid
 sequenceDiagram
     actor Procurement
@@ -2046,6 +2078,8 @@ sequenceDiagram
 ```
 
 ## 17\. Reference Price dan Budget Management
+
+**Status:** Planned / target-state FSD
 
 ```mermaid
 sequenceDiagram
@@ -2080,6 +2114,8 @@ sequenceDiagram
 
 ## 18\. Dynamic Procurement Policy dan Dynamic Approval Workflow
 
+**Status:** Planned / target-state FSD
+
 ```mermaid
 sequenceDiagram
     actor Admin as Holding Admin / Entity Admin
@@ -2109,6 +2145,8 @@ sequenceDiagram
 
 ## 19\. Dashboard Monitoring dan Audit Trail
 
+**Status:** Planned / target-state FSD
+
 ```mermaid
 sequenceDiagram
     actor User as Management / Admin / Internal Audit
@@ -2137,6 +2175,140 @@ sequenceDiagram
         UI->>Report: Generate PDF / XLSX / CSV
         Report-->>UI: File export
     end
+```
+
+# Sequence Diagram Lanjutan
+
+Bagian ini menambahkan alur pendukung yang penting untuk kebutuhan UAT, audit, dan operasional dokumen, khususnya notifikasi, reminder SLA, dan proses print/export.
+
+## 20\. Notification, Reminder SLA, dan Escalation
+
+**Status:** Planned / target-state FSD
+
+```mermaid
+sequenceDiagram
+    actor Requestor
+    actor Approver
+    actor Admin as Entity Admin / Holding Admin
+    participant Workflow as Workflow Engine
+    participant Notify as Notification Service
+    participant Queue as Scheduler / Job Worker
+    participant Audit as Audit Trail
+
+    Requestor->>Workflow: Submit PR / PO
+    Workflow->>Notify: Trigger notifikasi ke approver level aktif
+    Notify-->>Approver: Email + In-App task notification
+    Workflow->>Audit: Catat notification trigger
+
+    Queue->>Workflow: Cek task pending berdasarkan SLA
+    Workflow-->>Queue: Daftar task yang melewati SLA
+    alt Task belum ditindaklanjuti
+        Queue->>Notify: Kirim reminder ke approver
+        Notify-->>Approver: Reminder approval overdue
+        Queue->>Notify: Kirim alert ke admin terkait
+        Notify-->>Admin: Daftar task melewati SLA
+        Queue->>Audit: Catat SLA reminder / escalation
+    else Task sudah selesai
+        Queue-->>Workflow: Tidak ada reminder
+    end
+
+    Approver->>Workflow: Approve / Reject
+    alt Masih ada level berikutnya
+        Workflow->>Notify: Kirim notifikasi ke approver level berikutnya
+    else Final approval / rejection
+        Workflow->>Notify: Kirim hasil akhir ke requestor / procurement / vendor terkait
+    end
+    Workflow->>Audit: Catat notification outcome
+```
+
+## 21\. Print, Export, dan Report Generation
+
+**Status:** Planned / target-state FSD
+
+```mermaid
+sequenceDiagram
+    actor User as Procurement / Management / Audit
+    participant UI as Portal UI
+    participant ReportAPI as Report / Export API
+    participant Report as Reporting Service
+    participant Template as PDF / XLSX Renderer
+    participant Storage as File Storage
+    participant Audit as Audit Trail
+
+    User->>UI: Pilih dokumen / laporan dan filter export
+    UI->>ReportAPI: Request print / export
+    ReportAPI->>Report: Validasi hak akses dan parameter filter
+    Report->>Report: Ambil dataset PR / RFQ / PO / dashboard / audit
+    Report->>Template: Render PDF / XLSX / CSV
+    Template-->>Report: File hasil generate
+    Report->>Storage: Simpan file sementara / arsip
+    Storage-->>Report: File URL / object key
+    Report->>Audit: Catat aktivitas print/export
+    ReportAPI-->>UI: Link download / streaming file
+    UI-->>User: File siap diunduh
+```
+
+# State Diagram Lifecycle
+
+Bagian ini melengkapi sequence diagram dengan visual status lifecycle dokumen utama. State diagram mengikuti definisi lifecycle pada FSD, sehingga berguna untuk UAT, review bisnis, dan alignment antar tim.
+
+## 22\. State Diagram Purchase Request (PR)
+
+**Status:** Target-state lifecycle FSD
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Submitted: Submit
+    Submitted --> PendingApproval: Create Approval Task
+    PendingApproval --> Approved: Approve Final
+    PendingApproval --> Rejected: Reject
+    Rejected --> Revised: Revise
+    Revised --> Submitted: Resubmit
+    Approved --> Cancelled: Cancel Approved PR
+    Cancelled --> [*]
+    Approved --> [*]
+```
+
+## 23\. State Diagram RFQ / Bidding
+
+**Status:** Target-state lifecycle FSD
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created
+    Created --> Published: Publish Tender
+    Published --> VendorSubmission: Vendor Submit Quotation
+    VendorSubmission --> Closed: Close Bidding
+    Closed --> Reopened: Reopen Bidding
+    Reopened --> VendorSubmission: Resume Submission
+    Closed --> Evaluation: Start Evaluation
+    Evaluation --> BAFO: Initiate BAFO
+    Evaluation --> VendorSelected: Confirm Vendor Selection
+    BAFO --> VendorSelected: Final Selection
+    Published --> Cancelled: Cancel RFQ
+    VendorSelected --> [*]
+    Cancelled --> [*]
+```
+
+## 24\. State Diagram Purchase Order (PO)
+
+**Status:** Target-state lifecycle FSD
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> PendingApproval: Submit PO
+    PendingApproval --> Approved: Approve Final
+    PendingApproval --> Rejected: Reject
+    Rejected --> Draft: Revise PO
+    Approved --> SentToVendor: Send to Vendor
+    SentToVendor --> VendorConfirmed: Vendor Confirm
+    VendorConfirmed --> Completed: Procurement Complete
+    Approved --> Voided: Void Approved PO
+    SentToVendor --> Voided: Void Before Vendor Confirmed
+    Voided --> [*]
+    Completed --> [*]
 ```
 
 # Field-Level Validation Rules
