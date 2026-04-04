@@ -1445,6 +1445,218 @@ _\[Screenshot: Halaman Audit Trail dengan Filter\]_
 
 _\[Screenshot: Detail Log Audit Trail\]_
 
+# Sequence Diagram Implementasi Phase 1
+
+Bagian ini menambahkan sequence diagram yang merefleksikan implementasi backend `e-proc-api` saat ini. Diagram difokuskan pada alur API yang sudah ada di codebase Phase 1, sehingga fitur target FSD yang belum sepenuhnya terimplementasi seperti reminder SLA otomatis, notifikasi email/in-app, dan dynamic approval multi-level belum dimodelkan sebagai langkah sistem aktual.
+
+## 1\. Login Internal dan Vendor
+
+```mermaid
+sequenceDiagram
+    actor User as User Internal / Vendor
+    participant Handler as Gin Handler
+    participant Auth as AuthService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    User->>Handler: POST /api/v1/auth/login
+    Handler->>Auth: Login(username, password)
+    Auth->>DB: Cari internal user aktif + preload role
+    alt Internal user ditemukan
+        Auth->>Auth: Verifikasi bcrypt dan generate JWT
+        Auth->>DB: Update last_login_at, reset failed_login_count
+        Auth->>Audit: Simpan AUTH_LOGIN_SUCCESS
+        Auth-->>Handler: token, refresh_token, expires_at, profile
+        Handler-->>User: 200 OK
+    else Tidak ditemukan sebagai internal user
+        Auth->>DB: Cari vendor user aktif berdasarkan email
+        alt Vendor user valid
+            Auth->>Auth: Verifikasi bcrypt dan generate JWT vendor
+            Auth->>Audit: Simpan AUTH_LOGIN_SUCCESS
+            Auth-->>Handler: token, refresh_token, expires_at, profile
+            Handler-->>User: 200 OK
+        else Kredensial tidak valid
+            Auth->>Audit: Simpan AUTH_LOGIN_FAILED
+            Auth-->>Handler: error invalid credentials
+            Handler-->>User: 401 Unauthorized
+        end
+    end
+```
+
+Catatan implementasi:
+
+- Backend menggunakan JWT Bearer token, bukan session stateful di server.
+- Middleware request context akan meneruskan atau membangkitkan `X-Trace-ID` untuk setiap request.
+- Internal user dapat mengalami temporary lock setelah gagal login berulang.
+
+## 2\. Submit Purchase Request (PR) dan Pembentukan Approval Task
+
+```mermaid
+sequenceDiagram
+    actor Requestor
+    participant API as Internal PR API
+    participant MW as Auth + Role Middleware
+    participant PR as PRService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Requestor->>API: POST /api/v1/internal/purchase-requests/:id/submit
+    API->>MW: Validasi Bearer token dan role
+    MW-->>API: user_id, entity_id, scope_type
+    API->>PR: Submit(pr_id, actor_id, entity_id, scope_type)
+    PR->>DB: Ambil purchase request
+    PR->>PR: Validasi scope entitas dan status Draft/Revised
+    PR->>DB: Resolve approver entitas atau delegate aktif
+    PR->>DB: Transaction
+    DB-->>PR: Update purchase_requests.status = Pending Approval
+    DB-->>PR: Insert approval_tasks(document_type=PR, status=pending)
+    DB-->>PR: Insert pr_approvals(level=1, assigned_approver_id)
+    PR->>Audit: Simpan PR_SUBMITTED
+    PR->>DB: Load ulang detail PR
+    PR-->>API: Detail PR terbaru
+    API-->>Requestor: 200 OK
+```
+
+Catatan implementasi:
+
+- Endpoint create PR dan submit PR dipisahkan; create menyimpan `Draft`, sedangkan submit membuat task approval.
+- Implementasi saat ini membuat approval level `1` untuk approver entitas, belum menjalankan dynamic approval matrix multi-level.
+
+## 3\. Approve / Reject Approval Task untuk PR dan PO
+
+```mermaid
+sequenceDiagram
+    actor Approver
+    participant API as Internal Approval API
+    participant MW as Auth + Role Middleware
+    participant Approval as ApprovalService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Approver->>API: POST /api/v1/internal/approvals/tasks/:id/approve atau /reject
+    API->>MW: Validasi Bearer token dan role
+    MW-->>API: user_id, entity_id, scope_type
+    API->>Approval: Approve(...) atau Reject(...)
+    Approval->>DB: Ambil approval task
+    Approval->>Approval: Validasi assignee, scope entitas, status pending
+    Approval->>DB: Transaction
+    alt DocumentType = PR
+        DB-->>Approval: Update approval_tasks
+        DB-->>Approval: Update pr_approvals
+        DB-->>Approval: Update purchase_requests.status = Approved / Rejected
+    else DocumentType = PO
+        DB-->>Approval: Update approval_tasks
+        DB-->>Approval: Update po_approvals
+        DB-->>Approval: Update purchase_orders.status = Approved / Rejected
+    end
+    Approval->>Audit: Simpan APPROVAL_APPROVED / APPROVAL_REJECTED
+    Approval-->>API: Status hasil approval
+    API-->>Approver: 200 OK
+```
+
+Catatan implementasi:
+
+- Approval task hanya bisa dijalankan oleh `assignee_id` yang aktif pada task tersebut.
+- Delegate approver dicatat melalui `original_user_id` dan `on_behalf_of_user_id`.
+- Approval final pada code saat ini terjadi di level pertama; chaining antar-level masih menjadi area pengembangan lanjutan.
+
+## 4\. RFQ Internal dan Vendor Submit Quotation
+
+```mermaid
+sequenceDiagram
+    actor Procurement
+    actor Vendor
+    participant InternalAPI as Internal RFQ API
+    participant VendorAPI as Vendor Portal API
+    participant RFQ as RFQService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Procurement->>InternalAPI: POST /api/v1/internal/rfqs
+    InternalAPI->>RFQ: Create(pr_id, detail rfq, vendor_ids)
+    RFQ->>DB: Validasi PR berada di entity yang sama
+    loop Untuk setiap vendor
+        RFQ->>DB: Validasi vendor eligible dan tidak blacklist
+    end
+    RFQ->>DB: Insert rfqs(status=Created) + rfq_vendors(invited)
+    RFQ->>Audit: Simpan RFQ_CREATED
+    InternalAPI-->>Procurement: 201 Created
+
+    Procurement->>InternalAPI: PATCH /api/v1/internal/rfqs/:id/status {Published}
+    InternalAPI->>RFQ: UpdateStatus(rfq_id, Published)
+    RFQ->>DB: Update rfqs.status = Published
+    RFQ->>Audit: Simpan RFQ_STATUS_UPDATED
+    InternalAPI-->>Procurement: 200 OK
+
+    Vendor->>VendorAPI: GET /api/v1/vendor/tenders/:id
+    VendorAPI->>RFQ: GetVendorTender(rfq_id, vendor_id)
+    RFQ->>DB: Validasi vendor diundang untuk tender
+    RFQ->>DB: Update viewed_at dan participation_status = viewed
+    VendorAPI-->>Vendor: Detail tender
+
+    Vendor->>VendorAPI: POST /api/v1/vendor/tenders/:id/quotation
+    VendorAPI->>RFQ: SubmitQuotation(rfq_id, vendor_id, vendor_user_id, items)
+    RFQ->>DB: Validasi vendor eligible, deadline, dan status RFQ
+    RFQ->>DB: Transaction
+    DB-->>RFQ: Insert quotations + quotation_items
+    DB-->>RFQ: Update rfq_vendors.participation_status = submitted
+    DB-->>RFQ: Update rfqs.status = Vendor Submission
+    RFQ->>Audit: Simpan QUOTATION_SUBMITTED
+    VendorAPI-->>Vendor: 201 Created
+```
+
+Catatan implementasi:
+
+- Publish tender pada code saat ini dilakukan melalui update status RFQ, bukan endpoint publish yang terpisah.
+- Hanya vendor yang ada pada `rfq_vendors`, eligible, dan tidak blacklist yang dapat melihat serta submit quotation.
+
+## 5\. Submit Purchase Order (PO) dan Vendor Confirmation
+
+```mermaid
+sequenceDiagram
+    actor Procurement
+    actor Vendor
+    participant InternalAPI as Internal PO API
+    participant VendorAPI as Vendor PO API
+    participant PO as POService
+    participant DB as MySQL
+    participant Audit as Audit Log
+
+    Procurement->>InternalAPI: POST /api/v1/internal/purchase-orders
+    InternalAPI->>PO: Create(vendor_id, pr_id/rfq_id, items)
+    PO->>DB: Validasi vendor tidak blacklist
+    PO->>DB: Validasi referensi PR/RFQ berada pada entity yang sama
+    PO->>DB: Insert purchase_orders(status=Draft) + purchase_order_items
+    PO->>Audit: Simpan PO_CREATED
+    InternalAPI-->>Procurement: 201 Created
+
+    Procurement->>InternalAPI: POST /api/v1/internal/purchase-orders/:id/submit
+    InternalAPI->>PO: Submit(po_id, actor_id, entity_id, scope_type)
+    PO->>DB: Validasi scope dan status Draft/Rejected
+    PO->>DB: Resolve approver entitas atau delegate aktif
+    PO->>DB: Transaction
+    DB-->>PO: Update purchase_orders.status = Pending Approval
+    DB-->>PO: Insert approval_tasks(document_type=PO, status=pending)
+    DB-->>PO: Insert po_approvals(level=1, assigned_approver_id)
+    PO->>Audit: Simpan PO_SUBMITTED
+    InternalAPI-->>Procurement: 200 OK
+
+    Vendor->>VendorAPI: POST /api/v1/vendor/purchase-orders/:id/confirm
+    VendorAPI->>PO: ConfirmByVendor(po_id, vendor_id, vendor_user_id, remarks)
+    PO->>DB: Validasi vendor scope dan status Approved / Sent to Vendor
+    PO->>DB: Transaction
+    DB-->>PO: Update purchase_orders.status = Vendor Confirmed
+    DB-->>PO: Set vendor_confirmed_at
+    DB-->>PO: Insert vendor_confirmations
+    PO->>Audit: Simpan PO_VENDOR_CONFIRMED
+    VendorAPI-->>Vendor: 200 OK
+```
+
+Catatan implementasi:
+
+- Setelah approval PO, status menjadi `Approved`; transisi ke `Sent to Vendor` saat ini dilakukan melalui endpoint update status generik jika dibutuhkan.
+- Vendor hanya dapat mengkonfirmasi PO miliknya sendiri dan hanya pada status yang diizinkan oleh service.
+
 # Field-Level Validation Rules
 
 Berikut spesifikasi validasi per field untuk form-form utama dalam sistem. Setiap field memiliki aturan tipe data, format, dan apakah wajib diisi.
