@@ -1,30 +1,32 @@
-# Aplikasi E-Procurement
+# Technical Specification Document (TSD)
 
-Technical Specification Document (TSD)
+## Sistem E-Procurement
 
-**PT. Victoria Investama, Tbk (VICO)**
+**Entitas:** PT Victoria Investama, Tbk (VICO)
 
-Ver 1.1.0
+**Versi:** 1.2.1
 
 ---
 
-# Document Information
+# Informasi Dokumen
 
 ## 1. Ringkasan Revisi
 
-| Version | Tanggal Terbit | Deskripsi | Author(s) |
-| :---- | :---- | :---- | :---- |
+| Versi | Tanggal Terbit | Deskripsi | Penyusun |
+| ---- | ---- | ---- | ---- |
 | 1.0.0 | 29/03/2026 | Initial Technical Specification Document E-Procurement | Divisi IT |
 | 1.1.0 | 29/03/2026 | Penegasan final technical decision project: tetap menggunakan backend modular microservice; penyesuaian alignment terhadap FSD final dan konfirmasi user terbaru tanpa mengurangi konten teknis sebelumnya | Divisi IT |
+| 1.2.0 | 04/04/2026 | Penambahan decision log, deployment topology, migration & rollout strategy, runbook minimum, retention policy, DR guideline, testing strategy, dan target NFR minimum | Divisi IT |
+| 1.2.1 | 05/04/2026 | Harmonisasi terminologi, perapihan editorial, dan penyelarasan gaya bahasa teknis formal | Divisi IT |
 
 ## 2. Daftar Distribusi
 
 | Perusahaan | Personil / Kelompok | Komentar |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | PT. Victoria Investama, Tbk | Direksi | Review |
-| PT. Victoria Investama, Tbk | Divisi IT | Development Reference |
-| PT. Victoria Investama, Tbk | Internal Audit | Control & Compliance Review |
-| Victoria Financial Group | Project Stakeholder | Implementation Reference |
+| PT. Victoria Investama, Tbk | Divisi IT | Acuan Pengembangan |
+| PT. Victoria Investama, Tbk | Internal Audit | Review Kontrol dan Kepatuhan |
+| Victoria Financial Group | Stakeholder Proyek | Acuan Implementasi |
 
 ## 3. Prosedur Pembaharuan
 
@@ -33,7 +35,7 @@ Pemilik dokumen ini adalah PT. Victoria Investama, Tbk. Project Manager / PIC IT
 ## 4. Referensi Dokumen
 
 | No | Dokumen | Keterangan |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | 1 | BRD Pengembangan Sistem E-Procurement | Acuan kebutuhan bisnis |
 | 2 | FSD E-Procurement | Acuan kebutuhan fungsional, use case, lifecycle, dan aturan validasi |
 | 3 | Dokumen API Contract | Dokumen terpisah, versi mengikuti implementasi backend |
@@ -42,7 +44,7 @@ Pemilik dokumen ini adalah PT. Victoria Investama, Tbk. Project Manager / PIC IT
 
 ---
 
-# Introduction
+# Pendahuluan
 
 ## 1. Tujuan
 
@@ -56,11 +58,41 @@ Dokumen ini bertujuan untuk:
 4. Menjadi referensi QA, DevOps, Internal Audit, dan stakeholder manajemen dalam memahami bagaimana sistem dibangun secara teknis.
 5. Menjadi dasar implementasi yang audit-ready, scalable, dan selaras dengan kebutuhan multi-entity procurement governance.
 
+### 1.1 Catatan Konsistensi Dokumen
+
+Untuk menjaga konsistensi antar dokumen:
+
+1. BRD menjadi acuan target kebutuhan bisnis dan governance proses procurement.
+2. FSD menjadi acuan kebutuhan fungsional, use case, lifecycle, validasi, dan aturan operasional sistem.
+3. TSD menjadi acuan rancangan teknis final, termasuk model autentikasi, arsitektur backend, kontrol keamanan, integrasi, dan deployment.
+4. Jika FSD memuat lampiran alignment implementasi Phase 1 backend saat ini, bagian tersebut diperlakukan sebagai konteks implementasi berjalan dan bukan pengganti keputusan arsitektur final yang didokumentasikan pada TSD.
+
+### 1.2 Prinsip Terminologi Teknis
+
+Untuk menjaga konsistensi istilah teknis dengan BRD dan FSD:
+
+1. Istilah bisnis yang dipakai secara baku tetap mengikuti BRD/FSD, yaitu **Within Budget**, **Over Budget**, **Non Budget**, **Direct Appointment**, dan **Reference Price / eCatalog**.
+2. Istilah _session_ pada konteks implementasi TSD diperlakukan sebagai **sesi autentikasi logis** yang direalisasikan melalui access token, refresh token, timeout inaktivitas, dan mekanisme revoke.
+3. Penamaan modul atau service pada TSD boleh lebih teknis, tetapi tidak boleh mengubah makna bisnis dari proses yang dijelaskan pada BRD/FSD.
+4. Jika terdapat perbedaan antara status implementasi berjalan dan rancangan target-state, keputusan arsitektur final tetap mengacu pada TSD, sementara detail kondisi implementasi berjalan dicatat sebagai konteks alignment.
+
+### 1.3 Decision Log Ringkas
+
+| Keputusan Teknis | Keputusan Final | Alasan Ringkas |
+| ---- | ---- | ---- |
+| Arsitektur frontend | Satu repository, dua portal | Menjaga reuse komponen dan konsistensi UX/security policy |
+| Arsitektur backend | Go modular microservice | Memisahkan domain utama sambil tetap menjaga skalabilitas modul |
+| Strategi database | Shared MySQL database + `entity_id` isolation | Sederhana untuk fase awal, tetap mendukung governance multi-entitas |
+| Strategi autentikasi | JWT access token + refresh token | Cocok untuk portal internal dan vendor yang terpisah |
+| File storage | MinIO | Memisahkan attachment dari database transaksional |
+| Queue | Redis-backed queue dengan BullMQ-compatible path | Mengakomodasi requirement user sambil tetap membuka jalur alternatif Go-native |
+| Observability | MySQL audit log + Elasticsearch technical log | Memisahkan kebutuhan audit bisnis dan troubleshooting teknis |
+
 ## 2. Ruang Lingkup Teknis Service
 
 | No | Service / Komponen | Deskripsi |
-| :---- | :---- | :---- |
-| 1 | Internal Web Portal | Portal React untuk seluruh user internal Victoria Group (Holding Admin, Entity Admin, Requestor, Approver, Procurement, Finance, Management, Internal Audit) dengan menu berbasis role |
+| ---- | ---- | ---- |
+| 1 | Internal Web Portal | Portal React untuk seluruh user internal Victoria Group (Holding Admin, Entity Admin, Requestor, Entity Approver, Holding Approver, Procurement, Finance, Management, Internal Audit) dengan menu berbasis role |
 | 2 | Vendor Portal | Portal React untuk vendor melalui subdomain terpisah, namun berada dalam satu project / repository frontend yang sama |
 | 3 | API Gateway / Reverse Proxy Layer | Layer pintu masuk trafik dari internet/intranet ke frontend dan backend, termasuk HTTPS termination dan routing |
 | 4 | Backend Services | Kumpulan service modular berbasis Go untuk auth, user, entity, PR, RFQ, evaluation, PO, budget, reporting, notification, dan audit |
@@ -72,7 +104,7 @@ Dokumen ini bertujuan untuk:
 ## 3. Akronim, Singkatan, Istilah, dan Definisi
 
 | Istilah | Penjelasan |
-| :---- | :---- |
+| ---- | ---- |
 | PR | Purchase Request |
 | RFQ | Request for Quotation |
 | PO | Purchase Order |
@@ -138,7 +170,7 @@ Secara teknis, sistem dibangun dengan prinsip:
 
 ---
 
-# Solution Architecture
+# Arsitektur Solusi
 
 ## 1. High-Level Architecture
 
@@ -268,7 +300,7 @@ Reverse proxy yang dimaksud adalah komponen seperti **Nginx** yang berada di dep
 ### 3.1 Routing Domain yang Direkomendasikan
 
 | Hostname | Fungsi |
-| :---- | :---- |
+| ---- | ---- |
 | `namaproject.domain` | Internal portal UI |
 | `vendor.namaproject.domain` | Vendor portal UI |
 | `api.namaproject.domain` | API gateway utama |
@@ -290,7 +322,7 @@ Reverse proxy yang dimaksud adalah komponen seperti **Nginx** yang berada di dep
 
 ## 4. Backend Architecture
 
-## 4.1 Prinsip
+### 4.1 Prinsip
 
 Backend mengikuti pola **modular microservice**, tetapi pada fase ini menggunakan **shared database**. Dengan demikian, ini adalah pendekatan **logical microservice with shared data layer**.
 
@@ -303,14 +335,14 @@ Konsekuensi teknis:
 - tiap service **hanya boleh** menulis tabel yang menjadi ownership domain-nya
 - akses antar modul **direkomendasikan melalui API/service call atau event**, bukan cross-update tabel secara bebas
 
-## 4.2 Daftar Service
+### 4.2 Daftar Service
 
 | Service | Tanggung Jawab |
-| :---- | :---- |
+| ---- | ---- |
 | API Gateway | Entry point API, auth middleware, routing request, rate limiting sederhana |
 | Auth Service | Login, logout, refresh token, password policy, force change password |
 | User & Entity Service | User management, role assignment, entity management, delegate approver |
-| Procurement Service | Purchase Request, method selection, RFQ, direct appointment |
+| Procurement Service | Purchase Request, method selection, RFQ, Direct Appointment |
 | Workflow Service | Dynamic approval workflow, approval matrix resolution, escalation |
 | Budget Service | Budget master, budget validation, budget reservation/release |
 | Vendor Service | Vendor master, eligibility, blacklist, vendor portal profile |
@@ -320,10 +352,10 @@ Konsekuensi teknis:
 | Notification Service | In-app notification, email dispatch orchestration |
 | Audit Service | Audit trail, business event recording, security event logging |
 
-## 4.3 Service Boundary Map
+### 4.3 Service Boundary Map
 
 | Modul FSD/BRD | Service Owner Utama |
-| :---- | :---- |
+| ---- | ---- |
 | Login / Logout / Ganti Password / Reset Password | Auth Service |
 | Entity Management | User & Entity Service |
 | User Management / Delegate Approver | User & Entity Service |
@@ -344,7 +376,7 @@ Konsekuensi teknis:
 ## 5. Supporting Services
 
 | Komponen | Fungsi |
-| :---- | :---- |
+| ---- | ---- |
 | MySQL | Database utama transaksi dan master data |
 | Redis | Backend queue / cache / distributed lock sesuai kebutuhan |
 | Queue Worker | Background job processing |
@@ -355,19 +387,19 @@ Konsekuensi teknis:
 
 ---
 
-# Access Requirement
+# Kebutuhan Akses
 
 ## 1. Matriks Akses Per Role
 
 | Role | Entity Scope | Akses Modul Utama |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | Holding Admin | Semua entitas | Entity Management, User Management, Governance, Vendor Blacklist, Monitoring grup |
 | Entity Admin | Entitas sendiri | User Management entitas, budget entitas, delegate approver, monitoring entitas |
 | Requestor | Entitas sendiri | Create/Edit/Submit/Revise PR, lihat status PR |
 | Entity Approver | Entitas sendiri | Approve/Reject PR & PO sesuai policy |
 | Holding Approver | Lintas entitas sesuai policy | Approval level holding |
-| Procurement | Entitas sendiri / group sesuai rule | RFQ, bidding, vendor comparison, BAFO, direct appointment, PO |
-| Finance | Entitas / group sesuai rule | Approval over budget / non-budget, monitoring budget |
+| Procurement | Entitas sendiri / group sesuai rule | RFQ, bidding, vendor comparison, BAFO, Direct Appointment, PO |
+| Finance | Entitas / group sesuai rule | Approval Over Budget / Non Budget, monitoring budget |
 | Management | Entitas / group sesuai rule | Dashboard, report, monitoring |
 | Internal Audit | Lintas entitas read-only | Audit trail, report, monitoring proses |
 | Vendor | Record vendor sendiri | Tender participation, submit quotation, confirm PO |
@@ -387,7 +419,7 @@ Konsekuensi teknis:
 
 ---
 
-# Authentication, Authorization, and Session Design
+# Desain Authentication, Authorization, dan Session
 
 ## 1. Authentication Model
 
@@ -395,30 +427,32 @@ Sistem menggunakan:
 
 - **JWT Access Token**
 - **Refresh Token**
-- **Session timeout**
+- **Timeout sesi autentikasi**
 - **Force change password** untuk password default / hasil reset admin
+
+_Catatan: istilah "session" pada TSD ini merujuk pada sesi autentikasi logis pengguna yang direalisasikan melalui kombinasi access token, refresh token, timeout inaktivitas, dan mekanisme revoke._
 
 ### 1.1 Token Strategy
 
 | Item | Deskripsi |
-| :---- | :---- |
+| ---- | ---- |
 | Access Token | JWT untuk akses API, durasi singkat |
 | Refresh Token | Token untuk refresh access token |
 | Token Scope | Internal user dan vendor dibedakan oleh `subject_type`, `role`, dan `portal_type` |
 | Storage | HttpOnly secure cookie atau secure token storage sesuai keputusan frontend security policy |
-| Revocation | Logout, reset password, force revoke session, account deactivation |
+| Revocation | Logout, reset password, force revoke sesi autentikasi, account deactivation |
 
 ### 1.2 Claim JWT yang Direkomendasikan
 
 | Claim | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `sub` | user_id / vendor_user_id |
 | `subject_type` | `internal_user` / `vendor_user` |
 | `entity_id` | entitas utama user internal |
 | `entity_scope` | daftar entitas yang boleh diakses jika lintas entitas |
 | `role_codes` | role aktif user |
 | `portal_type` | `internal` / `vendor` |
-| `session_id` | identitas sesi aktif |
+| `session_id` | identitas sesi autentikasi aktif |
 | `iat` / `exp` | issued at / expired at |
 
 ## 2. Authorization Model
@@ -442,7 +476,7 @@ Sistem menggabungkan:
 
 ## 4. Session Management
 
-- session otomatis timeout setelah 30 menit inaktivitas
+- sesi autentikasi otomatis timeout setelah 30 menit inaktivitas
 - refresh token memiliki masa hidup lebih panjang daripada access token
 - logout menghapus token client-side dan melakukan revoke server-side
 - brute force protection: lock sementara setelah 5 kali gagal berturut-turut
@@ -459,7 +493,7 @@ Sistem menggabungkan:
 
 ---
 
-# Technical Workflow Design
+# Desain Workflow Teknis
 
 ## 1. Purchase Request Flow
 
@@ -558,7 +592,7 @@ flowchart LR
 
 - justifikasi wajib
 - vendor tetap harus lolos blacklist check
-- reference price dapat dilampirkan
+- Reference Price / eCatalog dapat dilampirkan
 - quotation / price list / kontrak sebelumnya dapat diunggah
 
 ## 6. Purchase Order Flow
@@ -575,7 +609,7 @@ flowchart LR
 
 ### 6.1 Aturan Teknis
 
-- nomor PO auto-generated
+- nomor PO dihasilkan otomatis
 - PO approval mengikuti policy / governance
 - PO void tidak boleh jika sudah vendor confirmed
 - void mengembalikan budget reserved jika masih relevan
@@ -592,7 +626,7 @@ flowchart LR
 
 ---
 
-# Data Architecture
+# Arsitektur Data
 
 ## 1. Strategi Data Multi-Entity
 
@@ -629,12 +663,12 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 
 ## 4. Tabel Utama dan Field Inti
 
-## 4.1 Master Table
+### 4.1 Master Table
 
-### `entities`
+#### `entities`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key entity |
 | `entity_code` | Kode entitas, unik |
 | `entity_name` | Nama entitas |
@@ -645,10 +679,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `governance_mode` | entity_only / holding_required / conditional |
 | `created_at` / `updated_at` | Audit timestamp |
 
-### `roles`
+#### `roles`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key role |
 | `role_code` | Kode role, unik |
 | `role_name` | Nama role |
@@ -656,10 +690,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `is_active` | Status aktif |
 | `description` | Deskripsi role |
 
-### `users`
+#### `users`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key user |
 | `entity_id` | Entitas utama user |
 | `full_name` | Nama user |
@@ -673,10 +707,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `locked_until` | Timestamp lock sementara |
 | `created_at` / `updated_at` | Audit timestamp |
 
-### `user_roles`
+#### `user_roles`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key relation |
 | `user_id` | Relasi ke user |
 | `role_id` | Relasi ke role |
@@ -685,10 +719,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `is_primary` | Role utama |
 | `status` | Active / Inactive |
 
-### `delegate_approvers`
+#### `delegate_approvers`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas terkait |
 | `original_user_id` | Approver asli |
@@ -698,10 +732,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `reason` | Alasan delegasi |
 | `status` | Active / Expired / Cancelled |
 
-### `vendors`
+#### `vendors`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key vendor |
 | `vendor_code` | Kode vendor |
 | `vendor_name` | Nama vendor |
@@ -714,10 +748,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `eligibility_status` | eligible / ineligible |
 | `created_at` / `updated_at` | Audit timestamp |
 
-### `vendor_users`
+#### `vendor_users`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key vendor user |
 | `vendor_id` | Relasi ke vendor |
 | `full_name` | Nama PIC vendor |
@@ -728,10 +762,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `force_change_password` | Flag |
 | `created_at` / `updated_at` | Audit timestamp |
 
-### `vendor_blacklists`
+#### `vendor_blacklists`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `vendor_id` | Relasi ke vendor |
 | `entity_id` | Scope blacklist, jika spesifik entitas |
@@ -742,10 +776,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `status` | Active / Revoked |
 | `created_by` | User yang melakukan flag |
 
-### `reference_prices`
+#### `reference_prices`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas pemilik data |
 | `item_name` | Nama item |
@@ -757,10 +791,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `effective_date` | Tanggal berlaku |
 | `status` | Active / Inactive |
 
-### `budgets`
+#### `budgets`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas |
 | `fiscal_year` | Tahun fiskal |
@@ -772,10 +806,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `used_amount` | Nilai yang sudah terpakai |
 | `status` | Active / Closed |
 
-### `procurement_policy_rules`
+#### `procurement_policy_rules`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas, nullable jika global holding |
 | `policy_code` | Kode kebijakan |
@@ -788,10 +822,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `approval_model_id` | Relasi ke model approval |
 | `status` | Active / Inactive |
 
-### `approval_models`
+#### `approval_models`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas atau global |
 | `model_code` | Kode model |
@@ -800,10 +834,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `status` | Active / Inactive |
 | `description` | Keterangan |
 
-### `approval_matrixes`
+#### `approval_matrixes`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `approval_model_id` | Relasi ke approval model |
 | `level_no` | Nomor level |
@@ -814,12 +848,12 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `is_mandatory` | Mandatory / optional |
 | `status` | Active / Inactive |
 
-## 4.2 Transaction Table
+### 4.2 Transaction Table
 
-### `purchase_requests`
+#### `purchase_requests`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key PR |
 | `entity_id` | Entitas pemilik PR |
 | `pr_number` | Nomor PR unik |
@@ -835,10 +869,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `procurement_method` | bidding / direct_appointment / null |
 | `status` | Draft / Submitted / Pending Approval / Approved / Rejected / Revised / Cancelled |
 
-### `purchase_request_items`
+#### `purchase_request_items`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key item |
 | `pr_id` | Relasi ke PR |
 | `entity_id` | Entitas |
@@ -850,10 +884,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `estimated_total_price` | Total estimasi |
 | `reference_price_id` | Referensi harga jika ada |
 
-### `pr_attachments`
+#### `pr_attachments`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `pr_id` | Relasi ke PR |
 | `entity_id` | Entitas |
@@ -865,10 +899,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `file_size` | Ukuran file |
 | `uploaded_by` | User uploader |
 
-### `pr_approvals`
+#### `pr_approvals`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `pr_id` | Relasi ke PR |
 | `entity_id` | Entitas |
@@ -881,10 +915,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `acted_at` | Waktu aksi |
 | `status_after_action` | Status setelah aksi |
 
-### `rfqs`
+#### `rfqs`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key RFQ |
 | `entity_id` | Entitas |
 | `pr_id` | Relasi ke PR |
@@ -897,10 +931,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `deadline_at` | Deadline bidding |
 | `status` | Created / Published / Vendor Submission / Closed / Reopened / Evaluation / BAFO / Vendor Selected / Cancelled |
 
-### `rfq_vendors`
+#### `rfq_vendors`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `rfq_id` | Relasi ke RFQ |
 | `vendor_id` | Relasi ke vendor |
@@ -910,10 +944,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `viewed_at` | Vendor lihat tender |
 | `participation_status` | invited / submitted / not_submitted / disqualified |
 
-### `quotations`
+#### `quotations`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key quotation |
 | `rfq_id` | Relasi ke RFQ |
 | `vendor_id` | Vendor pengaju |
@@ -926,10 +960,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `submitted_at` | Waktu submit |
 | `status` | Draft / Submitted / Revised / Withdrawn / Accepted for Evaluation |
 
-### `quotation_items`
+#### `quotation_items`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `quotation_id` | Relasi ke quotation |
 | `pr_item_id` | Relasi ke item PR |
@@ -938,10 +972,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `total_price` | Total item |
 | `note` | Catatan vendor |
 
-### `quotation_attachments`
+#### `quotation_attachments`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `quotation_id` | Relasi ke quotation |
 | `vendor_id` | Relasi vendor |
@@ -951,10 +985,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `file_size` | Ukuran |
 | `uploaded_at` | Waktu upload |
 
-### `vendor_evaluations`
+#### `vendor_evaluations`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `rfq_id` | Relasi RFQ |
 | `vendor_id` | Vendor |
@@ -966,10 +1000,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `evaluated_by` | Evaluator |
 | `evaluated_at` | Waktu evaluasi |
 
-### `bafo_rounds`
+#### `bafo_rounds`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `rfq_id` | Relasi RFQ |
 | `round_no` | Nomor round |
@@ -978,10 +1012,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `created_by` | Procurement |
 | `created_at` | Waktu buat |
 
-### `vendor_selections`
+#### `vendor_selections`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `rfq_id` | Relasi RFQ |
 | `selected_vendor_id` | Vendor terpilih |
@@ -991,10 +1025,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `selected_by` | User pemilih |
 | `selected_at` | Waktu pilih |
 
-### `direct_appointments`
+#### `direct_appointments`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas |
 | `pr_id` | Relasi ke PR |
@@ -1006,22 +1040,22 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `created_by` | Procurement |
 | `created_at` | Waktu buat |
 
-### `direct_appointment_attachments`
+#### `direct_appointment_attachments`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
-| `da_id` | Relasi ke direct appointment |
+| `da_id` | Relasi ke Direct Appointment |
 | `object_key` | Lokasi file |
 | `file_name_original` | Nama file asli |
 | `mime_type` | Tipe file |
 | `file_size` | Ukuran |
 | `uploaded_by` | Uploader |
 
-### `purchase_orders`
+#### `purchase_orders`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key PO |
 | `entity_id` | Entitas |
 | `po_number` | Nomor PO unik |
@@ -1035,10 +1069,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `sent_at` | Waktu kirim vendor |
 | `vendor_confirmed_at` | Waktu konfirmasi vendor |
 
-### `purchase_order_items`
+#### `purchase_order_items`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key item |
 | `po_id` | Relasi ke PO |
 | `pr_item_id` | Relasi item asal |
@@ -1049,10 +1083,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `unit_price` | Harga unit |
 | `total_price` | Total |
 
-### `po_attachments`
+#### `po_attachments`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `po_id` | Relasi PO |
 | `file_name_original` | Nama file |
@@ -1061,10 +1095,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `file_size` | Ukuran |
 | `uploaded_by` | Uploader |
 
-### `po_approvals`
+#### `po_approvals`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `po_id` | Relasi ke PO |
 | `approval_level` | Level approval |
@@ -1076,10 +1110,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `acted_at` | Timestamp |
 | `status_after_action` | Status sesudah aksi |
 
-### `vendor_confirmations`
+#### `vendor_confirmations`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `po_id` | Relasi ke PO |
 | `vendor_id` | Vendor |
@@ -1088,10 +1122,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `remarks` | Catatan |
 | `confirmed_at` | Waktu konfirmasi |
 
-### `notifications`
+#### `notifications`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `channel_type` | email / in_app |
 | `recipient_type` | internal_user / vendor_user |
@@ -1104,10 +1138,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `sent_at` | Waktu kirim |
 | `error_message` | Error jika gagal |
 
-### `audit_logs`
+#### `audit_logs`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `entity_id` | Entitas terkait |
 | `module_code` | Modul |
@@ -1123,10 +1157,10 @@ Keputusan final fisik dapat ditetapkan pada ERD dan implementasi migration.
 | `user_agent` | User agent |
 | `created_at` | Timestamp |
 
-### `app_logs`
+#### `app_logs`
 
 | Field | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `id` | Primary key |
 | `service_name` | Nama service |
 | `level` | info / warn / error |
@@ -1160,7 +1194,7 @@ Indeks minimum yang direkomendasikan:
 
 ---
 
-# API & Integration Design
+# Desain API dan Integrasi
 
 ## 1. API Design Principle
 
@@ -1175,7 +1209,7 @@ Indeks minimum yang direkomendasikan:
 ## 2. Namespace API
 
 | Namespace | Fungsi |
-| :---- | :---- |
+| ---- | ---- |
 | `/api/v1/auth/*` | login, logout, refresh, change password |
 | `/api/v1/internal/*` | API internal portal |
 | `/api/v1/vendor/*` | API vendor portal |
@@ -1220,7 +1254,7 @@ Indeks minimum yang direkomendasikan:
 ### 5.1 SMTP / Email
 
 | Item | Deskripsi |
-| :---- | :---- |
+| ---- | ---- |
 | Transport | SMTP |
 | Fungsi | notifikasi approval, tender, BAFO, PO, password alert |
 | Mode | asynchronous via queue |
@@ -1230,7 +1264,7 @@ Indeks minimum yang direkomendasikan:
 ### 5.2 MinIO
 
 | Item | Deskripsi |
-| :---- | :---- |
+| ---- | ---- |
 | Fungsi | attachment PR, RFQ, quotation, DA, PO |
 | Access | private bucket |
 | Upload | via signed upload / service upload |
@@ -1240,7 +1274,7 @@ Indeks minimum yang direkomendasikan:
 ### 5.3 Elasticsearch
 
 | Item | Deskripsi |
-| :---- | :---- |
+| ---- | ---- |
 | Fungsi | log teknis dan pencarian error |
 | Source | service logs, worker logs, gateway logs |
 | Structured Log | JSON log dengan `trace_id`, `service_name`, `level` |
@@ -1261,7 +1295,7 @@ Walaupun vendor portal dan internal portal berada pada project frontend yang sam
 
 ---
 
-# Queue & Background Job Design
+# Desain Queue dan Background Job
 
 ## 1. Use Case Queue
 
@@ -1278,13 +1312,13 @@ Queue dipakai untuk:
 ## 2. Queue Design
 
 | Job Type | Trigger | Worker Output |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | `send_email` | event notifikasi | email terkirim / gagal |
 | `sla_reminder` | scheduler | reminder approval |
 | `generate_report_pdf` | user export | file PDF di MinIO |
 | `generate_report_xlsx` | user export | file XLSX di MinIO |
 | `aggregate_dashboard_daily` | cron harian | summary table refresh |
-| `recalculate_reference_price` | selesai PO | update reference price historis |
+| `recalculate_reference_price` | selesai PO | update Reference Price historis |
 
 ## 3. Catatan Teknologi Queue
 
@@ -1313,13 +1347,13 @@ Scheduler minimal:
 - SLA reminder approval
 - H-1 deadline bidding reminder
 - daily dashboard aggregation
-- cleanup refresh token/session lama
+- cleanup refresh token/sesi autentikasi lama
 - expire delegation period
-- optional reference price refresh from historical PO
+- optional refresh Reference Price dari historical PO
 
 ---
 
-# Notification Design
+# Desain Notifikasi
 
 ## 1. Channel
 
@@ -1329,7 +1363,7 @@ Scheduler minimal:
 ## 2. Event Notification Utama
 
 | Event | Penerima | Channel |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | PR Submitted | Approver level pertama | Email + In-App |
 | PR Approved per level | Next approver / Procurement | Email + In-App |
 | PR Rejected | Requestor | Email + In-App |
@@ -1358,15 +1392,15 @@ Scheduler minimal:
 
 ---
 
-# Logging, Audit Trail, and Monitoring
+# Logging, Audit Trail, dan Monitoring
 
 ## 1. Jenis Log
 
 | Jenis Log | Lokasi | Tujuan |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | Application Log | Elasticsearch + optional file/stdout | debugging teknis |
 | Business Audit Log | MySQL | audit aktivitas bisnis |
-| Security Log | MySQL + Elasticsearch | login, logout, reset password, revoke session |
+| Security Log | MySQL + Elasticsearch | login, logout, reset password, revoke sesi autentikasi |
 | Job Log | MySQL + Elasticsearch | status queue/worker |
 | Export Log | MySQL | siapa ekspor apa, kapan |
 
@@ -1429,7 +1463,7 @@ Seluruh service direkomendasikan menghasilkan `trace_id` / `correlation_id` per 
 
 ---
 
-# Security & Internal Control Design
+# Desain Keamanan dan Pengendalian Internal
 
 ## 1. Security Objective
 
@@ -1491,11 +1525,11 @@ Aturan minimum:
 - user tidak dapat memilih approver manual kecuali delegate yang dikonfigurasi admin
 - tidak ada auto-approve
 - reject menghentikan workflow
-- action approval memerlukan actor yang valid dan session aktif
+- action approval memerlukan actor yang valid dan sesi autentikasi aktif
 
 ---
 
-# Reporting & Dashboard Technical Design
+# Desain Teknis Reporting dan Dashboard
 
 ## 1. Jenis Dashboard
 
@@ -1506,21 +1540,21 @@ Aturan minimum:
 - quotation masuk
 - PO pending approval
 - PO sent / confirmed
-- over budget tracker
+- Over Budget tracker
 
 ### 1.2 Management Dashboard
 - nilai pengadaan per entitas
-- proporsi bidding vs direct appointment
+- proporsi bidding vs Direct Appointment
 - lead time rata-rata
 - SLA compliance
 - budget utilization
 - vendor participation rate
-- cost saving vs reference price
+- cost saving vs Reference Price
 
 ## 2. Mode Data Retrieval
 
 | Tipe Data | Mode |
-| :---- | :---- |
+| ---- | ---- |
 | Dashboard operasional | real-time query |
 | Dashboard agregasi KPI | batch aggregation + summary table diperbolehkan |
 | Report PDF/XLSX | asynchronous export via queue |
@@ -1528,7 +1562,7 @@ Aturan minimum:
 ## 3. Report Minimum
 
 | Report | Output |
-| :---- | :---- |
+| ---- | ---- |
 | Purchase Request Summary | PDF, XLSX |
 | RFQ & Tender Participation | XLSX |
 | Budget Utilization | PDF, XLSX |
@@ -1539,7 +1573,7 @@ Aturan minimum:
 ## 4. Summary Table yang Direkomendasikan
 
 | Table | Tujuan |
-| :---- | :---- |
+| ---- | ---- |
 | `dashboard_procurement_daily` | agregasi harian per entitas |
 | `dashboard_budget_daily` | serapan budget harian |
 | `dashboard_vendor_performance` | statistik partisipasi vendor |
@@ -1547,12 +1581,12 @@ Aturan minimum:
 
 ---
 
-# Infrastructure & Environment
+# Infrastruktur dan Environment
 
 ## 1. Runtime Environment
 
 | Environment | Lokasi | Keterangan |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | Local Dev | Developer machine | Pengembangan harian |
 | Staging | On-premise VICO | Hasil promotion dari branch/dev, untuk SIT/UAT/internal testing |
 | Production | On-premise VICO | Environment produksi |
@@ -1560,7 +1594,7 @@ Aturan minimum:
 ## 2. Development Flow
 
 | Branch / Stage | Keterangan |
-| :---- | :---- |
+| ---- | ---- |
 | `dev` | Pengembangan aktif, belum stabil |
 | `staging` | Hasil merge/promotion dari `dev` untuk testing di server staging |
 | `main` / `prod` | Release stabil ke production |
@@ -1581,7 +1615,7 @@ Aturan minimum:
 > Estimasi berikut adalah baseline awal dan **wajib divalidasi melalui load test** sebelum final sizing production.
 
 | Komponen | CPU | RAM | Storage | Keterangan |
-| :---- | :---- | :---- | :---- | :---- |
+| ---- | ---- | ---- | ---- | ---- |
 | Nginx + Frontend Internal/Vendor | 2 vCPU | 4 GB | 20 GB | static serving + reverse proxy |
 | API Gateway | 2 vCPU | 4 GB | 20 GB | routing API |
 | Core Backend Services | 4-8 vCPU | 8-16 GB | 40 GB | bergantung volume transaksi |
@@ -1594,7 +1628,7 @@ Aturan minimum:
 ## 5. Software and Services Requirement
 
 | Requirement | Software / Service | Keterangan |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | Reverse Proxy / Gateway | Nginx | domain routing, TLS, proxy |
 | Frontend Runtime | React build output | internal & vendor portal |
 | Backend Runtime | Go services | modular service |
@@ -1609,7 +1643,7 @@ Aturan minimum:
 ## 6. Backup & Recovery
 
 | Komponen | Kebijakan Minimum |
-| :---- | :---- |
+| ---- | ---- |
 | MySQL | full backup harian + binlog/incremental sesuai kebijakan infra |
 | MinIO | backup object penting sesuai klasifikasi |
 | Redis | snapshot/append-only sesuai kebutuhan queue durability |
@@ -1618,7 +1652,71 @@ Aturan minimum:
 
 ---
 
-# Development & Coding Guideline
+# Deployment, Migration, dan Operability
+
+## 1. Deployment Topology Minimum
+
+| Layer / Komponen | Penempatan Minimum | Catatan |
+| ---- | ---- | ---- |
+| Nginx / Reverse Proxy | Edge / DMZ atau layer ingress internal | TLS termination, routing domain, basic hardening |
+| Frontend Internal Portal | Server aplikasi internal | Hanya diekspos sesuai domain internal |
+| Frontend Vendor Portal | Server aplikasi eksternal/DMZ sesuai kebijakan | Dipisahkan pada hostname/subdomain vendor |
+| API Gateway | App layer | Menjadi pintu masuk seluruh trafik API |
+| Backend Services | App layer internal | Dapat dipisah per service/container sesuai kapasitas |
+| MySQL | Data layer | Tidak diekspos ke publik |
+| Redis | Data / integration layer | Hanya dapat diakses aplikasi dan worker |
+| MinIO | Storage layer | Akses melalui service atau signed URL |
+| Elasticsearch | Logging/monitoring layer | Tidak dibuka ke end user |
+| Scheduler / Queue Worker | Background processing layer | Menjalankan reminder, export, aggregation, retry job |
+
+## 2. Migration & Rollout Strategy
+
+1. Siapkan master data minimum: entity, role, user admin, vendor, kategori, dan konfigurasi dasar.
+2. Deploy schema migration secara versioned dan idempotent.
+3. Seed data governance awal untuk budget, approval model, dan procurement policy.
+4. Lakukan smoke test teknis di staging sebelum SIT/UAT dimulai.
+5. Jalankan UAT berbasis skenario prioritas tinggi dari FSD.
+6. Bekukan perubahan konfigurasi kritikal menjelang transisi produksi.
+7. Lakukan _go-live_ bertahap per entitas bila diperlukan untuk menurunkan risiko.
+8. Siapkan rollback plan untuk deployment aplikasi, namun perubahan data produksi harus mengikuti prosedur restore yang terkontrol.
+
+## 3. Operasional Runbook Minimum
+
+| Domain Operasional | Aktivitas Minimum | Frekuensi / Trigger | Owner |
+| ---- | ---- | ---- | ---- |
+| Health check service | Cek status API gateway, service utama, Redis, MySQL, MinIO | Harian / incident | IT Operations |
+| Queue monitoring | Pantau failed job, retry queue, backlog export/email | Harian | IT Operations |
+| Backup verification | Pastikan backup berjalan dan file dapat diakses | Harian / mingguan | Infra / DBA |
+| Audit log review | Sampling event bisnis kritikal | Mingguan | Internal Audit / IT |
+| Capacity review | Pantau growth DB, object storage, Elasticsearch | Bulanan | Infra / DBA |
+| Secret / credential review | Rotasi sesuai kebijakan keamanan | Berkala / insiden | IT Security |
+| Release verification | Smoke test pasca deploy | Setiap deployment | Dev + QA + Ops |
+
+## 4. Data Retention & Archival Policy
+
+| Jenis Data | Retention Minimum | Tindakan Setelah Retention |
+| ---- | ---- | ---- |
+| Audit trail bisnis | Mengikuti kebijakan audit/perusahaan; direkomendasikan multi-tahun | Archive terkontrol, tetap searchable bila diwajibkan |
+| Technical app logs | Sesuai kapasitas dan kebutuhan troubleshooting; direkomendasikan 30-180 hari online | Rotate / archive snapshot |
+| Notification log | Direkomendasikan 6-12 bulan online | Archive atau purge terkontrol |
+| Exported report file | Direkomendasikan 30-90 hari bila dapat diregenerasi | Purge terkontrol |
+| Attachment procurement | Mengikuti kebijakan dokumen procurement | Archive ke storage tier sesuai kebijakan perusahaan |
+| Refresh token / data sesi autentikasi | Pendek sesuai lifecycle keamanan | Expire dan cleanup otomatis |
+
+## 5. Business Continuity & Disaster Recovery
+
+| Area | Target / Prinsip Minimum |
+| ---- | ---- |
+| RPO | Ditentukan bersama infra dan manajemen; target awal menyesuaikan backup harian + incremental capability |
+| RTO | Ditentukan menurut criticality layanan; target awal harus cukup untuk memulihkan operasi procurement inti |
+| Recovery drill | Wajib dilakukan berkala di staging / environment terkontrol |
+| Restore priority | MySQL, konfigurasi, MinIO attachment kritikal, lalu service aplikasi |
+| Manual fallback | Jika sistem unavailable, prosedur approval manual sementara harus terdokumentasi oleh bisnis |
+| Post-incident review | Setiap gangguan mayor menghasilkan RCA dan action item |
+
+---
+
+# Panduan Development dan Coding
 
 ## 1. Frontend Guideline
 
@@ -1688,7 +1786,37 @@ backend/
 
 ---
 
-# Error Handling & Resilience
+# Strategi Pengujian
+
+## 1. Test Pyramid dan Scope
+
+| Jenis Test | Fokus | Minimum Coverage Area |
+| ---- | ---- | ---- |
+| Unit Test | Business rule dan helper/domain logic | budget validation, approval resolution, policy evaluation, status transition |
+| Integration Test | Boundary dengan DB, queue, storage, auth | repository/service utama, transaction flow, signed URL/upload metadata |
+| API / Contract Test | Stabilitas request-response | auth, PR, approval, RFQ, quotation, PO, export |
+| E2E / SIT | User journey kritikal | login, submit PR, approve, RFQ publish, quotation submit, PO confirm |
+| UAT | Kriteria penerimaan bisnis | mengikuti FSD UAT scenario prioritas tinggi |
+
+## 2. Environment dan Test Data Strategy
+
+- Staging harus merepresentasikan topology produksi secara minimal.
+- Seed data untuk UAT harus mencakup minimal dua entitas, beberapa role approver, vendor eligible, vendor blacklist, dan skenario budget berbeda.
+- Data uji harus dipisahkan dari data produksi dan tidak boleh menggunakan kredensial nyata.
+- Test asynchronous flow menggunakan queue worker aktif atau stub yang setara.
+
+## 3. Quality Gate Sebelum Release
+
+- migration berhasil dijalankan pada environment target
+- smoke test seluruh service utama lulus
+- integration/API test untuk fitur yang berubah lulus
+- tidak ada failed job kritikal yang tertinggal dari release candidate
+- audit log untuk event kritikal tervalidasi
+- sign-off QA/UAT untuk scope release tersedia
+
+---
+
+# Error Handling dan Resilience
 
 ## 1. Prinsip
 
@@ -1701,11 +1829,11 @@ backend/
 ## 2. Skenario Minimum yang Harus Ditangani
 
 | Skenario | Penanganan |
-| :---- | :---- |
+| ---- | ---- |
 | Login gagal | return error generik tanpa membocorkan field salah |
 | Akun nonaktif | tolak login |
 | PR submit tanpa dokumen wajib | validation error |
-| Budget exhausted | flag over budget / block sesuai governance |
+| Budget exhausted | flag Over Budget / block sesuai governance |
 | Approver tidak tersedia | delegate jika aktif, atau pending sampai admin intervensi |
 | RFQ tanpa vendor eligible | warning / block publish |
 | PO di-void setelah vendor confirmed | tolak via sistem |
@@ -1726,7 +1854,7 @@ backend/
 
 ---
 
-# Performance & Scalability
+# Performance dan Scalability
 
 ## 1. Target Umum
 
@@ -1734,6 +1862,17 @@ backend/
 - upload attachment tidak membebani database
 - report berat tidak dijalankan sinkron di request user
 - service yang beban tinggi dapat diskalakan independen
+
+### 1.1 Target NFR Minimum
+
+| Area | Target Minimum Awal |
+| ---- | ---- |
+| Login / refresh token | respons normal < 3 detik pada beban operasional wajar |
+| List PR / RFQ / PO | respons normal < 3 detik dengan pagination aktif |
+| Dashboard operasional | respons normal < 5 detik untuk query near real-time |
+| Export report | diproses asynchronous; user mendapat notifikasi saat file siap |
+| Upload attachment | tervalidasi dan metadata tersimpan tanpa membebani DB blob |
+| Availability target | disepakati bersama infrastruktur; minimal mengikuti SLA aplikasi internal perusahaan |
 
 ## 2. Strategi
 
@@ -1747,7 +1886,7 @@ backend/
 
 ---
 
-# Concerns, Risks, and Open Issues
+# Concerns, Risks, dan Open Issues
 
 ## 1. Concerns Teknis
 
@@ -1780,27 +1919,28 @@ backend/
 
 ---
 
-# Document Tracking
+# Pelacakan Dokumen
 
 | Area | Status | Keterangan |
-| :---- | :---- | :---- |
+| ---- | ---- | ---- |
 | Frontend Architecture | Defined | React dual-portal in one project |
 | Backend Architecture | Defined | Go modular microservice |
 | Data Strategy | Defined | Shared MySQL DB with `entity_id` |
 | Queue Strategy | Defined with note | Redis-backed; BullMQ requires Node.js worker |
 | Storage Strategy | Defined | MinIO for attachments |
 | Logging Strategy | Defined | MySQL business audit + Elasticsearch technical log |
+| Deployment Operability | Defined | Topology minimum, runbook, retention, dan DR baseline ditetapkan |
+| Testing Strategy | Defined | Unit, integration, API, SIT/UAT gate tersedia |
 | Environment | Defined | Staging and Production on-premise |
 | ERP Integration | Placeholder | Future phase, out of scope |
 
 ---
 
-# Sign-Off
+# Persetujuan Dokumen
 
 | Name | Role | Approval | Date |
-| :---- | :---- | :---- | :---- |
+| ---- | ---- | ---- | ---- |
 |  | Prepared By - Divisi IT |  |  |
-|  | Reviewed By - Project Stakeholder |  |  |
+|  | Reviewed By - Stakeholder Proyek |  |  |
 |  | Reviewed By - Internal Audit |  |  |
-|  | Approved By - Direksi / Management |  |  |
-
+|  | Approved By - Direksi / Manajemen |  |  |
